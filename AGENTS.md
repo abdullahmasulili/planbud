@@ -39,3 +39,10 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+
+## Product specification and engineering standards
+
+- Read `docs/specs/001-budget-planner/spec.md` for product requirements and acceptance criteria before changing product behavior.
+- Follow `docs/engineering/standards.md` for mandatory coding conventions, domain grouping, layer separation, state ownership, documentation, and artifact portability. Treat it as the canonical engineering contract rather than duplicating its rules here.
+- The delivery target is Android only and fully offline. Preserve the existing Git, documentation-retrieval, and Expo compatibility instructions.
+- The specification and engineering standards were approved on 2026-10-20. Read `docs/superpowers/plans/2026-10-20-budget-planner.md` for the implementation sequence; the plan was approved for in-session implementation. Standards and planned enforcement must not be reported as implemented tooling or passing checks until they have been configured and verified.

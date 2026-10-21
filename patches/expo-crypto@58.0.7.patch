@@ -1,0 +1,13 @@
+diff --git a/android/src/main/java/expo/modules/crypto/aes/AesCryptoModule.kt b/android/src/main/java/expo/modules/crypto/aes/AesCryptoModule.kt
+index 7fa134b0f3656037febede4a4c67d4482c80e0b6..daffd31bcbb9d10f140cc0f74a653e7560b3a580 100644
+--- a/android/src/main/java/expo/modules/crypto/aes/AesCryptoModule.kt
++++ b/android/src/main/java/expo/modules/crypto/aes/AesCryptoModule.kt
+@@ -137,7 +137,7 @@ class AesCryptoModule : Module() {
+       options?.additionalData?.let { cipher.updateAAD(it.toBytes()) }
+ 
+       val plaintext = cipher.decrypt(sealedData)
+-      return plaintext.array().formatted(options?.output)
++      return plaintext.array().copyOf(plaintext.position()).formatted(options?.output)
+     } catch (err: Throwable) {
+       throw DecryptionFailed(err)
+     }

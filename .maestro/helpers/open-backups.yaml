@@ -1,0 +1,12 @@
+# Start on the financial tabs with an existing synthetic profile.
+appId: com.planbud.app
+---
+- runFlow: open-overview.yaml
+- scrollUntilVisible:
+    element: Settings
+    direction: DOWN
+- tapOn: Settings
+- scrollUntilVisible:
+    element: Encrypted backups
+    direction: DOWN
+- tapOn: Encrypted backups

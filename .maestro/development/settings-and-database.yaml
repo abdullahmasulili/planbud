@@ -1,0 +1,51 @@
+# Development build only. Run on a disposable emulator; this clears Plan Bud's local data.
+appId: com.planbud.app
+name: Offline setup, native storage, and retained appearance
+tags:
+  - development
+---
+- setAirplaneMode: enabled
+- launchApp:
+    clearState: true
+- assertVisible: Development Build
+- openLink: ${EXPO_LINK}
+- extendedWaitUntil:
+    visible: Your money, on your device
+    timeout: 60000
+- assertVisible:
+    text: Start planning
+    enabled: false
+- tapOn: I confirm USD for my records
+- tapOn: Start planning
+- assertVisible: Your month
+- tapOn: Development diagnostics
+- tapOn: Run native contracts
+- extendedWaitUntil:
+    visible: '.* passed · 0 failed'
+    timeout: 60000
+- assertVisible: PASS bundled-font-registered
+- assertVisible: PASS foreign-keys-enabled
+- assertVisible: PASS rollback-and-revision
+- assertVisible: PASS native-reopen
+- back
+- tapOn: Settings
+- tapOn: Dark
+- assertVisible:
+    text: Dark
+    checked: true
+- stopApp
+- launchApp
+- runFlow:
+    when:
+      visible: Reload
+    commands:
+      - back
+- openLink: ${EXPO_LINK}
+- extendedWaitUntil:
+    visible: Your month
+    timeout: 60000
+- tapOn: Settings
+- assertVisible:
+    text: Dark
+    checked: true
+- assertVisible: USD · en-US

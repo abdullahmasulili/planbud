@@ -1,0 +1,53 @@
+# Existing synthetic JPY profile with the published public recovery vector. Local Android provider only.
+appId: com.planbud.app
+name: Cancel or save encrypted exports truthfully through Android's provider
+tags:
+  - release
+---
+- stopApp
+- launchApp
+- runFlow: helpers/open-backups.yaml
+- assertVisible: 'Recovery status: Ready'
+- tapOn: Export encrypted backup
+- repeat:
+    times: 4
+    commands:
+      - runFlow:
+          when:
+            notVisible: 'Recovery status: Ready'
+          commands:
+            - back
+- assertVisible: Export canceled. No new backup was saved.
+- assertVisible: No successful export in this session.
+- tapOn: Export encrypted backup
+- runFlow:
+    when:
+      notVisible: Files in PlanBudBackups
+    commands:
+      - runFlow:
+          when:
+            visible: Download
+          commands:
+            - tapOn: Download
+      - tapOn: PlanBudBackups
+- runFlow:
+    when:
+      visible: SELECT
+    commands:
+      - tapOn: SELECT
+- runFlow:
+    when:
+      visible: USE THIS FOLDER
+    commands:
+      - tapOn: USE THIS FOLDER
+- runFlow:
+    when:
+      visible: ALLOW
+    commands:
+      - tapOn: ALLOW
+- assertVisible: Encrypted backup saved. Keep the file with its matching phrase available separately.
+- assertVisible: 'Last successful export this session: .*'
+- stopApp
+- launchApp
+- runFlow: helpers/open-backups.yaml
+- assertVisible: 'Recovery status: Ready'

@@ -1,0 +1,14 @@
+# Precondition: explicitly set Android font scale to 2.0 on a disposable emulator.
+# Uses the synthetic JPY profile restored by backup-restore.yaml; never generates recovery words.
+appId: com.planbud.app
+name: Goal progress and editing at 200 percent text size
+---
+- launchApp
+- tapOn: Goals
+- assertVisible: 'Saved .*3,000.* of target .*30,000.* Remaining .*27,000.*'
+- scrollUntilVisible:
+    element: Edit goal Emergency
+    direction: DOWN
+- tapOn: Edit goal Emergency
+- tapOn: Goal name
+- assertVisible: Goal name

@@ -1,0 +1,43 @@
+# Published zero-entropy fixture only. Replaces only the preceding synthetic USD test profile.
+appId: com.planbud.app
+name: Authenticated count review restores currency, appearance and actual savings
+tags:
+  - release
+---
+- stopApp
+- launchApp
+- runFlow: helpers/open-backups.yaml
+- tapOn: Import encrypted backup
+- tapOn: Choose .planbud file
+- runFlow:
+    file: helpers/select-fixture.yaml
+    env:
+      FIXTURE_FILE: restore-valid.planbud
+- runFlow: helpers/public-restore-phrase.yaml
+- assertVisible: Review replacement
+- assertVisible: 'transactions: 2'
+- assertVisible: 'goals: 1'
+- tapOn: Replace all current local records with this backup
+- tapOn: Replace local data
+- extendedWaitUntil:
+    visible: Data restored. Check recovery readiness in Backups before exporting again.
+    timeout: 60000
+- tapOn: Dismiss
+- back
+- back
+- back
+- assertVisible: Your month
+- scrollUntilVisible:
+    element: Settings
+    direction: DOWN
+- tapOn: Settings
+- assertVisible: JPY · ja-JP
+- assertVisible:
+    text: Dark
+    checked: true
+- back
+- tapOn: Goals
+- assertVisible: 'Saved .*3,000.* of target .*30,000.* Remaining .*27,000.*'
+- runFlow: helpers/open-overview.yaml
+- runFlow: helpers/open-backups.yaml
+- assertVisible: 'Recovery status: Ready'

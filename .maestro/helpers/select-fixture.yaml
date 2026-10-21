@@ -1,0 +1,32 @@
+# Local Android provider: fixtures are in Download; a previous export may leave its child folder open.
+appId: com.planbud.app
+---
+- runFlow:
+    when:
+      notVisible: ${FIXTURE_FILE}
+    commands:
+      - runFlow:
+          when:
+            visible: Download
+          commands:
+            - tapOn: Download
+      - runFlow:
+          when:
+            notVisible: Download
+          commands:
+            - tapOn: Show roots
+            - runFlow:
+                when:
+                  visible: 'Android SDK built for .*'
+                commands:
+                  - tapOn: 'Android SDK built for .*'
+                  - tapOn: Download
+            - runFlow:
+                when:
+                  visible: Downloads
+                commands:
+                  - tapOn: Downloads
+- scrollUntilVisible:
+    element: ${FIXTURE_FILE}
+    direction: DOWN
+- tapOn: ${FIXTURE_FILE}

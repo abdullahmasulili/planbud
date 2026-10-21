@@ -1,0 +1,30 @@
+# Start in Backups after the synthetic JPY export. Never run against personal records.
+appId: com.planbud.app
+name: Explicit local reset preserves external encrypted files
+---
+- back
+- scrollUntilVisible:
+    element: Clear local data
+    direction: DOWN
+- tapOn: Clear local data
+- assertVisible:
+    text: Clear all local data
+    enabled: false
+- back
+- scrollUntilVisible:
+    element: JPY · ja-JP
+    direction: UP
+- assertVisible: JPY · ja-JP
+- scrollUntilVisible:
+    element: Clear local data
+    direction: DOWN
+- tapOn: Clear local data
+- tapOn: I understand this cannot be undone without my backup and phrase
+- tapOn: Clear all local data
+- extendedWaitUntil:
+    visible: Your money, on your device
+    timeout: 60000
+- scrollUntilVisible:
+    element: Restore an existing backup
+    direction: DOWN
+- assertVisible: Restore an existing backup

@@ -1,0 +1,54 @@
+# Run after goal-shortfall.yaml; uses only the preceding synthetic USD records.
+appId: com.planbud.app
+name: Actual contribution correction stays separate from spending
+tags:
+  - release
+---
+- launchApp
+- tapOn: Goals
+- scrollUntilVisible:
+    element: Add contribution to Emergency
+    direction: DOWN
+- tapOn: Add contribution to Emergency
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: Contribution amount
+      VALUE: '25'
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: Contribution date
+      VALUE: '2026-10-20'
+- scrollUntilVisible:
+    element: Save contribution
+    direction: DOWN
+- tapOn: Save contribution
+- scrollUntilVisible:
+    element: 'Saved \$25.00 of target \$150.00. Remaining \$125.00.'
+    direction: DOWN
+- assertVisible: 'Saved \$25.00 of target \$150.00. Remaining \$125.00.'
+- scrollUntilVisible:
+    element: Contribution history for Emergency
+    direction: DOWN
+- tapOn: Contribution history for Emergency
+- tapOn: 'Edit contribution \$25.00 on 2026-10-20'
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: Contribution amount
+      VALUE: '30'
+- tapOn: Save contribution
+- scrollUntilVisible:
+    element: 'Saved \$30.00 of target \$150.00. Remaining \$120.00.'
+    direction: DOWN
+- assertVisible: 'Saved \$30.00 of target \$150.00. Remaining \$120.00.'
+- runFlow: helpers/open-overview.yaml
+- assertVisible: '.*10.00.*'
+- stopApp
+- launchApp
+- tapOn: Goals
+- scrollUntilVisible:
+    element: 'Saved \$30.00 of target \$150.00. Remaining \$120.00.'
+    direction: DOWN
+- assertVisible: 'Saved \$30.00 of target \$150.00. Remaining \$120.00.'

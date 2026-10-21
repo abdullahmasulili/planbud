@@ -1,0 +1,14 @@
+# Run only on a disposable synthetic installation. This suite deliberately clears Plan Bud's data.
+# Explicit composition preserves dependencies on installed Maestro versions with differing discovery order.
+appId: com.planbud.app
+name: Complete offline Android release acceptance
+tags:
+  - release
+---
+- runFlow: planner.yaml
+- runFlow: goal-shortfall.yaml
+- runFlow: goal-contributions.yaml
+- runFlow: theme.yaml
+- runFlow: restore-rejection.yaml
+- runFlow: backup-restore.yaml
+- runFlow: backup-export.yaml

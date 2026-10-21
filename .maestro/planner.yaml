@@ -1,0 +1,99 @@
+# Standalone APK on a disposable synthetic installation. Configure connectivity separately.
+appId: com.planbud.app
+name: Offline monthly plan and actual activity
+tags:
+  - release
+---
+- launchApp:
+    clearState: true
+- assertVisible: Your money, on your device
+- tapOn: I confirm USD for my records
+- tapOn: Start planning
+- assertVisible: Your month
+- tapOn: Plan
+- scrollUntilVisible:
+    element: Add category
+    direction: DOWN
+- tapOn: Add category
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: Category name
+      VALUE: 'Housing'
+- tapOn: Essential
+- tapOn: Save category
+- assertNotVisible: New category
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: 'Planned income \(USD\)'
+      VALUE: '1000'
+- scrollUntilVisible:
+    element: 'Housing limit \(USD\)'
+    direction: DOWN
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: 'Housing limit \(USD\)'
+      VALUE: '600'
+- scrollUntilVisible:
+    element: Save budget
+    direction: DOWN
+- tapOn: Save budget
+- scrollUntilVisible:
+    element: Add category
+    direction: DOWN
+- tapOn: Add category
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: Category name
+      VALUE: 'Fun'
+- tapOn: Flexible
+- tapOn: Save category
+- assertNotVisible: New category
+- scrollUntilVisible:
+    element: 'Fun limit \(USD\)'
+    direction: DOWN
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: 'Fun limit \(USD\)'
+      VALUE: '200'
+- scrollUntilVisible:
+    element: Save budget
+    direction: DOWN
+- tapOn: Save budget
+- tapOn: Transactions
+- tapOn: New transaction
+- tapOn: Income
+- assertVisible:
+    text: Income
+    checked: true
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: 'Amount \(USD\)'
+      VALUE: '1000'
+- tapOn: Save transaction
+- assertNotVisible: Save transaction
+- assertVisible: 'Income: .*1,000.00'
+- extendedWaitUntil:
+    notVisible: Transaction saved
+    timeout: 10000
+- tapOn: New transaction
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: 'Amount \(USD\)'
+      VALUE: '10'
+- tapOn: Choose category
+- tapOn: Housing
+- tapOn: Save transaction
+- runFlow: helpers/open-overview.yaml
+- assertVisible: Your month
+- assertVisible: '.*10.00.*'
+- stopApp
+- launchApp
+- assertVisible: Your month
+- assertVisible: '.*10.00.*'

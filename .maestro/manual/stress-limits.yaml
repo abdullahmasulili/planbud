@@ -1,0 +1,30 @@
+# Run after stress.yaml on the disposable maximum-record profile with all public fixtures in Download.
+appId: com.planbud.app
+name: Oversized and excessive-record backups preserve the maximum-record profile
+---
+- runFlow: ../helpers/open-backups.yaml
+- tapOn: Import encrypted backup
+- tapOn: Choose .planbud file
+- runFlow:
+    file: ../helpers/select-fixture.yaml
+    env:
+      FIXTURE_FILE: stress-oversized.planbud
+- assertVisible: Unable to read a complete .planbud file of at most 16 MiB. Choose it again and check access.
+- tapOn: Choose .planbud file
+- runFlow:
+    file: ../helpers/select-fixture.yaml
+    env:
+      FIXTURE_FILE: stress-50001.planbud
+- runFlow: ../helpers/public-restore-phrase.yaml
+- extendedWaitUntil:
+    visible: Backups support up to 50,000 source records including category limits. No records were changed or truncated.
+    timeout: 60000
+- tapOn: Cancel
+- back
+- back
+- back
+- tapOn: Transactions
+- assertVisible: 'Spending: .*48,996.*'
+- tapOn: Goals
+- assertVisible: Synthetic goal 0
+- assertVisible: 'Saved .*1,001.* of target .*30,000.* Remaining .*28,999.*'

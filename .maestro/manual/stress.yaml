@@ -1,0 +1,46 @@
+# Disposable synthetic JPY profile only. Requires the generated public-vector 50,000-record file.
+appId: com.planbud.app
+name: Maximum supported backup and paged history stress
+tags:
+  - manual
+---
+- runFlow: ../helpers/open-backups.yaml
+- tapOn: Import encrypted backup
+- tapOn: Choose .planbud file
+- runFlow:
+    file: ../helpers/select-fixture.yaml
+    env:
+      FIXTURE_FILE: stress-50000.planbud
+- runFlow: ../helpers/public-restore-phrase.yaml
+- extendedWaitUntil:
+    visible: Review replacement
+    timeout: 60000
+- assertVisible: 'transactions: 48996'
+- assertVisible: 'goals: 500'
+- tapOn: Replace all current local records with this backup
+- tapOn: Replace local data
+- extendedWaitUntil:
+    visible: Data restored. Check recovery readiness in Backups before exporting again.
+    timeout: 120000
+- tapOn: Dismiss
+- back
+- back
+- back
+- tapOn: Transactions
+- assertVisible: 'Spending: .*48,996.*'
+- repeat:
+    times: 3
+    commands:
+      - scrollUntilVisible:
+          element: Load more
+          direction: DOWN
+          timeout: 60000
+      - tapOn: Load more
+- stopApp
+- launchApp
+- assertVisible: Your month
+- tapOn: Transactions
+- assertVisible: 'Spending: .*48,996.*'
+- tapOn: Goals
+- assertVisible: Synthetic goal 0
+- assertVisible: 'Saved .*1,001.* of target .*30,000.* Remaining .*28,999.*'

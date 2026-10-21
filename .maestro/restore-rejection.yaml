@@ -1,0 +1,41 @@
+# After planner/goals/theme, using only independently generated public-vector fixtures in Downloads.
+appId: com.planbud.app
+name: Wrong phrase and corrupt ciphertext preserve the current profile and records
+tags:
+  - release
+---
+- stopApp
+- launchApp
+- runFlow: helpers/open-backups.yaml
+- tapOn: Import encrypted backup
+- tapOn: Choose .planbud file
+- runFlow:
+    file: helpers/select-fixture.yaml
+    env:
+      FIXTURE_FILE: restore-valid.planbud
+- tapOn: 12 recovery words in order
+# Another published BIP39 vector, deliberately different from the fixture's entropy.
+- inputText: legal winner thank year wave sausage worth useful legal winner thank yellow
+- runFlow: helpers/hide-keyboard.yaml
+- tapOn: Authenticate and preview
+- assertVisible: The recovery phrase does not match this file, or the backup is damaged.
+- tapOn: Cancel
+- tapOn: Choose .planbud file
+- runFlow:
+    file: helpers/select-fixture.yaml
+    env:
+      FIXTURE_FILE: restore-corrupt.planbud
+- runFlow: helpers/public-restore-phrase.yaml
+- assertVisible: The recovery phrase does not match this file, or the backup is damaged.
+- tapOn: Cancel
+- back
+- back
+- assertVisible: USD · en-US
+- back
+- assertVisible: '.*10.00.*'
+- tapOn: Goals
+- scrollUntilVisible:
+    element: 'Saved \$30.00 of target \$150.00. Remaining \$120.00.'
+    direction: DOWN
+- assertVisible: 'Saved \$30.00 of target \$150.00. Remaining \$120.00.'
+- runFlow: helpers/open-overview.yaml

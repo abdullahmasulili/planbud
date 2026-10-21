@@ -1,0 +1,7 @@
+# Published BIP39 zero-entropy test vector only. Never use for personal records.
+appId: com.planbud.app
+---
+- tapOn: 12 recovery words in order
+- inputText: abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about
+- runFlow: hide-keyboard.yaml
+- tapOn: Authenticate and preview

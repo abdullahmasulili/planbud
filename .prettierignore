@@ -1,0 +1,9 @@
+node_modules
+.expo
+.superpowers
+android
+ios
+dist
+coverage
+pnpm-lock.yaml
+assets

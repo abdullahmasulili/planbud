@@ -1,0 +1,10 @@
+{
+  "label": "Public NIST CAVS 14.0 gcmEncryptExtIV256, 128-bit PT/AAD/tag, Count 0",
+  "source": "https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/mac/gcmtestvectors.zip",
+  "Key": "92e11dcdaa866f5ce790fd24501f92509aacf4cb8b1339d50c9c1240935dd08b",
+  "IV": "ac93a1a6145299bde902f21a",
+  "PT": "2d71bcfa914e4ac045b2aa60955fad24",
+  "AAD": "1e0889016f67601c8ebea4943bc23ad6",
+  "CT": "8995ae2e6df3dbf96fac7b7137bae67f",
+  "Tag": "eca5aa77d51d4a0a14d9c51e1da474ab"
+}

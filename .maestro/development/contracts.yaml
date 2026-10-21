@@ -1,0 +1,27 @@
+# Development-only diagnostics with isolated native namespaces; start from Overview.
+appId: com.planbud.app
+name: Native storage and cryptographic interoperability
+tags:
+  - development
+---
+- runFlow:
+    when:
+      visible: Your month
+    commands:
+      - tapOn: Development diagnostics
+- tapOn: Run native contracts
+- extendedWaitUntil:
+    visible: '.* passed · 0 failed'
+    timeout: 60000
+- assertVisible: PASS protected-secret-reopen
+- scrollUntilVisible:
+    element: PASS native-independent-container
+    direction: DOWN
+- assertVisible: PASS native-nist-aes-gcm
+- assertVisible: PASS native-independent-container
+- assertVisible: PASS native-container-layout-roundtrip
+- scrollUntilVisible:
+    element: PASS native-resume-matching-restored-phrase
+    direction: DOWN
+- assertVisible: PASS native-restore-pending-key-atomicity
+- assertVisible: PASS native-resume-matching-restored-phrase

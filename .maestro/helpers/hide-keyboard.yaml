@@ -1,0 +1,15 @@
+# Android Back must only be sent when a tested input-method window is present.
+appId: com.planbud.app
+---
+# The API 24 Latin IME exposes its first-use banner without resource IDs.
+- runFlow:
+    when:
+      visible: 'Suggest contact names\? Touch for info\.'
+    commands:
+      - hideKeyboard
+- runFlow:
+    when:
+      visible:
+        id: '.*(inputmethod|honeyboard).*:id/.*'
+    commands:
+      - hideKeyboard

@@ -1,56 +1,42 @@
-# Welcome to your Expo app 👋
+# Plan Bud
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+An Android-only personal budget planner with local SQLite records, Material Design 3, bundled Plus Jakarta Sans, and light, dark and system color schemes. Plan monthly category limits, track income and expenses, record goal contributions, and review explainable goal allocations before applying changes.
 
-## Get started
+Encrypted `.planbud` backups require the file and its original generated 12-word recovery phrase. Import validates and previews a backup before replacing local records. Keep both safely: a lost phrase cannot be reset. The file format is documented; anyone possessing both the file and phrase can decrypt it with a compatible implementation.
 
-1. Install dependencies
+The running app needs no account or network. The MVP's live database uses Android app-private storage; backup encryption does not encrypt that database. Actual checks and remaining release acceptance are recorded in [implementation verification](docs/engineering/verification.md).
 
-   ```bash
-   npm install
-   ```
+## Development
 
-2. Start the app
+Use Node from `.nvmrc` and pnpm 12.3.4.
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```sh
+pnpm install --frozen-lockfile
+pnpm start
+pnpm android
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Native features require an Android development build. Install dependencies through `pnpm exec expo install <package>` so Expo chooses compatible versions. Generated Android files are not edited by hand.
 
-### Other setup steps
+## Engineering checks
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```sh
+pnpm check
+```
 
-## Learn more
+The check command runs formatting, lint, typechecking, architectural boundaries, source portability, release policies, and tests. See [contributor guidance](CONTRIBUTING.md), the [documentation index](docs/README.md), and [engineering standards](docs/engineering/standards.md) for the required workflow.
 
-To learn more about developing your project with Expo, look at the following resources:
+The product's offline behavior must be verified on a standalone Android APK with the development server stopped. Jest mocks alone do not prove native persistence, cryptography, or recovery behavior.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Personal Android APK
 
-## Join the community
+With Java 17 and the Android SDK configured locally:
 
-Join our community of developers creating universal apps.
+```sh
+pnpm android:preview
+pnpm scan:release dist/android/plan-bud-preview.apk
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+The build uses Expo Continuous Native Generation and produces a signed standalone APK plus its checksum in `dist/android/`. The first build creates a private signing identity in the ignored `.private/android-signing/` folder. Preserve both files there securely for future updates; they are separate from the app's recovery phrase. Never commit or share them with the APK. A subsequent build reuses that identity and refuses to overwrite an incomplete pair.
+
+EAS profiles are also provided for an explicitly configured Expo account. Local APK generation does not require an Apple account or an EAS subscription.

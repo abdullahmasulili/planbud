@@ -1,0 +1,22 @@
+# Existing synthetic USD profile; never clears data. Set font scale to 2.0 and restore it afterward.
+appId: com.planbud.app
+name: Samsung 200 percent light and dark dialog, keyboard and nested Back checks
+---
+- runFlow:
+    file: ../helpers/check-scheme-dialogs.yaml
+    env:
+      SCHEME: Dark
+- runFlow:
+    file: ../helpers/check-scheme-dialogs.yaml
+    env:
+      SCHEME: Light
+- openLink: planbud://settings
+- tapOn: Use device setting
+- assertVisible:
+    text: Use device setting
+    checked: true
+- openLink: planbud://
+- stopApp
+- launchApp
+- assertVisible: Your month
+- assertVisible: '.*10.00.*'

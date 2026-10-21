@@ -1,0 +1,13 @@
+# Synthetic nonsecret input only. Readback prevents accepting dropped emulator keystrokes.
+appId: com.planbud.app
+---
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn: ${FIELD}
+      - eraseText: 10
+      - inputText: ${VALUE}
+      - runFlow: hide-keyboard.yaml
+      - assertVisible:
+          text: ${VALUE}
+          id: text-input-outlined

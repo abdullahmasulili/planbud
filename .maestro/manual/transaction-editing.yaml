@@ -1,0 +1,89 @@
+# Synthetic restored JPY profile only. Leaves its original records unchanged after deleting the test entry.
+appId: com.planbud.app
+name: Edit, move and delete actual income across calendar months
+---
+- tapOn: Transactions
+- tapOn: New transaction
+- tapOn: Income
+- runFlow:
+    file: ../helpers/fill-field.yaml
+    env:
+      FIELD: 'Amount \(JPY\)'
+      VALUE: '123'
+- runFlow:
+    file: ../helpers/fill-field.yaml
+    env:
+      FIELD: Transaction date
+      VALUE: '2026-10-20'
+- tapOn: Save transaction
+- extendedWaitUntil:
+    notVisible: Transaction saved
+    timeout: 10000
+- scrollUntilVisible:
+    element: 'Edit income .*123.* on 2026-10-20'
+    direction: DOWN
+- tapOn: 'Edit income .*123.* on 2026-10-20'
+- runFlow:
+    file: ../helpers/fill-field.yaml
+    env:
+      FIELD: 'Amount \(JPY\)'
+      VALUE: '124'
+- runFlow:
+    file: ../helpers/fill-field.yaml
+    env:
+      FIELD: Transaction date
+      VALUE: '2026-09-20'
+- tapOn: Save transaction
+- extendedWaitUntil:
+    notVisible: Transaction saved
+    timeout: 10000
+- scrollUntilVisible:
+    element: History month
+    direction: UP
+- runFlow:
+    file: ../helpers/fill-field.yaml
+    env:
+      FIELD: History month
+      VALUE: '2026-09'
+- tapOn: Open month
+- assertVisible: 'Income: .*124'
+- scrollUntilVisible:
+    element: 'Edit income .*124.* on 2026-09-20'
+    direction: DOWN
+- tapOn: 'Edit income .*124.* on 2026-09-20'
+- runFlow:
+    file: ../helpers/fill-field.yaml
+    env:
+      FIELD: Transaction date
+      VALUE: '2026-10-20'
+- tapOn: Save transaction
+- extendedWaitUntil:
+    notVisible: Transaction saved
+    timeout: 10000
+- scrollUntilVisible:
+    element: History month
+    direction: UP
+- runFlow:
+    file: ../helpers/fill-field.yaml
+    env:
+      FIELD: History month
+      VALUE: '2026-10'
+- tapOn: Open month
+- scrollUntilVisible:
+    element: 'Edit income .*124.* on 2026-10-20'
+    direction: DOWN
+- tapOn: 'Edit income .*124.* on 2026-10-20'
+- scrollUntilVisible:
+    element: Delete transaction
+    direction: DOWN
+- tapOn: Delete transaction
+- tapOn: Delete
+- extendedWaitUntil:
+    notVisible: Transaction deleted
+    timeout: 10000
+- scrollUntilVisible:
+    element: History month
+    direction: UP
+- assertVisible: 'Income: .*100,000'
+- assertVisible: 'Spending: .*1,000'
+- runFlow: ../helpers/open-overview.yaml

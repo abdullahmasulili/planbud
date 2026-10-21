@@ -1,0 +1,19 @@
+# Hide the keyboard first; Android's system Recents button also has the Overview label.
+appId: com.planbud.app
+---
+- runFlow: hide-keyboard.yaml
+- runFlow:
+    when:
+      visible:
+        id: '.*:id/recent_apps'
+    commands:
+      - tapOn:
+          text: Overview
+          above:
+            id: '.*:id/recent_apps'
+- runFlow:
+    when:
+      notVisible:
+        id: '.*:id/recent_apps'
+    commands:
+      - tapOn: Overview

@@ -1,0 +1,9 @@
+flows:
+  - release.yaml
+includeTags:
+  - release
+excludeTags:
+  - development
+platform:
+  android:
+    disableAnimations: true

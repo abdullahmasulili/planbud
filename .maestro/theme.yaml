@@ -1,0 +1,33 @@
+# Appearance persistence on a standalone offline installation with existing synthetic profile.
+appId: com.planbud.app
+name: Light, dark and system preferences survive process restart
+tags:
+  - release
+---
+- launchApp
+- runFlow: helpers/open-overview.yaml
+- scrollUntilVisible:
+    element: Settings
+    direction: DOWN
+- tapOn: Settings
+- tapOn: Dark
+- assertVisible:
+    text: Dark
+    checked: true
+- stopApp
+- launchApp
+- scrollUntilVisible:
+    element: Settings
+    direction: DOWN
+- tapOn: Settings
+- assertVisible:
+    text: Dark
+    checked: true
+- tapOn: Light
+- assertVisible:
+    text: Light
+    checked: true
+- tapOn: Use device setting
+- assertVisible:
+    text: Use device setting
+    checked: true

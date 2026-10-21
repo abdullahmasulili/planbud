@@ -1,0 +1,28 @@
+# Precondition: uninstall/reinstall only the disposable test app, retain its public-vector export.
+# Pass EXPORTED_FILE as its basename; the chosen provider must display that folder or Recent files.
+appId: com.planbud.app
+name: Restore the app's encrypted export without its original protected storage
+---
+- launchApp
+- assertVisible: Your money, on your device
+- scrollUntilVisible:
+    element: Restore an existing backup
+    direction: DOWN
+- tapOn: Restore an existing backup
+- tapOn: Choose .planbud file
+- tapOn: ${EXPORTED_FILE}
+- runFlow: ../helpers/public-restore-phrase.yaml
+- assertVisible: Review replacement
+- assertVisible: 'transactions: 2'
+- assertVisible: 'contributions: 1'
+- tapOn: Replace all current local records with this backup
+- tapOn: Replace local data
+- extendedWaitUntil:
+    visible: Data restored. Check recovery readiness in Backups before exporting again.
+    timeout: 60000
+- back
+- extendedWaitUntil:
+    visible: Your month
+    timeout: 60000
+- assertVisible: JPY · estimates and actual activity
+# Leave the notice visible for the visual status-bar/safe-area check, then dismiss before continuing.

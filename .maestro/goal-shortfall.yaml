@@ -1,0 +1,89 @@
+# Run after planner.yaml on disposable synthetic data; release.yaml composes that order.
+appId: com.planbud.app
+name: Review goal shortfall and apply selected flexible adjustment
+tags:
+  - release
+---
+- launchApp
+- tapOn: Goals
+- tapOn: New goal
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: Goal name
+      VALUE: 'Emergency'
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: Goal target
+      VALUE: '150'
+- scrollUntilVisible:
+    element: Desired monthly contribution
+    direction: DOWN
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: Desired monthly contribution
+      VALUE: '150'
+- scrollUntilVisible:
+    element: High
+    direction: DOWN
+- tapOn: High
+- scrollUntilVisible:
+    element: Save goal
+    direction: DOWN
+- tapOn: Save goal
+- tapOn: New goal
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: Goal name
+      VALUE: 'Holiday'
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: Goal target
+      VALUE: '100'
+- scrollUntilVisible:
+    element: Desired monthly contribution
+    direction: DOWN
+- runFlow:
+    file: helpers/fill-field.yaml
+    env:
+      FIELD: Desired monthly contribution
+      VALUE: '100'
+- scrollUntilVisible:
+    element: Low
+    direction: DOWN
+- tapOn: Low
+- scrollUntilVisible:
+    element: Save goal
+    direction: DOWN
+- tapOn: Save goal
+- tapOn: Plan
+- scrollUntilVisible:
+    element: Preview goal allocations
+    direction: DOWN
+- tapOn: Preview goal allocations
+- scrollUntilVisible:
+    element: '.*Proposed \$150.00 · gap \$0.00.*'
+    direction: DOWN
+- assertVisible: '.*Proposed \$150.00 · gap \$0.00.*'
+- scrollUntilVisible:
+    element: '.*Proposed \$50.00 · gap \$50.00.*'
+    direction: DOWN
+- assertVisible: '.*Proposed \$50.00 · gap \$50.00.*'
+- scrollUntilVisible:
+    element: 'Set Fun limit to \$150.00'
+    direction: UP
+- tapOn: 'Set Fun limit to \$150.00'
+- tapOn: Preview selected adjustments
+- scrollUntilVisible:
+    element: Apply reviewed plan
+    direction: DOWN
+- tapOn: Apply reviewed plan
+- tapOn: Goals
+- scrollUntilVisible:
+    element: 'Saved \$0.00 of target \$150.00. Remaining \$150.00.'
+    direction: DOWN
+- assertVisible: 'Saved \$0.00 of target \$150.00. Remaining \$150.00.'

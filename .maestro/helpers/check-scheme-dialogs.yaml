@@ -1,0 +1,38 @@
+# Non-clearing layout checks; cancels every financial draft without saving.
+appId: com.planbud.app
+---
+- openLink: planbud://settings
+- tapOn: ${SCHEME}
+- assertVisible:
+    text: ${SCHEME}
+    checked: true
+- openLink: planbud://
+- tapOn: Transactions
+- tapOn: New transaction
+- assertVisible: New transaction
+- assertNotVisible: All entries
+- tapOn: 'Amount \(USD\)'
+- runFlow: hide-keyboard.yaml
+- assertVisible: New transaction
+- scrollUntilVisible:
+    element: Choose category
+    direction: DOWN
+- tapOn: Choose category
+- assertVisible: Expense category
+- back
+- assertVisible: New transaction
+- scrollUntilVisible:
+    element: Cancel
+    direction: DOWN
+- tapOn: Cancel
+- assertVisible: All entries
+- tapOn: Goals
+- tapOn: New goal
+- tapOn: Goal name
+- runFlow: hide-keyboard.yaml
+- assertVisible: Goal name
+- scrollUntilVisible:
+    element: Cancel
+    direction: DOWN
+- tapOn: Cancel
+- assertVisible: New goal

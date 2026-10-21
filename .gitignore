@@ -41,3 +41,7 @@ example
 # generated native folders
 /ios
 /android
+
+# Private local signing material and verification scratch
+.private/
+/tests/fixtures/maestro/stress-*.planbud

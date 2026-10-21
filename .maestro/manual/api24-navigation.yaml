@@ -1,0 +1,20 @@
+# Existing synthetic profile; exercises real push/pop from native tabs rather than deep-linking Settings.
+appId: com.planbud.app
+name: Android 7 native stack push and pop regression
+---
+- openLink: planbud://
+- runFlow: ../helpers/hide-keyboard.yaml
+- repeat:
+    times: 3
+    commands:
+      - scrollUntilVisible:
+          element: Settings
+          direction: DOWN
+      - tapOn: Settings
+      - assertVisible: Appearance
+      - assertVisible: Encrypted backups
+      - back
+      - assertVisible: Open plan
+- stopApp
+- launchApp
+- assertVisible: Your month
