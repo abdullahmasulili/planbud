@@ -8,6 +8,8 @@ import { readRecoveryMetadata } from './recovery-metadata';
 
 const DELETE_SOURCE = [
   'DELETE FROM commands',
+  'DELETE FROM named_plan_items',
+  'DELETE FROM named_plans',
   'DELETE FROM goal_allocations',
   'DELETE FROM goal_contributions',
   'DELETE FROM transactions',
@@ -77,6 +79,19 @@ export const createRestoreRepository = (database: DatabaseHandle): RestorePort =
               [plan.month, limit.categoryId, limit.amount],
             );
         }
+        if (snapshot.schemaVersion === 2)
+          for (const plan of snapshot.namedPlans) {
+            await sql.execute('INSERT INTO named_plans(id,name,funding) VALUES (?,?,?)', [
+              plan.id,
+              plan.name,
+              plan.funding,
+            ]);
+            for (const [position, item] of plan.items.entries())
+              await sql.execute(
+                'INSERT INTO named_plan_items(plan_id,id,name,amount,position) VALUES (?,?,?,?,?)',
+                [plan.id, item.id, item.name, item.amount, position],
+              );
+          }
         for (const transaction of snapshot.transactions)
           await sql.execute(
             'INSERT INTO transactions(id,type,amount,record_date,category_id,note) VALUES (?,?,?,?,?,?)',

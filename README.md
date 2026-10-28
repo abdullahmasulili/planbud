@@ -1,6 +1,6 @@
 # Plan Bud
 
-An Android-only personal budget planner with local SQLite records, Material Design 3, bundled Plus Jakarta Sans, and light, dark and system color schemes. Plan monthly category limits, track income and expenses, record goal contributions, and review explainable goal allocations before applying changes.
+An Android-only personal budget planner with local SQLite records, Material Design 3, bundled Plus Jakarta Sans, and light, dark and system color schemes. Plan monthly category limits, compare actual activity with cards and charts, and create independent named estimates for vacations or other projects. Track income and expenses, record goal contributions, and review explainable goal allocations before applying changes.
 
 Encrypted `.planbud` backups require the file and its original generated 12-word recovery phrase. Import validates and previews a backup before replacing local records. Keep both safely: a lost phrase cannot be reset. The file format is documented; anyone possessing both the file and phrase can decrypt it with a compatible implementation.
 

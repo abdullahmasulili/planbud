@@ -1,12 +1,12 @@
 import type { ComponentProps } from 'react';
-import { Modal } from 'react-native';
+import { KeyboardAvoidingView, Modal } from 'react-native';
 import { Dialog } from 'react-native-paper';
 
 type AppDialogProps = ComponentProps<typeof Dialog> & { readonly onDismiss: () => void };
 
 /** Gives Material dialogs an Android window boundary so background controls cannot receive focus.
  * @param props Material content, visibility and dismissal policy, including busy-state back handling.
- * @returns A native modal window retaining Paper's theme, shape and dialog composition.
+ * @returns A native modal window with keyboard-aware bounds retaining Paper's theme and composition.
  */
 export const AppDialog = (props: AppDialogProps) => (
   <Modal
@@ -18,6 +18,8 @@ export const AppDialog = (props: AppDialogProps) => (
       if (props.dismissableBackButton ?? props.dismissable ?? true) props.onDismiss();
     }}
   >
-    <Dialog {...props} />
+    <KeyboardAvoidingView behavior="height" style={{ flex: 1 }}>
+      <Dialog {...props} />
+    </KeyboardAvoidingView>
   </Modal>
 );

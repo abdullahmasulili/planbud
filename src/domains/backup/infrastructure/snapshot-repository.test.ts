@@ -34,6 +34,7 @@ it('BACK-001 reads one consistent portable revision and excludes recovery metada
     expect(Object.keys(current.snapshot).sort()).toEqual(
       [
         'schemaVersion',
+        'namedPlans',
         'createdAt',
         'profile',
         'categories',

@@ -45,7 +45,10 @@ export const runStressContract = async (
     onStage('read-snapshot');
     const read = await createSnapshotRepository(database, () => source.createdAt).readConsistent();
     timings.snapshot = Date.now() - readStart;
-    if (JSON.stringify(read.snapshot) !== JSON.stringify(canonical.value))
+    if (
+      JSON.stringify(read.snapshot) !==
+      JSON.stringify({ ...canonical.value, schemaVersion: 2, namedPlans: [] })
+    )
       throw new Error('Snapshot mismatch.');
     passed.push('native-50000-record-round-trip');
     const goalStart = Date.now();

@@ -2,10 +2,12 @@ import { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ActivityIndicator, List, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Card, Text, useTheme } from 'react-native-paper';
 import type { BudgetService } from '../application/public';
 import type { TransactionService } from '@/domains/transactions/application/public';
 import type { Profile } from '@/domains/settings/application/public';
+import { ComparisonChart } from '@/shared/presentation/charts';
+import { OverviewCards } from './overview-cards';
 import { readOverview } from '../application/overview-service';
 import type { BudgetOverview } from '../application/overview-service';
 import { launchOperation } from '@/shared/presentation/operation-launcher';
@@ -124,38 +126,7 @@ export const OverviewScreen = ({
             </ActionButton>
             <FormMessage message={message} />
             {busy ? <ActivityIndicator accessibilityLabel="Loading overview" /> : null}
-            {data ? (
-              <>
-                <Text variant="titleLarge">
-                  {data.remainingSpending < 0
-                    ? 'Over planned spending'
-                    : 'Remaining planned spending'}
-                </Text>
-                <Text variant="headlineMedium">
-                  {formatMoney(Math.abs(data.remainingSpending), profile.currency, profile.locale)}
-                </Text>
-                <Text>
-                  Planned income:{' '}
-                  {formatMoney(data.plannedIncome, profile.currency, profile.locale)}
-                </Text>
-                <Text>
-                  Recorded income:{' '}
-                  {formatMoney(data.actualIncome, profile.currency, profile.locale)}
-                </Text>
-                <Text>
-                  Spending limits:{' '}
-                  {formatMoney(data.plannedSpending, profile.currency, profile.locale)}
-                </Text>
-                <Text>
-                  Recorded spending:{' '}
-                  {formatMoney(data.actualSpending, profile.currency, profile.locale)}
-                </Text>
-                <Text>
-                  Estimates change only when you save a plan. Goal contributions are separate
-                  earmarking records.
-                </Text>
-              </>
-            ) : null}
+            {data ? <OverviewCards data={data} profile={profile} /> : null}
             <ActionButton mode="contained" onPress={onPlan}>
               Open plan
             </ActionButton>
@@ -164,12 +135,33 @@ export const OverviewScreen = ({
           </View>
         }
         renderItem={({ item }) => (
-          <List.Item
-            title={item.name}
-            titleNumberOfLines={0}
-            description={`Limit ${formatMoney(item.limit, profile.currency, profile.locale)} · spent ${formatMoney(item.spent, profile.currency, profile.locale)}\n${item.remaining < 0 ? 'Over by' : 'Remaining'} ${formatMoney(Math.abs(item.remaining), profile.currency, profile.locale)}`}
-            descriptionNumberOfLines={0}
-          />
+          <Card mode="outlined">
+            <Card.Content style={styles.section}>
+              <Text variant="titleMedium">{item.name}</Text>
+              <ComparisonChart
+                label={`${item.name} spending`}
+                first={{
+                  label: 'Limit',
+                  value: item.limit,
+                  formatted: formatMoney(item.limit, profile.currency, profile.locale),
+                }}
+                second={{
+                  label: 'Spent',
+                  value: item.spent,
+                  formatted: formatMoney(item.spent, profile.currency, profile.locale),
+                }}
+                overLimit
+              />
+              <Text
+                style={{
+                  color: item.remaining < 0 ? theme.colors.error : theme.colors.onSurfaceVariant,
+                }}
+              >
+                {item.remaining < 0 ? 'Over by' : 'Remaining'}{' '}
+                {formatMoney(Math.abs(item.remaining), profile.currency, profile.locale)}
+              </Text>
+            </Card.Content>
+          </Card>
         )}
         ListEmptyComponent={
           !busy && !message ? (

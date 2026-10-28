@@ -73,7 +73,7 @@ it('RESTORE-003 rejects old-session writes queued behind a committed replacement
     expect(
       (await createSnapshotRepository(fixture.database, () => snapshot.createdAt).readConsistent())
         .snapshot,
-    ).toEqual(snapshot);
+    ).toEqual({ ...snapshot, schemaVersion: 2, namedPlans: [] });
   } finally {
     await fixture.database.close();
   }
@@ -100,7 +100,7 @@ it('RESTORE-003 replaces every portable field once and persists pending recovery
     expect(
       (await createSnapshotRepository(fixture.database, () => snapshot.createdAt).readConsistent())
         .snapshot,
-    ).toEqual(snapshot);
+    ).toEqual({ ...snapshot, schemaVersion: 2, namedPlans: [] });
     expect(await createRecoveryMetadata(fixture.database).read()).toMatchObject({
       profileId: snapshot.profile.id,
       state: { generation: 'new-generation', status: 'pending' },

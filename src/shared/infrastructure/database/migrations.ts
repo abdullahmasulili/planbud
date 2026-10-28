@@ -1,5 +1,5 @@
 import type { DatabaseHandle } from './connection';
-import { INITIAL_SCHEMA, SCHEMA_VERSION } from './schema';
+import { INITIAL_SCHEMA, NAMED_PLAN_SCHEMA, SCHEMA_VERSION } from './schema';
 
 /** Migrates the app database without resetting existing records.
  * @param database Lifecycle-owned database handle.
@@ -16,6 +16,9 @@ export const migrateDatabase = async (database: DatabaseHandle): Promise<void> =
     }
     if (version === 0) {
       await sql.batch(INITIAL_SCHEMA);
+    }
+    if (version < 2) {
+      await sql.batch(NAMED_PLAN_SCHEMA);
       await sql.batch(`PRAGMA user_version = ${SCHEMA_VERSION}`);
     }
   });

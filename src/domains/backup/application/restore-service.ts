@@ -1,4 +1,4 @@
-import type { SnapshotV1 } from './snapshot';
+import type { Snapshot } from './snapshot';
 import type {
   LocalRecoveryState,
   RecoveryRef,
@@ -16,7 +16,7 @@ import { MAX_BACKUP_BYTES } from '@/shared/domain/record-limits';
 export type RestorePort = {
   readonly revision: () => Promise<number>;
   readonly replace: (input: {
-    readonly snapshot: SnapshotV1;
+    readonly snapshot: Snapshot;
     readonly expectedRevision: number;
     readonly recovery: LocalRecoveryState;
   }) => Promise<void>;
@@ -54,7 +54,7 @@ export type RestoreService = {
 /** Service-private source/entropy ownership; never exposed through Context or Zustand. */
 type RestoreSession = {
   readonly token: string;
-  readonly snapshot: SnapshotV1;
+  readonly snapshot: Snapshot;
   readonly sourceRevision: number;
   readonly recovery: LocalRecoveryState;
   readonly entropy: Uint8Array;
@@ -170,6 +170,15 @@ export const createRestoreService = (ports: RestorePorts): RestoreService => {
               goals: snapshot.goals.length,
               contributions: snapshot.contributions.length,
               allocations: snapshot.allocations.length,
+              ...(snapshot.schemaVersion === 2
+                ? {
+                    namedPlans: snapshot.namedPlans.length,
+                    expenseEstimates: snapshot.namedPlans.reduce(
+                      (count, plan) => count + plan.items.length,
+                      0,
+                    ),
+                  }
+                : {}),
             },
           },
         };

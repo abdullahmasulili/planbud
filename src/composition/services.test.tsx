@@ -4,6 +4,8 @@ import { ServicesProvider, useServices } from './services';
 import { createProfileEvents } from './profile-events';
 import { createProfileService } from '@/domains/settings/application/profile-service';
 import { createProfileRepository } from '@/domains/settings/infrastructure/profile-repository';
+import { createNamedPlanService } from '@/domains/budgeting/application/named-plan-service';
+import { createNamedPlanRepository } from '@/domains/budgeting/infrastructure/named-plan-repository';
 import { createTransactionFixture } from '../../tests/helpers/transaction-fixture';
 
 it('STATE-002 retains isolated service and store identities across rerenders', async () => {
@@ -12,6 +14,7 @@ it('STATE-002 retains isolated service and store identities across rerenders', a
     const services = {
       profiles: createProfileService(createProfileRepository(fixture.database)),
       budgets: fixture.budgets,
+      namedPlans: createNamedPlanService(createNamedPlanRepository(fixture.database)),
       transactions: fixture.transactions,
       goals: fixture.goals,
       planning: fixture.planning,
@@ -38,6 +41,7 @@ it('STATE-002 retains isolated service and store identities across rerenders', a
     const first = await renderHook(useServices, { wrapper: Wrapper });
     const scope = first.result.current;
     expect(scope.budgets).toBeDefined();
+    expect(scope.namedPlans).toBeDefined();
     expect(scope.transactions).toBeDefined();
     expect(scope.goals).toBeDefined();
     await first.rerender(undefined);
@@ -45,8 +49,11 @@ it('STATE-002 retains isolated service and store identities across rerenders', a
     const second = await renderHook(useServices, { wrapper: Wrapper });
     expect(second.result.current.settings).not.toBe(scope.settings);
     expect(second.result.current.budgets).not.toBe(scope.budgets);
+    expect(second.result.current.namedPlans).not.toBe(scope.namedPlans);
     expect(second.result.current.transactions).not.toBe(scope.transactions);
     expect(second.result.current.goals).not.toBe(scope.goals);
+    await act(async () => await scope.namedPlans.getState().load());
+    expect(scope.namedPlans.getState().status).toBe('ready');
     scope.transactions.setState({ status: 'stale', month: '2026-10' });
     await act(() =>
       profileChanges.replace({ ...fixture.profile, id: 'restored', appearance: 'dark' }),
@@ -55,6 +62,7 @@ it('STATE-002 retains isolated service and store identities across rerenders', a
       profile: { id: 'restored', appearance: 'dark' },
       sessionGeneration: 1,
     });
+    expect(scope.namedPlans.getState()).toMatchObject({ version: null, status: 'idle' });
     expect(scope.transactions.getState()).toMatchObject({ status: 'idle', month: '' });
     await second.unmount();
     await first.unmount();

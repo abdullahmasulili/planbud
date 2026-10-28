@@ -40,3 +40,27 @@ The live SQLite database is app-private and is not encrypted in this MVP. Export
 Containers are limited to 16 MiB and snapshots to 50,000 source records including nested category limits. Exceeding a limit fails without truncation. Retain the ignored private signing pair for future updates; it is separate from recovery words. The APK and its relative-filename checksum are in `dist/android/`.
 
 No external ticket. No commits, pushes or pull requests created. Remote required-check settings and store distribution were not configured.
+
+## Cards, charts, and named plans — 2026-10-27
+
+Scope: PLAN-001–003 and UI-009–010. Independent named plans contain funding and expense estimates, without assigning transactions or reserving monthly income. No dependencies changed.
+
+- `pnpm check` passed: 160 tests in 55 suites, formatting, zero-warning lint, strict TypeScript, domain boundaries, portable artifacts, and release-entry guards.
+- Android production export passed, including the new route and native chart primitives.
+- Real host SQLite covers schema-1 upgrade without monthly-data/revision changes, independent plans, stale save/delete rejection, legacy restore clearing named plans, current snapshot round-trip, and reset.
+- Encrypted schema-2 prepare/confirm using independent host AES and real SQLite preserves two named plans and checks preview counts and recovery readiness. Existing encrypted schema-1 import tests remain in place.
+- Component tests cover multiple plans, overallocated amounts, draft-discard confirmation, deletion isolation, screen-reader chart values, and zero-limit states. Provider isolation/reset includes named-plan projections.
+- Two independent read-only reviews found no material data/concurrency defect. Their layout concerns led to a bounded scrollable deletion confirmation and direct modal list scrolling. Plan cards show a bounded expense preview and identify any remaining estimates.
+- The generic frontend static audit reported two false positives in existing React Native Paper Button wrappers: it expects DOM `onclick` and does not recognize native `onPress`/forwarded props. Both controls have native handlers; project-native lint and tests passed.
+- An additional `expo install --check` reports available SDK-58 patch updates in the unchanged baseline dependency set. This feature keeps the locked versions; dependency upgrades remain separate work.
+
+Native development walkthrough on API 36, 2026-10-28:
+
+- Android debug CNG/Gradle build and installation passed. The current JavaScript bundle ran through Metro; this is not a new standalone release/offline qualification.
+- Confirmed currency setup, overview card/gauge rendering, navigation to named plans, and two independent native saves: Vacation and Wedding.
+- Vacation funding 1,000 with a Hotel estimate of 1,200 showed a 120% gauge and an exact 200 shortfall. Both the expense breakdown and zero-funded Wedding card rendered.
+- Vacation survived force-stop/reopen. Native Back opened discard confirmation; Keep editing preserved the draft.
+- A native keyboard-overlap reproduction led to keyboard avoidance at the shared modal-window boundary. The dialog then shrank above both text and numeric keyboards; scrolling exposed the expense input and Save button above the keyboard. Dialog/back and named-plan interaction tests passed afterward.
+- Initial Maestro launch/inspection was unreliable after emulator restart. Direct Android UI hierarchy and screenshot inspection supplied the evidence above. An interrupted run was attributable to Android updating WebView and stopping its clients, recorded in the system event log; saved data remained intact.
+
+Extended TalkBack, minimum-API qualification, and standalone release acceptance for these new screens remain pending. Earlier release/device evidence above applies to the preceding candidate.

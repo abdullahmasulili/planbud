@@ -2,7 +2,8 @@ import { useCallback, useRef, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ActivityIndicator, Dialog, List, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Card, Dialog, List, Text, useTheme } from 'react-native-paper';
+import { ComparisonChart } from '@/shared/presentation/charts';
 import { AppDialog } from '@/shared/presentation/dialog';
 import { useStore } from 'zustand';
 import type { Profile } from '@/domains/settings/application/public';
@@ -83,40 +84,55 @@ export const GoalsScreen = ({
           </View>
         }
         renderItem={({ item }) => (
-          <View style={styles.section}>
-            <Text variant="titleLarge">{item.name}</Text>
-            <Text>
-              {item.priority} priority · {item.state}
-              {item.overdue ? ' · overdue' : ''}
-              {item.deadline ? ` · due ${item.deadline}` : ' · no deadline'}
-            </Text>
-            <Text
-              accessibilityLabel={`Saved ${formatMoney(item.saved, profile.currency, profile.locale)} of target ${formatMoney(item.target, profile.currency, profile.locale)}. Remaining ${formatMoney(item.remaining, profile.currency, profile.locale)}.`}
-            >
-              Saved {formatMoney(item.saved, profile.currency, profile.locale)} of{' '}
-              {formatMoney(item.target, profile.currency, profile.locale)}
-              {'\n'}Remaining {formatMoney(item.remaining, profile.currency, profile.locale)}
-            </Text>
-            <ActionButton
-              onPress={() => setEditing({ goal: item })}
-              accessibilityLabel={`Edit goal ${item.name}`}
-            >
-              Edit goal
-            </ActionButton>
-            <ActionButton
-              mode="outlined"
-              onPress={() => setContribution({ goalId: item.id, record: null })}
-              accessibilityLabel={`Add contribution to ${item.name}`}
-            >
-              Add contribution
-            </ActionButton>
-            <ActionButton
-              onPress={() => setHistoryId(item.id)}
-              accessibilityLabel={`Contribution history for ${item.name}`}
-            >
-              Contribution history ({item.contributions.length})
-            </ActionButton>
-          </View>
+          <Card mode="outlined">
+            <Card.Content style={styles.section}>
+              <Text variant="titleLarge">{item.name}</Text>
+              <Text>
+                {item.priority} priority · {item.state}
+                {item.overdue ? ' · overdue' : ''}
+                {item.deadline ? ` · due ${item.deadline}` : ' · no deadline'}
+              </Text>
+              <Text
+                accessibilityLabel={`Saved ${formatMoney(item.saved, profile.currency, profile.locale)} of target ${formatMoney(item.target, profile.currency, profile.locale)}. Remaining ${formatMoney(item.remaining, profile.currency, profile.locale)}.`}
+              >
+                Saved {formatMoney(item.saved, profile.currency, profile.locale)} of{' '}
+                {formatMoney(item.target, profile.currency, profile.locale)}
+                {'\n'}Remaining {formatMoney(item.remaining, profile.currency, profile.locale)}
+              </Text>
+              <ComparisonChart
+                label={`${item.name} savings`}
+                first={{
+                  label: 'Target',
+                  value: item.target,
+                  formatted: formatMoney(item.target, profile.currency, profile.locale),
+                }}
+                second={{
+                  label: 'Saved',
+                  value: item.saved,
+                  formatted: formatMoney(item.saved, profile.currency, profile.locale),
+                }}
+              />
+              <ActionButton
+                onPress={() => setEditing({ goal: item })}
+                accessibilityLabel={`Edit goal ${item.name}`}
+              >
+                Edit goal
+              </ActionButton>
+              <ActionButton
+                mode="outlined"
+                onPress={() => setContribution({ goalId: item.id, record: null })}
+                accessibilityLabel={`Add contribution to ${item.name}`}
+              >
+                Add contribution
+              </ActionButton>
+              <ActionButton
+                onPress={() => setHistoryId(item.id)}
+                accessibilityLabel={`Contribution history for ${item.name}`}
+              >
+                Contribution history ({item.contributions.length})
+              </ActionButton>
+            </Card.Content>
+          </Card>
         )}
         ListEmptyComponent={
           status === 'loading' ? (
