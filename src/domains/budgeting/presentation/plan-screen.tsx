@@ -26,6 +26,7 @@ import { useOperation } from '@/shared/presentation/use-operation';
  * @param props.planning.store Scoped disposable review state.
  * @param props.planning.readGoals Published goal label read capability.
  * @param props.planning.onGoals Opens existing goal editing after canceling the preview.
+ * @param props.onNamedPlans Opens independent planning estimates.
  * @returns Loading, retry, and complete monthly planning flows.
  */
 export const PlanScreen = ({
@@ -35,12 +36,14 @@ export const PlanScreen = ({
   initialMonth,
   newId,
   planning,
+  onNamedPlans,
 }: {
   profile: Profile;
   service: BudgetService;
   store: ReturnType<typeof createBudgetStore>;
   initialMonth: string;
   newId: () => string;
+  onNamedPlans?: () => void;
   planning?: {
     readonly store: ReturnType<typeof createPlanningStore>;
     readonly readGoals: GoalService['readGoals'];
@@ -144,6 +147,7 @@ export const PlanScreen = ({
       {version ? (
         <BudgetForm
           key={`${version.plan.month}:${version.revision}`}
+          {...(onNamedPlans ? { onNamedPlans } : {})}
           profile={profile}
           version={version}
           categories={categories}

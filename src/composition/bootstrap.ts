@@ -6,7 +6,7 @@ import { createProfileService } from '@/domains/settings/application/profile-ser
 import type { Profile, ProfileService } from '@/domains/settings/application/public';
 import { createBudgetRepository } from '@/domains/budgeting/infrastructure/budget-repository';
 import { createBudgetService } from '@/domains/budgeting/application/budget-service';
-import type { BudgetService } from '@/domains/budgeting/application/public';
+import type { BudgetService, NamedPlanService } from '@/domains/budgeting/application/public';
 import { createTransactionRepository } from '@/domains/transactions/infrastructure/transaction-repository';
 import { createTransactionService } from '@/domains/transactions/application/transaction-service';
 import type { TransactionService } from '@/domains/transactions/application/public';
@@ -14,6 +14,8 @@ import type { Result } from '@/shared/domain/result';
 import { createGoalRepository } from '@/domains/goals/infrastructure/goal-repository';
 import { createGoalService } from '@/domains/goals/application/goal-service';
 import type { GoalService } from '@/domains/goals/application/public';
+import { createNamedPlanService } from '@/domains/budgeting/application/named-plan-service';
+import { createNamedPlanRepository } from '@/domains/budgeting/infrastructure/named-plan-repository';
 import { calendarToday } from '@/shared/presentation/calendar-today';
 import { createPlanningAdapter } from './planning-adapter';
 import { createPlanningService } from '@/domains/budgeting/application/planning-service';
@@ -23,6 +25,7 @@ import type { PlanningService } from '@/domains/budgeting/application/planning-c
 export type RuntimeServices = {
   readonly profiles: ProfileService;
   readonly budgets: BudgetService;
+  readonly namedPlans: NamedPlanService;
   readonly transactions: TransactionService;
   readonly goals: GoalService;
   readonly planning: PlanningService;
@@ -58,6 +61,7 @@ export const bootstrap = async (
         recoveryReady: false,
         services: {
           profiles: createProfileService(repository),
+          namedPlans: createNamedPlanService(createNamedPlanRepository(database)),
           budgets: createBudgetService(createBudgetRepository(database)),
           transactions: createTransactionService(createTransactionRepository(database)),
           goals: createGoalService(createGoalRepository(database), calendarToday),

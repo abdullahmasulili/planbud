@@ -51,6 +51,7 @@ const ThemedRoutes = () => {
         >
           <Stack.Screen name="(tabs)" options={{ title: 'Plan Bud' }} />
           <Stack.Screen name="setup" options={{ title: 'Welcome', headerBackVisible: false }} />
+          <Stack.Screen name="plans" options={{ title: 'Named plans' }} />
           <Stack.Screen name="settings" options={{ title: 'Settings' }} />
           <Stack.Screen name="recovery" options={{ title: 'Recovery phrase', animation: 'none' }} />
           <Stack.Screen name="backup" options={{ title: 'Backups' }} />

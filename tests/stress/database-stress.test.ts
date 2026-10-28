@@ -24,7 +24,11 @@ it('BACKUP-005 round-trips the 50,000-record limit and rejects one extra record 
     });
     const revision = await fixture.database.revision();
     const read = createSnapshotRepository(fixture.database, () => snapshot.createdAt);
-    expect((await read.readConsistent()).snapshot).toEqual(snapshot);
+    expect((await read.readConsistent()).snapshot).toEqual({
+      ...snapshot,
+      schemaVersion: 2,
+      namedPlans: [],
+    });
     const category = snapshot.categories[0];
     if (!category) throw new Error('Missing synthetic category.');
     const oversized = {
@@ -48,7 +52,11 @@ it('BACKUP-005 round-trips the 50,000-record limit and rejects one extra record 
       }),
     ).rejects.toThrow();
     expect(await fixture.database.revision()).toBe(revision);
-    expect((await read.readConsistent()).snapshot).toEqual(snapshot);
+    expect((await read.readConsistent()).snapshot).toEqual({
+      ...snapshot,
+      schemaVersion: 2,
+      namedPlans: [],
+    });
     const histories = await createGoalRepository(fixture.database).readGoals();
     expect(histories).toHaveLength(500);
   } finally {

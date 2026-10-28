@@ -27,7 +27,7 @@ The following sections define the approved product behavior. The engineering con
 
 ## MVP scope
 
-- One local personal profile, one currency, and calendar-month budgets.
+- One local personal profile, one currency, calendar-month budgets, and independent named planning estimates.
 - Choose the currency during setup. Default the selection from device locale; require confirmation. Changing currency after records exist requires clearing data or restoring a different profile; do not relabel amounts or convert them silently.
 - Enter planned monthly income and category spending limits. Mark categories as essential or flexible.
 - Record, edit, and delete income and expense transactions with a date, category where applicable, amount, and optional note.
@@ -38,6 +38,16 @@ The following sections define the approved product behavior. The engineering con
 - Choose system, light, or dark appearance; persist the choice locally.
 
 Exclude authentication, bank connections, cloud sync, remote analytics, advertising, remote AI, automatic currency conversion, investment recommendations, and recurring transaction automation from the MVP.
+
+## Named plans and visual summaries
+
+Approved scope extension on 2026-10-27: separate planning estimates, without assigning transactions to named plans.
+
+- PLAN-001: Create, edit, and delete multiple named plans, such as a vacation. Each has independent funding and named expense estimates in the profile currency. Plans are independent of calendar months and each other; they do not reserve monthly income or change transaction totals or goal allocations.
+- PLAN-002: Derive allocated and remaining funding from expense estimates. Allow an overallocated plan and show its exact shortfall. Reject invalid or unsafe totals. Zero funding and zero estimates are valid. Bound each plan to 100 expense estimates.
+- PLAN-003: Keep named plans in SQLite across restarts and in encrypted backups. Upgrade schema 1 without changing existing records. Accept original version-1 snapshots; emit version 2 with named plans, and reject unsupported snapshot versions.
+- UI-009: Use Material cards for financial summaries, labeled planned-versus-actual bar charts, and a semicircular spending gauge. Give each spending category its own card in the planner and overview. Show exact amounts alongside charts, including zero-limit and overspending states. Charts use source records; never invent history.
+- UI-010: Named plan cards and their editor show an allocation gauge and expense breakdown. Keep scalable text, light/dark theme roles, native Android back/discard confirmation, bounded forms, and accessible text equivalents. Deletion names the plan and requires confirmation.
 
 ## Money and date rules
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Dialog, Text, useTheme } from 'react-native-paper';
+import { Card, Dialog, Text, useTheme } from 'react-native-paper';
 import { AppDialog } from '@/shared/presentation/dialog';
 import type { BudgetService, Category, PlanVersion } from '../application/public';
 import type { Profile } from '@/domains/settings/application/public';
@@ -24,6 +24,7 @@ import { useOperation } from '@/shared/presentation/use-operation';
  * @param props.onPreview Opens decision support for the saved plan after resolving drafts.
  * @param props.onDirtyChange Reports draft ownership to the focus refresh coordinator.
  * @param props.staleDraft Whether source changes require explicit draft disposal and reload.
+ * @param props.onNamedPlans Opens independent planning estimates.
  * @returns One virtualized keyboard-aware scroll owner for monthly estimates.
  */
 export const BudgetForm = ({
@@ -37,6 +38,7 @@ export const BudgetForm = ({
   onPreview,
   onDirtyChange,
   staleDraft = false,
+  onNamedPlans,
 }: {
   version: PlanVersion;
   categories: readonly Category[];
@@ -48,6 +50,7 @@ export const BudgetForm = ({
   onPreview?: () => void;
   onDirtyChange?: (dirty: boolean) => void;
   staleDraft?: boolean;
+  onNamedPlans?: () => void;
 }) => {
   const theme = useTheme();
   const rows = categories.filter(
@@ -128,6 +131,19 @@ export const BudgetForm = ({
           ListHeaderComponent={
             <View style={styles.section}>
               <Text variant="headlineMedium">Monthly plan</Text>
+              {onNamedPlans ? (
+                <ActionButton
+                  mode="outlined"
+                  icon="folder-outline"
+                  disabled={dirty || operation.busy}
+                  onPress={onNamedPlans}
+                >
+                  Named plans
+                </ActionButton>
+              ) : null}
+              {dirty && onNamedPlans ? (
+                <Text>Save or discard edits before opening named plans.</Text>
+              ) : null}
               <Text>
                 Estimates for {version.plan.month}. Saving one month keeps every other month
                 independent.
@@ -159,29 +175,31 @@ export const BudgetForm = ({
             </View>
           }
           renderItem={({ item }) => (
-            <View style={styles.section}>
-              <Text variant="titleMedium">
-                {item.name}
-                {item.archived ? ' · archived' : ''}
-              </Text>
-              <Text>{item.kind === 'essential' ? 'Essential' : 'Flexible'}</Text>
-              <AppInput
-                label={`${item.name} limit (${profile.currency.code})`}
-                accessibilityLabel={`${item.name} limit (${profile.currency.code})`}
-                keyboardType="decimal-pad"
-                maxLength={40}
-                value={limits[item.id] ?? ''}
-                onChangeText={(text) => setLimits((current) => ({ ...current, [item.id]: text }))}
-                disabled={operation.busy}
-              />
-              <ActionButton
-                accessibilityLabel={`Edit category ${item.name}`}
-                disabled={dirty || operation.busy}
-                onPress={() => onEditCategory(item)}
-              >
-                Edit category
-              </ActionButton>
-            </View>
+            <Card mode="outlined">
+              <Card.Content style={styles.section}>
+                <Text variant="titleMedium">
+                  {item.name}
+                  {item.archived ? ' · archived' : ''}
+                </Text>
+                <Text>{item.kind === 'essential' ? 'Essential' : 'Flexible'}</Text>
+                <AppInput
+                  label={`${item.name} limit (${profile.currency.code})`}
+                  accessibilityLabel={`${item.name} limit (${profile.currency.code})`}
+                  keyboardType="decimal-pad"
+                  maxLength={40}
+                  value={limits[item.id] ?? ''}
+                  onChangeText={(text) => setLimits((current) => ({ ...current, [item.id]: text }))}
+                  disabled={operation.busy}
+                />
+                <ActionButton
+                  accessibilityLabel={`Edit category ${item.name}`}
+                  disabled={dirty || operation.busy}
+                  onPress={() => onEditCategory(item)}
+                >
+                  Edit category
+                </ActionButton>
+              </Card.Content>
+            </Card>
           )}
           ListEmptyComponent={<Text>Add a category to plan essential and flexible spending.</Text>}
           ListFooterComponent={

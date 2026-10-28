@@ -1,5 +1,6 @@
 import { parseProfile } from '@/domains/settings/application/public';
 import {
+  parseNamedPlan,
   parseCategory,
   parseMonthlyPlan,
   parseGoalAllocation,
@@ -11,7 +12,7 @@ import { isRecord } from '@/shared/domain/validation';
 import { addAmounts } from '@/shared/domain/money';
 import { parseDate } from '@/shared/domain/calendar-date';
 import type { Result } from '@/shared/domain/result';
-import type { SnapshotV1 } from './snapshot';
+import type { Snapshot } from './snapshot';
 
 /** Rejects extra keys at every nested record boundary rather than silently stripping metadata.
  * @param source Untrusted input already checked by an owning canonical parser.
@@ -71,9 +72,9 @@ const unique = (values: readonly string[]) => new Set(values).size === values.le
 
 /** Applies the same strict portable schema and arithmetic constraints before export and restore.
  * @param input Unknown decoded JSON or a prospective outgoing snapshot.
- * @returns Canonical version-1 source data or a sanitized failure; never mutates current records.
+ * @returns Canonical supported source data or a sanitized failure; never mutates current records.
  */
-export const validateSnapshot = (input: unknown): Result<SnapshotV1> => {
+export const validateSnapshot = (input: unknown): Result<Snapshot> => {
   const invalid: Result<never> = {
     ok: false,
     error: {
@@ -83,7 +84,7 @@ export const validateSnapshot = (input: unknown): Result<SnapshotV1> => {
   };
   if (
     !isRecord(input) ||
-    input.schemaVersion !== 1 ||
+    (input.schemaVersion !== 1 && input.schemaVersion !== 2) ||
     typeof input.createdAt !== 'string' ||
     !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(input.createdAt) ||
     !parseDate(input.createdAt.slice(0, 10)).ok ||
@@ -98,6 +99,7 @@ export const validateSnapshot = (input: unknown): Result<SnapshotV1> => {
   const goals = records(input.goals, parseGoal);
   const contributions = records(input.contributions, parseContribution);
   const allocations = records(input.allocations, parseGoalAllocation);
+  const namedPlans = records(input.schemaVersion === 2 ? input.namedPlans : [], parseNamedPlan);
   if (
     !profile.ok ||
     !categories.ok ||
@@ -105,11 +107,11 @@ export const validateSnapshot = (input: unknown): Result<SnapshotV1> => {
     !transactions.ok ||
     !goals.ok ||
     !contributions.ok ||
-    !allocations.ok
+    !allocations.ok ||
+    !namedPlans.ok
   )
     return invalid;
-  const snapshot: SnapshotV1 = {
-    schemaVersion: 1,
+  const base = {
     createdAt: input.createdAt,
     profile: profile.value,
     categories: categories.value,
@@ -119,6 +121,10 @@ export const validateSnapshot = (input: unknown): Result<SnapshotV1> => {
     contributions: contributions.value,
     allocations: allocations.value,
   };
+  const snapshot: Snapshot =
+    input.schemaVersion === 2
+      ? { ...base, schemaVersion: 2, namedPlans: namedPlans.value }
+      : { ...base, schemaVersion: 1 };
   if (!exactShape(input, snapshot)) return invalid;
   const count =
     categories.value.length +
@@ -127,7 +133,9 @@ export const validateSnapshot = (input: unknown): Result<SnapshotV1> => {
     transactions.value.length +
     goals.value.length +
     contributions.value.length +
-    allocations.value.length;
+    allocations.value.length +
+    namedPlans.value.length +
+    namedPlans.value.reduce((sum, plan) => sum + plan.items.length, 0);
   if (count > MAX_SNAPSHOT_RECORDS)
     return {
       ok: false,
@@ -138,6 +146,7 @@ export const validateSnapshot = (input: unknown): Result<SnapshotV1> => {
       },
     };
   if (
+    !unique(namedPlans.value.map((item) => item.id)) ||
     !unique(snapshot.categories.map((item) => item.id)) ||
     !unique(snapshot.plans.map((item) => item.month)) ||
     !unique(snapshot.transactions.map((item) => item.id)) ||
@@ -162,7 +171,7 @@ export const validateSnapshot = (input: unknown): Result<SnapshotV1> => {
     snapshot.allocations.some((item) => !goalIds.has(item.goalId) || !months.has(item.month))
   )
     return invalid;
-  const history = new Map<string, SnapshotV1['contributions'][number][]>();
+  const history = new Map<string, Snapshot['contributions'][number][]>();
   const monthlyContributions = new Map<string, number[]>();
   for (const item of snapshot.contributions) {
     const group = history.get(item.goalId) ?? [];
@@ -180,7 +189,7 @@ export const validateSnapshot = (input: unknown): Result<SnapshotV1> => {
     [...monthlyContributions.values()].some((amounts) => !addAmounts(amounts).ok)
   )
     return invalid;
-  const monthlyTransactions = new Map<string, SnapshotV1['transactions'][number][]>();
+  const monthlyTransactions = new Map<string, Snapshot['transactions'][number][]>();
   for (const item of snapshot.transactions) {
     const month = item.date.slice(0, 7);
     const group = monthlyTransactions.get(month) ?? [];

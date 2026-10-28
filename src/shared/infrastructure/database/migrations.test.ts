@@ -1,6 +1,7 @@
 import { createHostDatabase } from '../../../../tests/helpers/host-database';
 import { createDatabaseHandle } from './connection';
 import { migrateDatabase } from './migrations';
+import { INITIAL_SCHEMA } from './schema';
 
 describe('SQLite migration and revision contracts', () => {
   it('DATA-001 advances only committed, changed writes', async () => {
@@ -67,7 +68,7 @@ describe('SQLite migration and revision contracts', () => {
         await sql.execute(
           "INSERT INTO categories(id,name,kind) VALUES ('food','Food','essential')",
         );
-        await sql.batch('PRAGMA user_version = 2');
+        await sql.batch('PRAGMA user_version = 3');
       });
       await expect(migrateDatabase(database)).rejects.toMatchObject({ code: 'unsupported-schema' });
       expect(
@@ -95,4 +96,31 @@ describe('SQLite migration and revision contracts', () => {
       await database.close();
     }
   });
+});
+
+it('PLAN-003 upgrades an original schema without changing monthly estimates or revision', async () => {
+  const database = createDatabaseHandle(createHostDatabase());
+  try {
+    await database.schema(async (sql) => {
+      await sql.batch(INITIAL_SCHEMA);
+      await sql.batch(
+        "INSERT INTO monthly_plans(month,planned_income) VALUES ('2026-10',12345); PRAGMA user_version = 1;",
+      );
+    });
+    await migrateDatabase(database);
+    expect(await database.read(async (sql) => await sql.first('PRAGMA user_version'))).toEqual({
+      user_version: 2,
+    });
+    expect(
+      await database.read(
+        async (sql) => await sql.first('SELECT planned_income FROM monthly_plans'),
+      ),
+    ).toEqual({ planned_income: 12345 });
+    expect(await database.read(async (sql) => await sql.all('SELECT * FROM named_plans'))).toEqual(
+      [],
+    );
+    expect(await database.revision()).toBe(0);
+  } finally {
+    await database.close();
+  }
 });
