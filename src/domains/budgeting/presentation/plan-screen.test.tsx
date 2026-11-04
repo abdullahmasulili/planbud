@@ -100,7 +100,8 @@ it('BUD-003 validates currency amounts and discards edits before switching month
     await waitFor(() =>
       expect(screen.getByLabelText('Planned income (USD)')).toHaveDisplayValue('1000.00'),
     );
-    await fireEvent.changeText(screen.getByLabelText('Planning month'), '2026-11');
+    await fireEvent.press(screen.getByRole('button', { name: 'Planning month' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'November 2026' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Open month' }));
     await waitFor(() =>
       expect(screen.getByLabelText('Planned income (USD)')).toHaveDisplayValue('0.00'),

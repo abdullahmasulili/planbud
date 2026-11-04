@@ -1,3 +1,4 @@
+import { DateInput } from '@/shared/presentation/date-input';
 import { useState } from 'react';
 import { ScrollView } from 'react-native';
 import { Dialog, Text } from 'react-native-paper';
@@ -138,13 +139,12 @@ export const GoalForm = ({
                 disabled={operation.busy}
               />
               <Text>Starting savings exclude contributions recorded in this app.</Text>
-              <AppInput
+              <DateInput
+                optional
                 label="Deadline (optional)"
                 accessibilityLabel="Goal deadline"
-                placeholder="YYYY-MM-DD"
                 value={deadline}
                 onChangeText={setDeadline}
-                maxLength={10}
                 disabled={operation.busy}
               />
               <AppInput

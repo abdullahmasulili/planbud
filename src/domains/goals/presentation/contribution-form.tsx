@@ -1,3 +1,4 @@
+import { DateInput } from '@/shared/presentation/date-input';
 import { useState } from 'react';
 import { ScrollView } from 'react-native';
 import { Dialog, Text } from 'react-native-paper';
@@ -98,13 +99,11 @@ export const ContributionForm = ({
                 maxLength={40}
                 disabled={operation.busy}
               />
-              <AppInput
+              <DateInput
                 label="Contribution date"
                 accessibilityLabel="Contribution date"
                 value={date}
                 onChangeText={setDate}
-                maxLength={10}
-                placeholder="YYYY-MM-DD"
                 disabled={operation.busy}
               />
               <FormMessage message={operation.message} />

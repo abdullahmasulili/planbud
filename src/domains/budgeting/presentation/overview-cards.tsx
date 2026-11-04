@@ -4,6 +4,7 @@ import type { BudgetOverview } from '../application/overview-service';
 import type { Profile } from '@/domains/settings/application/public';
 import { BudgetGauge, ComparisonChart } from '@/shared/presentation/charts';
 import { formatMoney } from '@/shared/presentation/money-format';
+import { SpendingSummary } from './spending-summary';
 
 /** Groups monthly source comparisons around the remaining-spending decision.
  * @param props Consistent overview and confirmed profile formatting.
@@ -43,6 +44,7 @@ export const OverviewCards = ({ data, profile }: { data: BudgetOverview; profile
           ) : null}
         </Card.Content>
       </Card>
+      <SpendingSummary data={data} profile={profile} />
       <Card mode="outlined">
         <Card.Content style={styles.content}>
           <Text variant="titleLarge">Income</Text>

@@ -1,3 +1,4 @@
+import { DateInput } from '@/shared/presentation/date-input';
 import { useEffect, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -148,13 +149,12 @@ export const BudgetForm = ({
                 Estimates for {version.plan.month}. Saving one month keeps every other month
                 independent.
               </Text>
-              <AppInput
+              <DateInput
+                mode="month"
                 label="Planning month"
                 accessibilityLabel="Planning month"
                 value={month}
                 onChangeText={setMonth}
-                placeholder="YYYY-MM"
-                maxLength={7}
                 disabled={operation.busy}
               />
               <ActionButton mode="outlined" onPress={openMonth} disabled={operation.busy}>

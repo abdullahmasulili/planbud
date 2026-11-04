@@ -1,3 +1,4 @@
+import { DateInput } from '@/shared/presentation/date-input';
 import { useState } from 'react';
 import { ScrollView } from 'react-native';
 import { Dialog, Text } from 'react-native-paper';
@@ -149,13 +150,11 @@ export const TransactionForm = ({
                   maxLength={40}
                   disabled={operation.busy}
                 />
-                <AppInput
+                <DateInput
                   label="Transaction date"
                   accessibilityLabel="Transaction date"
                   value={date}
                   onChangeText={setDate}
-                  placeholder="YYYY-MM-DD"
-                  maxLength={10}
                   disabled={operation.busy}
                 />
                 {type === 'expense' ? (

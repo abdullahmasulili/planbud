@@ -1,3 +1,4 @@
+import { DateInput } from '@/shared/presentation/date-input';
 import { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
@@ -11,7 +12,7 @@ import { OverviewCards } from './overview-cards';
 import { readOverview } from '../application/overview-service';
 import type { BudgetOverview } from '../application/overview-service';
 import { launchOperation } from '@/shared/presentation/operation-launcher';
-import { AppInput, ActionButton } from '@/shared/presentation/controls';
+import { ActionButton } from '@/shared/presentation/controls';
 import { FormMessage } from '@/shared/presentation/screen';
 import { formatMoney } from '@/shared/presentation/money-format';
 import { parseDate } from '@/shared/domain/calendar-date';
@@ -113,13 +114,12 @@ export const OverviewScreen = ({
           <View style={styles.section}>
             <Text variant="headlineMedium">Your month</Text>
             <Text>{profile.currency.code} · estimates and actual activity</Text>
-            <AppInput
+            <DateInput
+              mode="month"
               label="Overview month"
               accessibilityLabel="Overview month"
               value={month}
               onChangeText={setMonth}
-              maxLength={7}
-              placeholder="YYYY-MM"
             />
             <ActionButton mode="outlined" onPress={openMonth} disabled={busy}>
               Open month
