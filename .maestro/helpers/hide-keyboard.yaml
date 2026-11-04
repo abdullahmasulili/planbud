@@ -9,6 +9,11 @@ appId: com.planbud.app
       - hideKeyboard
 - runFlow:
     when:
+      visible: 'Tap to enable contact suggestions\.'
+    commands:
+      - hideKeyboard
+- runFlow:
+    when:
       visible:
         id: '.*(inputmethod|honeyboard).*:id/.*'
     commands:

@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { useState } from 'react';
 import { Checkbox, Text } from 'react-native-paper';
 import type { RestoreService } from '../application/restore-service';
@@ -24,17 +25,18 @@ export const RestoreScreen = ({
   files: BackupFilesPort;
   protection: SensitiveScreenPort;
 }) => {
+  const { t } = useI18n();
   const flow = useRestoreFlow(service, files, protection);
   return (
     <Screen>
-      <Text variant="headlineMedium">Import encrypted backup</Text>
+      <Text variant="headlineMedium">{t('Import encrypted backup')}</Text>
       <Text>
-        Choose your .planbud file and enter its original 12-word phrase. Import replaces local
-        records; it does not merge them. A wrong phrase, damaged file or canceled preview leaves
-        current data unchanged.
+        {t(
+          'Choose your .planbud file and enter its original 12-word phrase. Import replaces local records; it does not merge them. A wrong phrase, damaged file or canceled preview leaves current data unchanged.',
+        )}
       </Text>
       <FormMessage message={flow.message} />
-      <Text accessibilityLiveRegion="polite">{flow.notice}</Text>
+      <Text accessibilityLiveRegion="polite">{t(flow.notice)}</Text>
       {flow.phase === 'select' ? (
         <ActionButton
           mode="contained"
@@ -42,11 +44,11 @@ export const RestoreScreen = ({
           disabled={flow.busy || !flow.ready}
           loading={flow.busy}
         >
-          Choose .planbud file
+          {t('Choose .planbud file')}
         </ActionButton>
       ) : flow.phase === 'phrase' ? (
         <PhraseInput
-          label="Authenticate and preview"
+          label={t('Authenticate and preview')}
           ready={flow.ready}
           busy={flow.busy}
           onSubmit={flow.prepare}
@@ -62,7 +64,7 @@ export const RestoreScreen = ({
           onCancel={flow.dispose}
         />
       ) : (
-        <ActionButton onPress={flow.dispose}>Done</ActionButton>
+        <ActionButton onPress={flow.dispose}>{t('Done')}</ActionButton>
       )}
     </Screen>
   );
@@ -90,18 +92,21 @@ const ReplacementReview = ({
   onConfirm: () => void;
   onCancel: () => void;
 }) => {
+  const { t } = useI18n();
   const [confirmed, setConfirmed] = useState(false);
   return (
     <>
-      <Text variant="titleLarge">Review replacement</Text>
-      <Text>Snapshot: {createdAt}</Text>
+      <Text variant="titleLarge">{t('Review replacement')}</Text>
+      <Text>
+        {t('Snapshot:')} {createdAt}
+      </Text>
       {Object.entries(counts).map(([name, count]) => (
         <Text key={name}>
-          {name}: {count}
+          {t(name)}: {count}
         </Text>
       ))}
       <Checkbox.Item
-        label="Replace all current local records with this backup"
+        label={t('Replace all current local records with this backup')}
         labelMaxFontSizeMultiplier={0}
         status={confirmed ? 'checked' : 'unchecked'}
         disabled={busy}
@@ -113,10 +118,10 @@ const ReplacementReview = ({
         loading={busy}
         onPress={onConfirm}
       >
-        Replace local data
+        {t('Replace local data')}
       </ActionButton>
       <ActionButton disabled={busy} onPress={onCancel}>
-        Cancel restore
+        {t('Cancel restore')}
       </ActionButton>
     </>
   );

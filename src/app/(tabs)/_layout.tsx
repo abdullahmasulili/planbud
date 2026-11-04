@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { NativeTabs } from 'expo-router/native-tabs';
 import { useTheme } from 'react-native-paper';
 
@@ -5,6 +6,7 @@ import { useTheme } from 'react-native-paper';
  * @returns Overview, planning, and transaction tabs coordinated with Paper's color roles.
  */
 const MainLayout = () => {
+  const { t } = useI18n();
   const theme = useTheme();
   return (
     <NativeTabs
@@ -19,19 +21,19 @@ const MainLayout = () => {
     >
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Icon md="home" />
-        <NativeTabs.Trigger.Label>Overview</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>{t('Overview')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="plan">
         <NativeTabs.Trigger.Icon md="account_balance_wallet" />
-        <NativeTabs.Trigger.Label>Plan</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>{t('Plan')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="transactions">
         <NativeTabs.Trigger.Icon md="receipt_long" />
-        <NativeTabs.Trigger.Label>Transactions</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>{t('Transactions')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="goals">
         <NativeTabs.Trigger.Icon md="flag" />
-        <NativeTabs.Trigger.Label>Goals</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>{t('Goals')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );

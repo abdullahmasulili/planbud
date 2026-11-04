@@ -40,6 +40,11 @@ describe('currency-safe amounts', () => {
     expect(addAmounts([Number.NaN]).ok).toBe(false);
   });
   it('MONEY-001 resolves canonical precision and rejects unknown currencies', () => {
+    expect(currencyFor('IDR')).toEqual({ ok: true, value: { code: 'IDR', exponent: 2 } });
+    expect(parseAmount('10000,50', { code: 'IDR', exponent: 2 }, 'id-ID')).toEqual({
+      ok: true,
+      value: 1000050,
+    });
     expect(currencyFor('JPY')).toEqual({ ok: true, value: { code: 'JPY', exponent: 0 } });
     expect(currencyFor('KWD')).toEqual({ ok: true, value: { code: 'KWD', exponent: 3 } });
     expect(currencyFor('XYZ').ok).toBe(false);

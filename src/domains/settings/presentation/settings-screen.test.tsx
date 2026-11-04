@@ -12,6 +12,8 @@ it('UI-005 exposes exclusive appearance choices as checked native radio controls
     appearance: 'system',
   };
   const repository: ProfilePort = {
+    /** Records local language selection. */
+    setLocale: jest.fn(async () => {}),
     /** Supplies the confirmed test profile.
      * @returns Stored test settings.
      */
@@ -48,3 +50,40 @@ it('UI-005 exposes exclusive appearance choices as checked native radio controls
   );
   expect(screen.getByRole('radio', { name: 'Dark', checked: true })).toBeOnTheScreen();
 }, 30000);
+
+it('saves the selected language through settings before updating the projection', async () => {
+  const profile: Profile = {
+    id: 'personal',
+    currency: { code: 'USD', exponent: 2 },
+    locale: 'en-US',
+    appearance: 'system',
+  };
+  const repository: ProfilePort = {
+    /** Reads existing settings.
+     * @returns Confirmed profile.
+     */
+    read: async () => profile,
+    /** Returns the confirmed test identity.
+     * @param input Profile input.
+     * @returns Confirmed input.
+     */
+    initialize: async (input) => input,
+    /** Models the unused appearance write. */
+    setAppearance: async () => {},
+    /** Records locale writes. */
+    setLocale: jest.fn(async () => {}),
+  };
+  const updated = jest.fn();
+  await render(
+    <TestScreen>
+      <SettingsScreen
+        profile={profile}
+        service={createProfileService(repository)}
+        onUpdated={updated}
+      />
+    </TestScreen>,
+  );
+  await fireEvent.press(screen.getByRole('radio', { name: 'Bahasa Indonesia' }));
+  expect(repository.setLocale).toHaveBeenCalledWith('id-ID');
+  expect(updated).toHaveBeenCalledWith({ ...profile, locale: 'id-ID' });
+});

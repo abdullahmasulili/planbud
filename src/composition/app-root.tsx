@@ -1,3 +1,4 @@
+import { LocaleContext, useI18n } from '@/shared/presentation/i18n';
 import { useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import { ActivityIndicator, Banner, Button, PaperProvider, Text } from 'react-native-paper';
@@ -18,7 +19,21 @@ import { createProfileEvents } from './profile-events';
 /** Coordinates appearance, safe replacement notices and navigation session invalidation.
  * @returns The single router stack inside stable service composition.
  */
+const LocalizedRoutes = () => {
+  const { settings } = useServices();
+  const locale = useStore(settings, (state) => state.profile?.locale ?? 'en-US');
+  return (
+    <LocaleContext.Provider value={locale}>
+      <ThemedRoutes />
+    </LocaleContext.Provider>
+  );
+};
+
+/** Renders navigation and notices in the persisted display language.
+ * @returns Themed routes subscribed to the durable settings projection.
+ */
 const ThemedRoutes = () => {
+  const { t } = useI18n();
   const { settings } = useServices();
   const preference = useStore(settings, (state) => state.profile?.appearance ?? 'system');
   const sessionGeneration = useStore(settings, (state) => state.sessionGeneration);
@@ -36,9 +51,9 @@ const ThemedRoutes = () => {
           >
             <Banner
               visible={notice !== ''}
-              actions={[{ label: 'Dismiss', onPress: settings.getState().clearNotice }]}
+              actions={[{ label: t('Dismiss'), onPress: settings.getState().clearNotice }]}
             >
-              {notice}
+              {t(notice)}
             </Banner>
           </SafeAreaView>
         ) : null}
@@ -46,17 +61,20 @@ const ThemedRoutes = () => {
           key={sessionGeneration}
           screenOptions={{
             headerTitleStyle: { fontFamily: 'Plus Jakarta Sans', fontWeight: '600' },
-            headerBackTitle: 'Back',
+            headerBackTitle: t('Back'),
           }}
         >
-          <Stack.Screen name="(tabs)" options={{ title: 'Plan Bud' }} />
-          <Stack.Screen name="setup" options={{ title: 'Welcome', headerBackVisible: false }} />
-          <Stack.Screen name="plans" options={{ title: 'Named plans' }} />
-          <Stack.Screen name="settings" options={{ title: 'Settings' }} />
-          <Stack.Screen name="recovery" options={{ title: 'Recovery phrase', animation: 'none' }} />
-          <Stack.Screen name="backup" options={{ title: 'Backups' }} />
-          <Stack.Screen name="restore" options={{ title: 'Import backup', animation: 'none' }} />
-          <Stack.Screen name="clear-data" options={{ title: 'Clear local data' }} />
+          <Stack.Screen name="(tabs)" options={{ title: t('Plan Bud') }} />
+          <Stack.Screen name="setup" options={{ headerShown: false }} />
+          <Stack.Screen name="plans" options={{ title: t('Named plans') }} />
+          <Stack.Screen name="settings" options={{ title: t('Settings') }} />
+          <Stack.Screen
+            name="recovery"
+            options={{ title: t('Recovery phrase'), animation: 'none' }}
+          />
+          <Stack.Screen name="backup" options={{ title: t('Backups') }} />
+          <Stack.Screen name="restore" options={{ title: t('Import backup'), animation: 'none' }} />
+          <Stack.Screen name="clear-data" options={{ title: t('Clear local data') }} />
         </Stack>
       </ThemeProvider>
     </PaperProvider>
@@ -81,7 +99,7 @@ const InitializedApp = ({ runtime }: { runtime: Runtime }) => {
       initialProfile={runtime.profile}
       profileChanges={profileChanges}
     >
-      <ThemedRoutes />
+      <LocalizedRoutes />
     </ServicesProvider>
   );
 };
@@ -90,6 +108,7 @@ const InitializedApp = ({ runtime }: { runtime: Runtime }) => {
  * @returns Recoverable startup UI or initialized application routes.
  */
 export const AppRoot = () => {
+  const { t } = useI18n();
   const [runtime, setRuntime] = useState<Runtime | null>(null);
   const [message, setMessage] = useState('');
   const [attempt, setAttempt] = useState(0);
@@ -132,10 +151,10 @@ export const AppRoot = () => {
       ) : (
         <PaperProvider theme={buildTheme(mode).paper}>
           <Screen>
-            <Text variant="headlineMedium">Plan Bud</Text>
+            <Text variant="headlineMedium">{t('Plan Bud')}</Text>
             {message ? (
               <>
-                <Text accessibilityRole="alert">{message}</Text>
+                <Text accessibilityRole="alert">{t(message)}</Text>
                 <Button
                   mode="contained"
                   contentStyle={{ minHeight: 48 }}
@@ -144,11 +163,11 @@ export const AppRoot = () => {
                     setAttempt(attempt + 1);
                   }}
                 >
-                  Try again
+                  {t('Try again')}
                 </Button>
               </>
             ) : (
-              <ActivityIndicator accessibilityLabel="Opening your local data" />
+              <ActivityIndicator accessibilityLabel={t('Opening your local data')} />
             )}
           </Screen>
         </PaperProvider>

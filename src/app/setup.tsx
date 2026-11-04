@@ -4,7 +4,7 @@ import { useStore } from 'zustand';
 import { useServices } from '@/composition/services';
 import { SetupScreen } from '@/domains/settings/presentation/setup-screen';
 
-/** Mounts currency confirmation and exits only after durable setup succeeds.
+/** Mounts four-step onboarding and exits only after durable preference confirmation.
  * @returns Setup flow or the confirmed profile's home route.
  */
 const SetupRoute = () => {
