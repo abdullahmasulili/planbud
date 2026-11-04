@@ -77,3 +77,38 @@ it('RESTORE-002 bounds total nested records and counts Unicode names by code poi
     validateSnapshot({ ...snapshot, goals: [{ ...snapshot.goals[0], name: '💰'.repeat(120) }] }),
   ).toMatchObject({ ok: true });
 });
+
+it('PLAN-003 strictly validates version-2 estimates and retains original version-1 import', () => {
+  const namedPlan = {
+    id: 'vacation',
+    name: 'Vacation',
+    funding: 10000,
+    items: [{ id: 'travel', name: 'Travel', amount: 12000 }],
+  };
+  const current = { ...snapshot, schemaVersion: 2, namedPlans: [namedPlan] };
+  expect(validateSnapshot(snapshot)).toEqual({ ok: true, value: snapshot });
+  expect(validateSnapshot(current)).toEqual({ ok: true, value: current });
+  for (const input of [
+    { ...current, schemaVersion: 3 },
+    { ...snapshot, namedPlans: [] },
+    { ...current, namedPlans: [namedPlan, namedPlan] },
+    { ...current, namedPlans: [{ ...namedPlan, actualSpent: 1 }] },
+    {
+      ...current,
+      namedPlans: [{ ...namedPlan, items: [{ ...namedPlan.items[0], path: 'unsupported' }] }],
+    },
+    {
+      ...current,
+      namedPlans: [
+        {
+          ...namedPlan,
+          items: [
+            { id: 'huge', name: 'Huge', amount: Number.MAX_SAFE_INTEGER },
+            { id: 'extra', name: 'Extra', amount: 1 },
+          ],
+        },
+      ],
+    },
+  ])
+    expect(validateSnapshot(input).ok).toBe(false);
+});

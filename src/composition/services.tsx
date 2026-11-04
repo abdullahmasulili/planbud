@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Profile } from '@/domains/settings/application/public';
 import type { RuntimeServices } from './bootstrap';
+import { createNamedPlanStore } from '@/domains/budgeting/presentation/named-plan-store';
 import { createBudgetStore } from '@/domains/budgeting/presentation/budget-store';
 import { createTransactionStore } from '@/domains/transactions/presentation/transaction-store';
 import { createSettingsStore } from '@/domains/settings/presentation/settings-store';
@@ -28,6 +29,7 @@ export type ServiceScope = {
   readonly services: Services;
   readonly settings: ReturnType<typeof createSettingsStore>;
   readonly budgets: ReturnType<typeof createBudgetStore>;
+  readonly namedPlans: ReturnType<typeof createNamedPlanStore>;
   readonly transactions: ReturnType<typeof createTransactionStore>;
   readonly goals: ReturnType<typeof createGoalStore>;
   readonly planning: ReturnType<typeof createPlanningStore>;
@@ -57,6 +59,7 @@ export const ServicesProvider = ({
     services,
     settings: createSettingsStore(initialProfile),
     budgets: createBudgetStore(services.budgets),
+    namedPlans: createNamedPlanStore(services.namedPlans),
     transactions: createTransactionStore(services.transactions),
     goals: createGoalStore(services.goals),
     planning: createPlanningStore(services.planning),
@@ -65,6 +68,7 @@ export const ServicesProvider = ({
     () =>
       profileChanges?.subscribe((profile) => {
         scope.budgets.getState().reset();
+        scope.namedPlans.getState().reset();
         scope.transactions.getState().reset();
         scope.goals.getState().reset();
         scope.planning.getState().reset();
@@ -75,6 +79,7 @@ export const ServicesProvider = ({
   useEffect(
     () => () => {
       scope.budgets.getState().reset();
+      scope.namedPlans.getState().reset();
       scope.transactions.getState().reset();
       scope.goals.getState().reset();
       scope.planning.getState().reset();

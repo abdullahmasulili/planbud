@@ -1,5 +1,5 @@
 /** Current on-device schema; backup payload versions are validated independently. */
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 /** Constrains monetary/revision columns to exact JavaScript-compatible integers.
  * @param name Trusted column identifier authored in this schema.
@@ -89,5 +89,23 @@ CREATE TABLE IF NOT EXISTS commands (
   action TEXT NOT NULL,
   input_json TEXT NOT NULL,
   result_json TEXT NOT NULL
+);
+`;
+
+/** Schema 2 adds independent planning estimates while retaining every original source table. */
+export const NAMED_PLAN_SCHEMA = `
+CREATE TABLE IF NOT EXISTS named_plans (
+  id TEXT PRIMARY KEY NOT NULL CHECK(length(id) BETWEEN 1 AND 100),
+  name TEXT NOT NULL CHECK(length(name) BETWEEN 1 AND 120),
+  funding INTEGER NOT NULL ${safeInteger('funding')}
+);
+CREATE TABLE IF NOT EXISTS named_plan_items (
+  plan_id TEXT NOT NULL REFERENCES named_plans(id) ON DELETE RESTRICT,
+  id TEXT NOT NULL CHECK(length(id) BETWEEN 1 AND 100),
+  name TEXT NOT NULL CHECK(length(name) BETWEEN 1 AND 120),
+  amount INTEGER NOT NULL ${safeInteger('amount')},
+  position INTEGER NOT NULL CHECK(position BETWEEN 0 AND 99),
+  PRIMARY KEY(plan_id,id),
+  UNIQUE(plan_id,position)
 );
 `;

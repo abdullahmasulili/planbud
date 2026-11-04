@@ -40,3 +40,89 @@ The live SQLite database is app-private and is not encrypted in this MVP. Export
 Containers are limited to 16 MiB and snapshots to 50,000 source records including nested category limits. Exceeding a limit fails without truncation. Retain the ignored private signing pair for future updates; it is separate from recovery words. The APK and its relative-filename checksum are in `dist/android/`.
 
 No external ticket. No commits, pushes or pull requests created. Remote required-check settings and store distribution were not configured.
+
+## Cards, charts, and named plans — 2026-10-27
+
+Scope: PLAN-001–003 and UI-009–010. Independent named plans contain funding and expense estimates, without assigning transactions or reserving monthly income. No dependencies changed.
+
+- `pnpm check` passed: 160 tests in 55 suites, formatting, zero-warning lint, strict TypeScript, domain boundaries, portable artifacts, and release-entry guards.
+- Android production export passed, including the new route and native chart primitives.
+- Real host SQLite covers schema-1 upgrade without monthly-data/revision changes, independent plans, stale save/delete rejection, legacy restore clearing named plans, current snapshot round-trip, and reset.
+- Encrypted schema-2 prepare/confirm using independent host AES and real SQLite preserves two named plans and checks preview counts and recovery readiness. Existing encrypted schema-1 import tests remain in place.
+- Component tests cover multiple plans, overallocated amounts, draft-discard confirmation, deletion isolation, screen-reader chart values, and zero-limit states. Provider isolation/reset includes named-plan projections.
+- Two independent read-only reviews found no material data/concurrency defect. Their layout concerns led to a bounded scrollable deletion confirmation and direct modal list scrolling. Plan cards show a bounded expense preview and identify any remaining estimates.
+- The generic frontend static audit reported two false positives in existing React Native Paper Button wrappers: it expects DOM `onclick` and does not recognize native `onPress`/forwarded props. Both controls have native handlers; project-native lint and tests passed.
+- An additional `expo install --check` reports available SDK-58 patch updates in the unchanged baseline dependency set. This feature keeps the locked versions; dependency upgrades remain separate work.
+
+Native development walkthrough on API 36, 2026-10-28:
+
+- Android debug CNG/Gradle build and installation passed. The current JavaScript bundle ran through Metro; this is not a new standalone release/offline qualification.
+- Confirmed currency setup, overview card/gauge rendering, navigation to named plans, and two independent native saves: Vacation and Wedding.
+- Vacation funding 1,000 with a Hotel estimate of 1,200 showed a 120% gauge and an exact 200 shortfall. Both the expense breakdown and zero-funded Wedding card rendered.
+- Vacation survived force-stop/reopen. Native Back opened discard confirmation; Keep editing preserved the draft.
+- A native keyboard-overlap reproduction led to keyboard avoidance at the shared modal-window boundary. The dialog then shrank above both text and numeric keyboards; scrolling exposed the expense input and Save button above the keyboard. Dialog/back and named-plan interaction tests passed afterward.
+- Initial Maestro launch/inspection was unreliable after emulator restart. Direct Android UI hierarchy and screenshot inspection supplied the evidence above. An interrupted run was attributable to Android updating WebView and stopping its clients, recorded in the system event log; saved data remained intact.
+
+Extended TalkBack, minimum-API qualification, and standalone release acceptance for these new screens remain pending. Earlier release/device evidence above applies to the preceding candidate.
+
+## Onboarding and bilingual interface, 2026-11-04
+
+- Replaced first launch with four reversible steps: introduction, consent for protected recovery storage, preferences, and Get started. Currency still requires explicit confirmation. Profile persistence failures retain the final step for retry. Recovery creation, confirmation, protected storage, and encrypted-only export remain in the existing backup workflow.
+- Bundled English and Indonesian app-owned copy. Language and appearance persist through the profile use cases; the existing snapshot locale needs no schema change. Open financial drafts retain their original decimal separator. Host tests cover confirmation gating, back/selection retention, failed-save retry, locale persistence/validation, unchanged monetary values, translation placeholders, and reduced-motion/unavailable-preference fallback.
+- `pnpm check` passed: formatting, lint, typecheck, boundaries, portable artifacts, release policy, and 170 tests across 57 suites. Focused transaction checks were repeated after the final category-label translation correction.
+- Maestro inline flows passed on the connected Android emulator with this worktree's development bundle: storage consent, native Back from preferences, English and Indonesian onboarding, dark preview, final readiness/checkmark, Get started into translated navigation, all four tabs, English/light selection in Settings, and persistence after force-stop/relaunch. The development launch required an explicit startup wait before assertions.
+- At Android font scale 2.0, Maestro completed all four steps with scrolling; final actions remained reachable. Restored font scale 1.0 afterward. Inspected native screenshots in light and dark modes and captured the completion transition. Added `.maestro/onboarding.yaml` and updated existing setup selectors/helpers for repeatable fresh-install testing; the native session used equivalent inline flows, not a full release-suite rerun.
+- Final review was local. No new dependency, generated native project, or backup-format change. No new release APK was built. Physical-device behavior, TalkBack, and a full native backup/restore rerun were not requalified for this UI change.
+
+### IDR follow-up
+
+- Added a one-tap Indonesian rupiah choice in setup. Whole IDR amounts omit zero display decimals; nonzero sen and the canonical two-decimal stored precision are preserved. Host checks cover selection/confirmation, decimal-comma parsing, zero, negative differences, fractional sen, maximum safe amounts, and both display locales. `pnpm check` passed with 170 tests across 57 suites.
+- Maestro CLI verified IDR onboarding in Indonesian, a synthetic income displayed as Rp10.000, and a second synthetic income of 0,50 producing Rp10.000,50. The fractional portion was resumed after updating the shared keyboard helper for Gboard’s resource-ID-free suggestion banner. Added `.maestro/idr.yaml` for a fresh-profile replay.
+- The app-level clear-data action returned a generic error during test setup while the development app was being rebuilt. The user approved Android app-data reset for the disposable profile. Native clear-data was not requalified; no product reset implementation was changed. After the emulator restarted, the CLI replaced the disconnected Maestro MCP session.
+
+## Buddy Wallet icons, 2026-11-04
+
+No external ticket. Scope: UI-011, UI-002, OFF-003. The selected wallet replaces the legacy app icon and transparent adaptive/monochrome layers. Expo notification configuration supplies the white small-icon mask and full-color large icon. App appearance remains automatic; launcher appearance follows Android rather than the in-app override.
+
+- `pnpm lint` and `pnpm typecheck` passed after the final code/test changes.
+- `pnpm test -- tests/tooling/brand-icons.test.ts tests/tooling/guardrails.test.ts` passed: 10 tests in 2 suites, including idempotent night colors, preservation of unrelated colors, and automatic messaging/analytics initialization disabled.
+- `pnpm check:artifacts` and `pnpm check:release` passed.
+- Before PR publication, full `pnpm check` passed: 161 tests in 56 suites, formatting, lint, typecheck, dependency boundaries, portable artifacts, and release guards.
+- Expo SDK 58 CNG prebuild and Android `:app:processDebugResources --max-workers=2` passed. Generated adaptive XML references foreground, monochrome, and `iconBackground`; day/night colors resolve to `#208AEF`/`#005EAD`. Generated manifest metadata references the notification small and large drawables and disables messaging auto-initialization and analytics collection.
+- PNG self-checks passed: 1024 px adaptive and monochrome layers, 96 px notification mask, white visible pixels, transparent backgrounds, and all adaptive foreground pixels inside the 66/108 safe circle.
+- An isolated native fixture on the API 37 emulator loaded the generated Android icon/notification resources, asserted the adaptive night colors and monochrome availability, rendered the masks, and posted a local notification. Inspected [light launcher/masks](../../output/icon-verification/light-launcher.png), [dark launcher/masks](../../output/icon-verification/dark-launcher.png), [light notification](../../output/icon-verification/light-notification.png), and [dark notification](../../output/icon-verification/dark-notification.png). The wallet remained visible without clipping; the notification status icon used the white wallet silhouette and the large icon retained brand blue. Monochrome preview colors were explicit fixture tints, not a claim of a particular wallpaper palette.
+- The preview fixture was removed and the emulator's original light mode restored. The existing installed app and its data were not replaced.
+- Two independent read-only configuration/offline reviews found no material issues; both distinguished generated resource checks from full release qualification.
+
+Icon visual gate:
+
+- Hard gate PASS: the user explicitly approved this symbol; launcher and notification images contain no text or fabricated claims.
+- Purpose gate PASS: the wallet represents budgeting; its smile expresses the selected Buddy identity. Blue and white follow the existing palette.
+- Liveliness gate PASS: ENERGY 1 / RHYTHM 1 / MOTION 1 matches the calm design brief; the wallet is the single focal point with no decorative motion.
+- Craftsmanship gate PASS for this icon scope: alpha/safe-zone assertions and API 37 native previews verify visible shapes, transparent cutouts, both background colors, and notification rendering. Full app release checks remain outside this evidence.
+
+Full application compilation/installation, standalone release/offline qualification with the new native dependency, OEM launcher caching behavior, and minimum-API runtime checks were not performed. A new Android binary is required for these assets and native settings to take effect; Metro reload alone cannot update them.
+
+## Date pickers and spending summary — 2026-11-04
+
+- Replaced all six date/month text inputs with shared picker controls. Calendar dates use the existing Expo UI Material dialog; months use a scrollable month/year chooser. Optional deadlines can be cleared, and cancellation leaves drafts unchanged.
+- Replaced the segmented gauge with a smooth SVG semicircle. The overview now includes a spending donut with exact totals, category amounts, shares, and an actionable empty state. Installed Expo-compatible `react-native-svg` 15.16.0; existing installations need a native rebuild.
+- `pnpm check` passed after the final chart sizing change: formatting, zero-warning lint, strict TypeScript, boundaries, artifact/release-entry checks, and 166 tests in 57 suites. Tests cover native picker callback handling, cancellation, timezone-safe dates, optional clearing, month/year changes, actual-spending shares, and zero spending. A local review checked shared gauge callers, all picker consumers, source-data ownership, and the complete diff.
+- Android debug CNG/Gradle build and installation passed on the connected API 37 emulator. Maestro verified month/year selection and Back cancellation, native transaction-date confirmation/cancellation, optional goal-deadline selection/clearing, and draft discard. Native inspection found and corrected excess chart whitespace caused by max-width/aspect-ratio sizing. The empty spending summary and scrollable month chooser were checked in dark appearance at 200% text; original emulator appearance/text settings were restored. No source financial records were saved by these walkthroughs.
+- Populated donut segments and overspending have host interaction coverage; the emulator walkthrough used the existing zero-spending data. Standalone release/offline, physical-device, and manual TalkBack qualification were not repeated. A development-only duplicate-linking warning appeared after Android appearance recreation; restarting the debug app cleared the retained navigation instance.
+
+## Currency dropdown — 2026-11-04
+
+- Replaced the editable onboarding currency code and separate rupiah shortcut with an outlined dropdown. Every supported currency has a bundled `CODE - Name` label, including `IDR - Indonesia Rupiah`. The current selection appears first, followed by other codes alphabetically. Currency names stay in English across both interface languages; field and dismissal labels are localized.
+- `pnpm check` passed: formatting, zero-warning lint, TypeScript, boundaries, artifact and release checks, and 185 tests in 62 suites. Host tests cover name-table completeness, selection resetting confirmation, same-currency reselection preserving confirmation, outside dismissal, Android Back consumption, and final profile saving. Paper's animated measurement is mocked in host tests; native checks exercise the real menu.
+- Maestro inline walkthroughs passed on the connected Android emulator with this branch's development bundle: onboarding, scrolling to IDR, selecting it, removing the shortcut, and closing the picker with Back while retaining the preferences step. Native inspection confirmed that changing USD to IDR cleared confirmation and disabled Continue. Inspected the dark dropdown screenshot and the light dropdown at 200% text; the long AED label wrapped and remained selectable. Restored the original 100% text setting. No profile completion or financial write was part of these walkthroughs. Updated `.maestro/idr.yaml` for the dropdown; its later transaction checks were not rerun.
+- Local final review covered the full change, setup callers, supported-code coverage, confirmation behavior, Android dismissal, list virtualization, and scalable theme roles. No dependency, persistence schema, currency exponent, or backup-format changes.
+
+Scoped UI delivery gate:
+
+- Hard gate PASS: real Android selection and Back checks, 200% text wrapping, theme-token colors, and no new assets, claims, or navigation.
+- Purpose gate PASS: the chevron indicates available choices, the check identifies the selected currency, and elevation separates options from the form.
+- Liveliness gate PASS: ENERGY 1 / RHYTHM 1 / MOTION 1 follows the existing calm Material form direction, Plus Jakarta Sans, and blue accent; the picker adds only selection controls.
+- Craftsmanship gate PASS: all new controls have handlers and accessible labels/states; host behavior tests and light/dark Android inspection cover this bounded UI change.
+
+No standalone release APK, physical-device, manual TalkBack, or hardware-keyboard qualification was performed for this change.

@@ -138,7 +138,7 @@ it('RESTORE-001 previews counts only, then explicitly replaces data once using t
           () => snapshotFixture().createdAt,
         ).readConsistent()
       ).snapshot,
-    ).toEqual(snapshotFixture());
+    ).toEqual({ ...snapshotFixture(), schemaVersion: 2, namedPlans: [] });
     expect(test.onReplaced).toHaveBeenCalledWith(snapshotFixture().profile);
     expect(await test.recovery.status()).toEqual({ ok: true, value: 'ready' });
   } finally {
@@ -237,7 +237,7 @@ it('RESTORE-003 keeps committed data on secret failure and resumes only with the
             () => snapshotFixture().createdAt,
           ).readConsistent()
         ).snapshot,
-      ).toEqual(snapshotFixture());
+      ).toEqual({ ...snapshotFixture(), schemaVersion: 2, namedPlans: [] });
     } finally {
       await test.database.close();
     }
@@ -255,6 +255,52 @@ it('RESTORE-001 clears local data only after explicit confirmation, without a fi
     expect(
       await test.database.read(async (sql) => await sql.all('SELECT id FROM profiles')),
     ).toEqual([]);
+  } finally {
+    await test.database.close();
+  }
+});
+
+it('PLAN-003 authenticates, previews, and confirms an encrypted schema-2 backup with named plans', async () => {
+  const test = await setup();
+  try {
+    const snapshot = {
+      ...snapshotFixture(),
+      schemaVersion: 2 as const,
+      namedPlans: [
+        {
+          id: 'vacation',
+          name: 'Vacation',
+          funding: 10000,
+          items: [{ id: 'hotel', name: 'Hotel', amount: 12000 }],
+        },
+        { id: 'event', name: 'Event', funding: 0, items: [] },
+      ],
+    };
+    const entropy = new Uint8Array(16); // Published zero-entropy vector; never user recovery material.
+    const bytes = await test.codec.sealBackup(
+      new TextEncoder().encode(JSON.stringify(snapshot)),
+      entropy,
+    );
+    const prepared = await test.service.prepareRestore(bytes, test.words);
+    expect(prepared).toMatchObject({
+      ok: true,
+      value: { counts: { namedPlans: 2, expenseEstimates: 1 } },
+    });
+    if (!prepared.ok) throw new Error('Synthetic v2 backup rejected.');
+    expect(await test.service.confirmRestore(prepared.value.token)).toEqual({
+      ok: true,
+      value: { recoveryReady: true },
+    });
+    const read = await createSnapshotRepository(
+      test.database,
+      () => snapshot.createdAt,
+    ).readConsistent();
+    expect(read.snapshot).toEqual({
+      ...snapshot,
+      namedPlans: [...snapshot.namedPlans].sort((a, b) => a.id.localeCompare(b.id)),
+    });
+    expect(await test.recovery.status()).toEqual({ ok: true, value: 'ready' });
+    entropy.fill(0);
   } finally {
     await test.database.close();
   }

@@ -1,6 +1,6 @@
 # Plan Bud
 
-An Android-only personal budget planner with local SQLite records, Material Design 3, bundled Plus Jakarta Sans, and light, dark and system color schemes. Plan monthly category limits, track income and expenses, record goal contributions, and review explainable goal allocations before applying changes.
+An Android-only personal budget planner with local SQLite records, Material Design 3, bundled Plus Jakarta Sans, and light, dark and system color schemes. Plan monthly category limits, compare actual activity with cards and charts, and create independent named estimates for vacations or other projects. Track income and expenses, record goal contributions, and review explainable goal allocations before applying changes.
 
 Encrypted `.planbud` backups require the file and its original generated 12-word recovery phrase. Import validates and previews a backup before replacing local records. Keep both safely: a lost phrase cannot be reset. The file format is documented; anyone possessing both the file and phrase can decrypt it with a compatible implementation.
 
@@ -40,3 +40,9 @@ pnpm scan:release dist/android/plan-bud-preview.apk
 The build uses Expo Continuous Native Generation and produces a signed standalone APK plus its checksum in `dist/android/`. The first build creates a private signing identity in the ignored `.private/android-signing/` folder. Preserve both files there securely for future updates; they are separate from the app's recovery phrase. Never commit or share them with the APK. A subsequent build reuses that identity and refuses to overwrite an incomplete pair.
 
 EAS profiles are also provided for an explicitly configured Expo account. Local APK generation does not require an Apple account or an EAS subscription.
+
+Pushes to the dedicated `gitops/release-build` branch run the [Android release workflow](.github/workflows/android-release.yml) directly on a GitHub runner, without EAS. Successful runs provide the APK and checksum under **Actions → Android release APK → run → Artifacts**, with a download link in the run summary. Downloads are retained for 14 days.
+
+Configure the two signing secrets described in the [release setup](docs/release/android-checklist.md#github-actions-release-builds) before publishing this branch. The workflow runs all engineering checks and scans the APK before uploading it.
+
+Review workflow and app changes through separate working-branch PRs into `dev`. Promote approved `dev` changes to `gitops/release-build` when an APK should be generated.

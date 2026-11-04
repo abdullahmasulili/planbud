@@ -14,6 +14,7 @@ const PlanRoute = () => {
   const openGoals = () => router.navigate('/goals');
   return profile ? (
     <PlanScreen
+      onNamedPlans={() => router.push('/plans')}
       profile={profile}
       service={services.budgets}
       store={budgets}

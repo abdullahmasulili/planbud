@@ -39,7 +39,7 @@ export const amountInput = (amount: MinorAmount, currency: Currency, locale: str
  * @param amount Safe signed minor-unit amount.
  * @param currency Confirmed currency metadata.
  * @param locale Confirmed display locale.
- * @returns Localized currency text, retaining negative fractions smaller than one unit.
+ * @returns Localized currency text, retaining negative fractions smaller than one unit. Whole IDR amounts omit zero decimal places; nonzero sen remain exact.
  * @throws When invalid formatting input reaches this presentation boundary.
  */
 export const formatMoney = (amount: number, currency: Currency, locale: string): string => {
@@ -49,11 +49,12 @@ export const formatMoney = (amount: number, currency: Currency, locale: string):
   const whole = parts.negative ? -absoluteWhole : absoluteWhole;
   const digits = new Intl.NumberFormat(locale, { useGrouping: false });
   const fraction = [...parts.fraction].map((digit) => digits.format(Number(digit))).join('');
+  const fractionDigits = currency.code === 'IDR' && amount % 100 === 0 ? 0 : currency.exponent;
   const formatter = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currency.code,
-    minimumFractionDigits: currency.exponent,
-    maximumFractionDigits: currency.exponent,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
   });
   return formatter
     .formatToParts(whole)

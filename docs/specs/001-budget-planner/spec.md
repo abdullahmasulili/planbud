@@ -5,6 +5,8 @@ Date: 2026-10-20 (Asia/Jakarta)
 
 ## Purpose and confirmed requirements
 
+2026-11-04 onboarding amendment: First launch has four steps: explain the app; request consent for protected recovery storage; choose English or Indonesian, confirm currency and preview system/light/dark appearance; then show readiness and Get started. Preferences persist only after successful completion. Android protected app storage needs no runtime storage permission; explain that recovery setup later creates and confirms the phrase in Backups, while folder selection applies only to encrypted exports. Preserve the existing recovery safeguards. The final checkmark rises from the bottom to the middle, bounces, spins once and is revealed; respect reduced motion. Translate app-owned navigation, forms, feedback and backup guidance offline, and allow language changes in Settings without converting financial values. Native document providers own their own language. Currency setup uses a dropdown of supported codes and full names, such as `IDR - Indonesia Rupiah`, with no separate rupiah shortcut button. Changing the selection requires confirmation again; reselecting the same currency preserves confirmation. Display whole rupiah amounts without zero decimals, retaining nonzero sen and the existing two-decimal storage precision.
+
 Build a personal budget planner in the existing Expo project. Success means the user can plan spending against financial goals, record actual activity, and recover data without any remote service.
 
 | ID       | Confirmed requirement                                                                                                                                                                                                                 |
@@ -27,7 +29,7 @@ The following sections define the approved product behavior. The engineering con
 
 ## MVP scope
 
-- One local personal profile, one currency, and calendar-month budgets.
+- One local personal profile, one currency, calendar-month budgets, and independent named planning estimates.
 - Choose the currency during setup. Default the selection from device locale; require confirmation. Changing currency after records exist requires clearing data or restoring a different profile; do not relabel amounts or convert them silently.
 - Enter planned monthly income and category spending limits. Mark categories as essential or flexible.
 - Record, edit, and delete income and expense transactions with a date, category where applicable, amount, and optional note.
@@ -38,6 +40,20 @@ The following sections define the approved product behavior. The engineering con
 - Choose system, light, or dark appearance; persist the choice locally.
 
 Exclude authentication, bank connections, cloud sync, remote analytics, advertising, remote AI, automatic currency conversion, investment recommendations, and recurring transaction automation from the MVP.
+
+## Named plans and visual summaries
+
+Approved scope extension on 2026-10-27: separate planning estimates, without assigning transactions to named plans.
+
+- PLAN-001: Create, edit, and delete multiple named plans, such as a vacation. Each has independent funding and named expense estimates in the profile currency. Plans are independent of calendar months and each other; they do not reserve monthly income or change transaction totals or goal allocations.
+- PLAN-002: Derive allocated and remaining funding from expense estimates. Allow an overallocated plan and show its exact shortfall. Reject invalid or unsafe totals. Zero funding and zero estimates are valid. Bound each plan to 100 expense estimates.
+- PLAN-003: Keep named plans in SQLite across restarts and in encrypted backups. Upgrade schema 1 without changing existing records. Accept original version-1 snapshots; emit version 2 with named plans, and reject unsupported snapshot versions.
+- UI-009: Use Material cards for financial summaries, labeled planned-versus-actual bar charts, and a smooth semicircular spending gauge. Give each spending category its own card in the planner and overview. Show exact amounts alongside charts, including zero-limit and overspending states. Charts use source records; never invent history.
+- UI-010: Named plan cards and their editor show an allocation gauge and expense breakdown. Keep scalable text, light/dark theme roles, native Android back/discard confirmation, bounded forms, and accessible text equivalents. Deletion names the plan and requires confirmation.
+- UI-011: Use the approved Buddy Wallet symbol without text for the Android launcher and notification identity. Adaptive icons have transparent foregrounds with light/dark blue backgrounds; themed launchers and notification small icons use a monochrome wallet mask tinted by Android. Notification icon configuration does not introduce reminders, remote registration, or permission prompts.
+- UI-012: Home has a floating action button that reveals New Planning and Record Spending above it. These actions open a new named-plan draft and a new expense draft, respectively. Close the menu on selection, outside tap, Android Back, or leaving Home.
+- UI-013: Use picker controls for transaction dates, contribution dates, optional goal deadlines, and all month selections. Cancel preserves the current draft; optional deadlines can be cleared. Calendar selections retain their displayed day across device timezones.
+- UI-014: The home overview shows actual spending by category for the selected month in a donut chart, alongside exact total, category amounts, and percentage shares. Exclude income and goal contributions. Explain how to add an expense when spending is zero.
 
 ## Money and date rules
 

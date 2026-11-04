@@ -53,3 +53,47 @@ it('TXN-001 preserves a save operation ID across retries and parses exact input 
   });
   expect(closed).toHaveBeenCalledTimes(1);
 }, 30000);
+
+it('keeps an open amount draft in its original format after a display-language change', async () => {
+  const save = jest.fn(async (command: Command<Transaction>): Promise<Result<Transaction>> => ({
+    ok: true,
+    value: command.input,
+  }));
+  const props = {
+    categories: [],
+    initial: null,
+    today: '2026-10-20',
+    /** Supplies a stable synthetic form identity.
+     * @returns Test-only identity.
+     */
+    newId: () => 'id',
+    onSave: save,
+    /** Completes the unused deletion boundary.
+     * @returns Successful deletion outcome.
+     */
+    onRemove: async (): Promise<Result<void>> => ({ ok: true, value: undefined }),
+    onClose: jest.fn(),
+  };
+  const profile = {
+    id: 'personal',
+    currency: { code: 'USD', exponent: 2 },
+    locale: 'en-US',
+    appearance: 'system',
+  } satisfies import('@/domains/settings/application/public').Profile;
+  const view = await render(
+    <TestScreen>
+      <TransactionForm {...props} profile={profile} />
+    </TestScreen>,
+  );
+  await fireEvent.press(screen.getByRole('radio', { name: 'Income' }));
+  await fireEvent.changeText(screen.getByLabelText('Amount (USD)'), '12.50');
+  await view.rerender(
+    <TestScreen>
+      <TransactionForm {...props} profile={{ ...profile, locale: 'id-ID' }} />
+    </TestScreen>,
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Save transaction' }));
+  expect(save).toHaveBeenCalledWith(
+    expect.objectContaining({ input: expect.objectContaining({ amount: 1250 }) }),
+  );
+});

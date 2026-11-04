@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { useStore } from 'zustand';
@@ -26,6 +27,7 @@ import { useOperation } from '@/shared/presentation/use-operation';
  * @param props.planning.store Scoped disposable review state.
  * @param props.planning.readGoals Published goal label read capability.
  * @param props.planning.onGoals Opens existing goal editing after canceling the preview.
+ * @param props.onNamedPlans Opens independent planning estimates.
  * @returns Loading, retry, and complete monthly planning flows.
  */
 export const PlanScreen = ({
@@ -35,18 +37,21 @@ export const PlanScreen = ({
   initialMonth,
   newId,
   planning,
+  onNamedPlans,
 }: {
   profile: Profile;
   service: BudgetService;
   store: ReturnType<typeof createBudgetStore>;
   initialMonth: string;
   newId: () => string;
+  onNamedPlans?: () => void;
   planning?: {
     readonly store: ReturnType<typeof createPlanningStore>;
     readonly readGoals: GoalService['readGoals'];
     readonly onGoals: () => void;
   };
 }) => {
+  const { t } = useI18n();
   const version = useStore(store, (state) => state.version);
   const categories = useStore(store, (state) => state.categories);
   const status = useStore(store, (state) => state.status);
@@ -144,6 +149,7 @@ export const PlanScreen = ({
       {version ? (
         <BudgetForm
           key={`${version.plan.month}:${version.revision}`}
+          {...(onNamedPlans ? { onNamedPlans } : {})}
           profile={profile}
           version={version}
           categories={categories}
@@ -157,13 +163,13 @@ export const PlanScreen = ({
         />
       ) : (
         <Screen>
-          <Text variant="headlineMedium">Monthly plan</Text>
+          <Text variant="headlineMedium">{t('Monthly plan')}</Text>
           {status === 'loading' ? (
-            <ActivityIndicator accessibilityLabel="Loading this month" />
+            <ActivityIndicator accessibilityLabel={t('Loading this month')} />
           ) : null}
           <FormMessage message={message} />
           <ActionButton onPress={() => load(store.getState().month || initialMonth)}>
-            Reload month
+            {t('Reload month')}
           </ActionButton>
         </Screen>
       )}
@@ -180,7 +186,7 @@ export const PlanScreen = ({
         />
       ) : null}
       <Snackbar visible={saved} onDismiss={() => setSaved(false)} duration={3000}>
-        Changes saved
+        {t('Changes saved')}
       </Snackbar>
       <FormMessage message={previewOperation.message} />
       {previewing && planning ? (

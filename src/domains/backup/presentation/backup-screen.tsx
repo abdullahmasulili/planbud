@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { Text } from 'react-native-paper';
@@ -27,6 +28,7 @@ export const BackupScreen = ({
   onRecovery: () => void;
   onRestore?: () => void;
 }) => {
+  const { t, locale } = useI18n();
   const [status, setStatus] = useState<RecoveryStatus | 'loading'>('loading');
   const [message, setMessage] = useState('');
   const [notice, setNotice] = useState('');
@@ -57,29 +59,32 @@ export const BackupScreen = ({
   );
   return (
     <Screen>
-      <Text variant="headlineMedium">Encrypted backups</Text>
+      <Text variant="headlineMedium">{t('Encrypted backups')}</Text>
       <Text>
-        Save a .planbud file and keep its original 12-word phrase separately. Both are required on a
-        new device. The app has no account, cloud sync or phrase reset.
+        {t(
+          'Save a .planbud file and keep its original 12-word phrase separately. Both are required on a new device. The app has no account, cloud sync or phrase reset.',
+        )}
       </Text>
       <Text>
-        Recovery status:{' '}
+        {t('Recovery status:')}{' '}
         {status === 'ready'
-          ? 'Ready'
+          ? t('Ready')
           : status === 'unconfigured'
-            ? 'Set up a phrase'
+            ? t('Set up a phrase')
             : status === 'pending'
-              ? 'Save the matching restored phrase'
+              ? t('Save the matching restored phrase')
               : status === 'loading'
-                ? 'Checking protected storage'
-                : 'Matching local secret unavailable'}
+                ? t('Checking protected storage')
+                : t('Matching local secret unavailable')}
       </Text>
       <FormMessage message={message || operation.message} />
-      <Text accessibilityLiveRegion="polite">{notice}</Text>
+      <Text accessibilityLiveRegion="polite">{t(notice)}</Text>
       {lastExport ? (
-        <Text>Last successful export this session: {lastExport}</Text>
+        <Text>
+          {t('Last successful export this session:')} {lastExport}
+        </Text>
       ) : (
-        <Text>No successful export in this session.</Text>
+        <Text>{t('No successful export in this session.')}</Text>
       )}
       <ActionButton
         mode="contained"
@@ -88,7 +93,7 @@ export const BackupScreen = ({
         onPress={() =>
           operation.run(exports.exportBackup, (outcome) => {
             if (outcome === 'saved') {
-              setLastExport(new Date().toLocaleString());
+              setLastExport(new Date().toLocaleString(locale));
               setNotice(
                 'Encrypted backup saved. Keep the file with its matching phrase available separately.',
               );
@@ -96,19 +101,20 @@ export const BackupScreen = ({
           })
         }
       >
-        Export encrypted backup
+        {t('Export encrypted backup')}
       </ActionButton>
       <ActionButton mode="outlined" onPress={onRecovery} disabled={operation.busy}>
-        Manage recovery phrase
+        {t('Manage recovery phrase')}
       </ActionButton>
       {onRestore ? (
         <ActionButton onPress={onRestore} disabled={operation.busy}>
-          Import encrypted backup
+          {t('Import encrypted backup')}
         </ActionButton>
       ) : null}
       <Text>
-        The selected document provider controls where it stores an encrypted file. Plan Bud writes
-        no plaintext export.
+        {t(
+          'The selected document provider controls where it stores an encrypted file. Plan Bud writes no plaintext export.',
+        )}
       </Text>
     </Screen>
   );

@@ -1,3 +1,5 @@
+import { DateInput } from '@/shared/presentation/date-input';
+import { useI18n } from '@/shared/presentation/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { FlatList, KeyboardAvoidingView, StyleSheet, View } from 'react-native';
@@ -11,7 +13,7 @@ import { parseDate } from '@/shared/domain/calendar-date';
 import type { Transaction } from '../application/public';
 import type { createTransactionStore } from './transaction-store';
 import { TransactionForm } from './transaction-form';
-import { AppInput, ActionButton } from '@/shared/presentation/controls';
+import { ActionButton } from '@/shared/presentation/controls';
 import { ChoiceGroup } from '@/shared/presentation/choice-group';
 import { FormMessage } from '@/shared/presentation/screen';
 import { formatMoney } from '@/shared/presentation/money-format';
@@ -25,6 +27,7 @@ import { launchOperation } from '@/shared/presentation/operation-launcher';
  * @param props.initialMonth First calendar month to load.
  * @param props.today Local date suggested for new entries.
  * @param props.newId Supplies stable record and action identities for each form.
+ * @param props.createRequest Unique navigation request to open a new expense draft once.
  * @returns One virtualized history scroll owner and complete source-entry dialogs.
  */
 export const TransactionsScreen = ({
@@ -34,6 +37,7 @@ export const TransactionsScreen = ({
   initialMonth,
   today,
   newId,
+  createRequest,
 }: {
   profile: Profile;
   store: ReturnType<typeof createTransactionStore>;
@@ -41,7 +45,9 @@ export const TransactionsScreen = ({
   initialMonth: string;
   today: string;
   newId: () => string;
+  createRequest?: string;
 }) => {
+  const { t } = useI18n();
   const theme = useTheme();
   const records = useStore(store, (state) => state.records);
   const summary = useStore(store, (state) => state.summary);
@@ -55,6 +61,14 @@ export const TransactionsScreen = ({
   const [categoryError, setCategoryError] = useState('');
   const [editing, setEditing] = useState<{ record: Transaction | null } | null>(null);
   const [notice, setNotice] = useState('');
+  const handledCreate = useRef<string | undefined>(undefined);
+  useFocusEffect(
+    useCallback(() => {
+      if (!createRequest || handledCreate.current === createRequest) return;
+      handledCreate.current = createRequest;
+      setEditing({ record: null });
+    }, [createRequest]),
+  );
   const cancelRead = useRef<(() => void) | undefined>(undefined);
   const cancelPage = useRef<(() => void) | undefined>(undefined);
   /** Refreshes history and labels, ignoring category completions after blur or teardown.
@@ -133,40 +147,40 @@ export const TransactionsScreen = ({
           contentContainerStyle={styles.content}
           ListHeaderComponent={
             <View style={styles.section}>
-              <Text variant="headlineMedium">Transactions</Text>
-              <Text>Actual income and spending stay separate from goal contributions.</Text>
-              <AppInput
-                label="History month"
-                accessibilityLabel="History month"
-                placeholder="YYYY-MM"
+              <Text variant="headlineMedium">{t('Transactions')}</Text>
+              <Text>{t('Actual income and spending stay separate from goal contributions.')}</Text>
+              <DateInput
+                mode="month"
+                label={t('History month')}
+                accessibilityLabel={t('History month')}
                 value={month}
                 onChangeText={setMonth}
-                maxLength={7}
               />
               <ActionButton mode="outlined" onPress={openMonth} disabled={status === 'loading'}>
-                Open month
+                {t('Open month')}
               </ActionButton>
               <FormMessage message={monthError || message || categoryError} />
               {status === 'stale' ? (
-                <Text>Showing the last loaded records. Reload for current totals.</Text>
+                <Text>{t('Showing the last loaded records. Reload for current totals.')}</Text>
               ) : null}
               {summary ? (
                 <>
                   <Text>
-                    Income: {formatMoney(summary.income, profile.currency, profile.locale)}
+                    {t('Income:')} {formatMoney(summary.income, profile.currency, profile.locale)}
                   </Text>
                   <Text>
-                    Spending: {formatMoney(summary.spending, profile.currency, profile.locale)}
+                    {t('Spending:')}{' '}
+                    {formatMoney(summary.spending, profile.currency, profile.locale)}
                   </Text>
                 </>
               ) : null}
               <ChoiceGroup<typeof filter>
-                label="History filter"
+                label={t('History filter')}
                 value={filter}
                 options={[
-                  { value: 'all', label: 'All entries' },
-                  { value: 'income', label: 'Income' },
-                  { value: 'expense', label: 'Expenses' },
+                  { value: 'all', label: t('All entries') },
+                  { value: 'income', label: t('Income') },
+                  { value: 'expense', label: t('Expenses') },
                 ]}
                 onChange={store.getState().setFilter}
               />
@@ -174,28 +188,34 @@ export const TransactionsScreen = ({
                 onPress={() => load(store.getState().month || initialMonth)}
                 disabled={status === 'loading'}
               >
-                Reload history
+                {t('Reload history')}
               </ActionButton>
             </View>
           }
           renderItem={({ item }) => (
             <List.Item
-              title={`${item.type === 'expense' ? 'Expense' : 'Income'} · ${formatMoney(item.amount, profile.currency, profile.locale)}`}
+              title={`${t(item.type === 'expense' ? 'Expense' : 'Income')} · ${formatMoney(item.amount, profile.currency, profile.locale)}`}
               titleNumberOfLines={0}
-              description={`${item.date}${item.categoryId ? ' · ' + (categories.find((category) => category.id === item.categoryId)?.name ?? 'Category unavailable') : ''}${item.note ? '\n' + item.note : ''}`}
+              description={`${item.date}${item.categoryId ? ' · ' + (categories.find((category) => category.id === item.categoryId)?.name ?? t('Category unavailable')) : ''}${item.note ? '\n' + item.note : ''}`}
               descriptionNumberOfLines={3}
-              accessibilityLabel={`Edit ${item.type} ${formatMoney(item.amount, profile.currency, profile.locale)} on ${item.date}`}
+              accessibilityLabel={t('Edit {0} {1} on {2}', {
+                0: t(item.type),
+                1: formatMoney(item.amount, profile.currency, profile.locale),
+                2: item.date,
+              })}
               onPress={() => setEditing({ record: item })}
             />
           )}
           ListEmptyComponent={
             status === 'loading' ? (
-              <ActivityIndicator accessibilityLabel="Loading transactions" />
+              <ActivityIndicator accessibilityLabel={t('Loading transactions')} />
             ) : (
               <Text>
                 {records.length
-                  ? `No ${filter} in the loaded entries. Load more or change the filter.`
-                  : 'No transactions for this month. Add an income or expense to begin.'}
+                  ? t('No {0} in the loaded entries. Load more or change the filter.', {
+                      0: t(filter),
+                    })
+                  : t('No transactions for this month. Add an income or expense to begin.')}
               </Text>
             )
           }
@@ -207,14 +227,14 @@ export const TransactionsScreen = ({
                 loading={status === 'loading'}
                 onPress={more}
               >
-                Load more
+                {t('Load more')}
               </ActionButton>
             ) : undefined
           }
         />
         <View style={styles.action}>
           <ActionButton mode="contained" onPress={() => setEditing({ record: null })}>
-            New transaction
+            {t('New transaction')}
           </ActionButton>
         </View>
       </KeyboardAvoidingView>
@@ -235,7 +255,7 @@ export const TransactionsScreen = ({
         />
       ) : null}
       <Snackbar visible={notice !== ''} onDismiss={() => setNotice('')} duration={3000}>
-        {notice}
+        {t(notice)}
       </Snackbar>
     </SafeAreaView>
   );

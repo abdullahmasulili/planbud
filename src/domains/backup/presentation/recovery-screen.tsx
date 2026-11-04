@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { useState } from 'react';
 import { Checkbox, Text } from 'react-native-paper';
 import type { RecoveryService } from '../application/public';
@@ -20,18 +21,21 @@ export const RecoveryScreen = ({
   service: RecoveryService;
   protection: SensitiveScreenPort;
 }) => {
+  const { t } = useI18n();
   const flow = useRecoveryFlow(service, protection);
   const [replace, setReplace] = useState(false);
   return (
     <Screen>
-      <Text variant="headlineMedium">Recovery phrase</Text>
+      <Text variant="headlineMedium">{t('Recovery phrase')}</Text>
       <Text>
-        Both your encrypted .planbud file and its 12-word phrase are required to restore. Neither
-        the app nor a service can reset a lost phrase or recover a missing file.
+        {t(
+          'Both your encrypted .planbud file and its 12-word phrase are required to restore. Neither the app nor a service can reset a lost phrase or recover a missing file.',
+        )}
       </Text>
       <Text>
-        Create a new phrase for Plan Bud. Never reuse a cryptocurrency wallet phrase. Write the
-        words in order and keep them separate from the backup file.
+        {t(
+          'Create a new phrase for Plan Bud. Never reuse a cryptocurrency wallet phrase. Write the words in order and keep them separate from the backup file.',
+        )}
       </Text>
       <FormMessage message={flow.message} />
       {flow.phase === 'intro' ? (
@@ -39,8 +43,9 @@ export const RecoveryScreen = ({
           {replace ? (
             <>
               <Text>
-                Changing the phrase affects future backups only. Older files still require their
-                original phrase.
+                {t(
+                  'Changing the phrase affects future backups only. Older files still require their original phrase.',
+                )}
               </Text>
               <ActionButton
                 mode="contained"
@@ -50,9 +55,11 @@ export const RecoveryScreen = ({
                   setReplace(false);
                 }}
               >
-                Create replacement phrase
+                {t('Create replacement phrase')}
               </ActionButton>
-              <ActionButton onPress={() => setReplace(false)}>Keep existing phrase</ActionButton>
+              <ActionButton onPress={() => setReplace(false)}>
+                {t('Keep existing phrase')}
+              </ActionButton>
             </>
           ) : (
             <>
@@ -61,20 +68,20 @@ export const RecoveryScreen = ({
                 disabled={!flow.protectedView || flow.busy}
                 onPress={() => flow.create(false)}
               >
-                Set up new phrase
+                {t('Set up new phrase')}
               </ActionButton>
               <ActionButton
                 mode="outlined"
                 disabled={!flow.protectedView || flow.busy}
                 onPress={flow.reveal}
               >
-                Reveal existing phrase
+                {t('Reveal existing phrase')}
               </ActionButton>
               <ActionButton disabled={flow.busy} onPress={() => setReplace(true)}>
-                Change phrase for future backups
+                {t('Change phrase for future backups')}
               </ActionButton>
               <ActionButton disabled={!flow.protectedView || flow.busy} onPress={flow.startResume}>
-                Save existing matching phrase
+                {t('Save existing matching phrase')}
               </ActionButton>
             </>
           )}
@@ -82,8 +89,9 @@ export const RecoveryScreen = ({
       ) : flow.phase === 'reveal' ? (
         <>
           <Text>
-            Capture is blocked while this screen is open. This does not protect words you share or
-            write elsewhere.
+            {t(
+              'Capture is blocked while this screen is open. This does not protect words you share or write elsewhere.',
+            )}
           </Text>
           {flow.words.map((word, index) => (
             <Text key={index} variant="titleLarge" selectable={false}>
@@ -92,14 +100,14 @@ export const RecoveryScreen = ({
           ))}
           {flow.positions.length ? (
             <ActionButton mode="contained" onPress={flow.startConfirmation}>
-              I wrote down the words
+              {t('I wrote down the words')}
             </ActionButton>
           ) : null}
-          <ActionButton onPress={flow.dispose}>Hide phrase</ActionButton>
+          <ActionButton onPress={flow.dispose}>{t('Hide phrase')}</ActionButton>
         </>
       ) : flow.phase === 'resume' ? (
         <PhraseInput
-          label="Save matching phrase"
+          label={t('Save matching phrase')}
           ready={flow.protectedView}
           busy={flow.busy}
           onSubmit={flow.resume}
@@ -116,10 +124,11 @@ export const RecoveryScreen = ({
       ) : (
         <>
           <Text>
-            Recovery phrase saved in protected local storage. Keep your written copy: it is required
-            with the encrypted file on a new device.
+            {t(
+              'Recovery phrase saved in protected local storage. Keep your written copy: it is required with the encrypted file on a new device.',
+            )}
           </Text>
-          <ActionButton onPress={flow.dispose}>Done</ActionButton>
+          <ActionButton onPress={flow.dispose}>{t('Done')}</ActionButton>
         </>
       )}
     </Screen>
@@ -148,6 +157,7 @@ const RecoveryConfirmation = ({
   ) => void;
   onCancel: () => void;
 }) => {
+  const { t } = useI18n();
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [acknowledged, setAcknowledged] = useState(false);
   return (
@@ -155,8 +165,8 @@ const RecoveryConfirmation = ({
       {positions.map((position) => (
         <AppInput
           key={position}
-          label={`Word ${position}`}
-          accessibilityLabel={`Recovery word ${position}`}
+          label={t('Word {0}', { 0: position })}
+          accessibilityLabel={t('Recovery word {0}', { 0: position })}
           value={answers[position] ?? ''}
           onChangeText={(word) => setAnswers((current) => ({ ...current, [position]: word }))}
           secureTextEntry
@@ -171,7 +181,7 @@ const RecoveryConfirmation = ({
         />
       ))}
       <Checkbox.Item
-        label="I understand that both the file and phrase are required and cannot be reset"
+        label={t('I understand that both the file and phrase are required and cannot be reset')}
         labelMaxFontSizeMultiplier={0}
         status={acknowledged ? 'checked' : 'unchecked'}
         onPress={() => setAcknowledged(!acknowledged)}
@@ -188,10 +198,10 @@ const RecoveryConfirmation = ({
           )
         }
       >
-        Confirm recovery phrase
+        {t('Confirm recovery phrase')}
       </ActionButton>
       <ActionButton disabled={busy} onPress={onCancel}>
-        Cancel setup
+        {t('Cancel setup')}
       </ActionButton>
     </>
   );

@@ -35,7 +35,18 @@ export const runRestoreContract = async (): Promise<ContractReport> => {
     await migrateDatabase(database);
     const codec = createBackupCodec(nativeRandom, nativeAead);
     const metadata = createRecoveryMetadata(database);
-    const snapshot = snapshotFixture();
+    const snapshot = {
+      ...snapshotFixture(),
+      schemaVersion: 2 as const,
+      namedPlans: [
+        {
+          id: 'native-vacation',
+          name: 'Synthetic vacation',
+          funding: 10000,
+          items: [{ id: 'hotel', name: 'Hotel', amount: 12000 }],
+        },
+      ],
+    };
     const canonical = validateSnapshot(snapshot);
     if (!canonical.ok) throw new Error('Invalid synthetic source fixture.');
     const service = createRestoreService({

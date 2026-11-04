@@ -57,8 +57,18 @@ export const createSnapshotRepository = (
       );
       if (categories.some((item) => item.archived !== 0 && item.archived !== 1))
         throw new Error('Invalid archived category.');
+      const namedPlans = await readRows('SELECT id,name,funding FROM named_plans ORDER BY id');
+      const namedItems = await readRows(
+        'SELECT plan_id,id,name,amount FROM named_plan_items ORDER BY position',
+      );
       const result = validateSnapshot({
-        schemaVersion: 1,
+        schemaVersion: 2,
+        namedPlans: namedPlans.map((plan) => ({
+          ...plan,
+          items: namedItems
+            .filter((item) => item.plan_id === plan.id)
+            .map((item) => ({ id: item.id, name: item.name, amount: item.amount })),
+        })),
         createdAt: now(),
         profile: {
           id: profile.id,

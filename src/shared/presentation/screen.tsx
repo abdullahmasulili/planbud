@@ -2,17 +2,25 @@ import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme, Text } from 'react-native-paper';
+import { useI18n } from './i18n';
 
 /** Provides one keyboard-aware form scroll owner with safe Android edges.
  * @param props Finite form or settings content; use a FlatList for histories.
  * @param props.children Finite screen content.
+ * @param props.includeTop Includes the top safe area on a screen without a navigation header.
  * @returns A themed, scalable screen body.
  */
-export const Screen = ({ children }: { children: ReactNode }) => {
+export const Screen = ({
+  children,
+  includeTop = false,
+}: {
+  children: ReactNode;
+  includeTop?: boolean;
+}) => {
   const theme = useTheme();
   return (
     <SafeAreaView
-      edges={['left', 'right', 'bottom']}
+      edges={includeTop ? ['top', 'left', 'right', 'bottom'] : ['left', 'right', 'bottom']}
       style={[styles.fill, { backgroundColor: theme.colors.background }]}
     >
       <KeyboardAvoidingView behavior="height" style={styles.fill}>
@@ -31,13 +39,14 @@ export const Screen = ({ children }: { children: ReactNode }) => {
  */
 export const FormMessage = ({ message }: { message: string }) => {
   const theme = useTheme();
+  const { t } = useI18n();
   return message ? (
     <Text
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"
       style={{ color: theme.colors.error }}
     >
-      {message}
+      {t(message)}
     </Text>
   ) : null;
 };

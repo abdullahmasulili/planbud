@@ -14,6 +14,12 @@ Each queued write captures a private connection session before joining the FIFO.
 
 The singleton profile confirms currency before entry; later settings can change appearance but cannot relabel monetary data. Foreign keys restrict deletion of referenced categories and goals. Idempotency commands belong to the local database and are excluded from portable snapshots.
 
+## Independent planning estimates
+
+Named plans belong to budgeting and remain separate from monthly plans, actual transactions, and goal allocations. A plan owns its funding and up to 100 expense estimates. Application validation rejects unsafe aggregate amounts; derived allocation retains a signed shortfall. SQLite schema 2 adds `named_plans` and `named_plan_items` without rewriting schema-1 records. Mutations use the same serialized source-revision checks as monthly planning.
+
+The provider owns a disposable named-plan Zustand projection. Editors capture their original revision and retain local drafts on failure. Profile replacement resets projections and remounts routes. Current encrypted exports carry snapshot schema 2, including named plans; schema-1 backups still import and replace named plans with an empty list. Cryptographic container version 1 is unchanged.
+
 ## Verification boundaries
 
 Colocated test files are composition roots and may import host adapters. Production modules cannot import tests. This narrow exception does not relax syntax, async, or documentation rules. Host contracts use actual SQLite through Node's experimental test-host API; they do not establish native Android behavior. Development diagnostics run the same portable assertions with Expo SQLite in a disposable database. Release composition must exclude diagnostics.

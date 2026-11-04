@@ -1,3 +1,5 @@
+import { DateInput } from '@/shared/presentation/date-input';
+import { useI18n } from '@/shared/presentation/i18n';
 import { useState } from 'react';
 import { ScrollView } from 'react-native';
 import { Dialog, Text } from 'react-native-paper';
@@ -51,12 +53,13 @@ export const TransactionForm = ({
   onCommitted?: (kind: 'save' | 'remove') => void;
   categoryError?: string;
 }) => {
+  const { t } = useI18n();
+  // Keep an open draft's decimal separator stable when Settings changes language.
+  const [inputLocale] = useState(profile.locale);
   const [id] = useState(() => initial?.id ?? newId());
   const [operationId] = useState(newId);
   const [deleteId] = useState(newId);
-  const originalAmount = initial
-    ? amountInput(initial.amount, profile.currency, profile.locale)
-    : '';
+  const originalAmount = initial ? amountInput(initial.amount, profile.currency, inputLocale) : '';
   const [type, setType] = useState<Transaction['type']>(initial?.type ?? 'expense');
   const [amount, setAmount] = useState(originalAmount);
   const [date, setDate] = useState(initial?.date ?? today);
@@ -86,7 +89,7 @@ export const TransactionForm = ({
   const save = () => {
     operation.run(
       async () => {
-        const parsed = parseAmount(amount, profile.currency, profile.locale);
+        const parsed = parseAmount(amount, profile.currency, inputLocale);
         if (!parsed.ok) return parsed;
         return await onSave({
           operationId,
@@ -116,12 +119,12 @@ export const TransactionForm = ({
       >
         <Dialog.Title>
           {phase === 'delete'
-            ? 'Delete transaction?'
+            ? t('Delete transaction?')
             : phase === 'discard'
-              ? 'Discard unsaved edits?'
+              ? t('Discard unsaved edits?')
               : initial
-                ? 'Edit transaction'
-                : 'New transaction'}
+                ? t('Edit transaction')
+                : t('New transaction')}
         </Dialog.Title>
         <Dialog.ScrollArea>
           <ScrollView
@@ -131,40 +134,38 @@ export const TransactionForm = ({
             {phase === 'edit' ? (
               <>
                 <ChoiceGroup<Transaction['type']>
-                  label="Transaction type"
+                  label={t('Transaction type')}
                   value={type}
                   options={[
-                    { value: 'expense', label: 'Expense' },
-                    { value: 'income', label: 'Income' },
+                    { value: 'expense', label: t('Expense') },
+                    { value: 'income', label: t('Income') },
                   ]}
                   onChange={setType}
                   disabled={operation.busy}
                 />
                 <AppInput
-                  label={`Amount (${profile.currency.code})`}
-                  accessibilityLabel={`Amount (${profile.currency.code})`}
+                  label={t('Amount ({0})', { 0: profile.currency.code })}
+                  accessibilityLabel={t('Amount ({0})', { 0: profile.currency.code })}
                   value={amount}
                   onChangeText={setAmount}
                   keyboardType="decimal-pad"
                   maxLength={40}
                   disabled={operation.busy}
                 />
-                <AppInput
-                  label="Transaction date"
-                  accessibilityLabel="Transaction date"
+                <DateInput
+                  label={t('Transaction date')}
+                  accessibilityLabel={t('Transaction date')}
                   value={date}
                   onChangeText={setDate}
-                  placeholder="YYYY-MM-DD"
-                  maxLength={10}
                   disabled={operation.busy}
                 />
                 {type === 'expense' ? (
                   <>
-                    <Text variant="titleMedium">Expense category</Text>
+                    <Text variant="titleMedium">{t('Expense category')}</Text>
                     <Text>
                       {selected
-                        ? `${selected.name}${selected.archived ? ' · archived' : ''}`
-                        : 'Choose a category for this expense.'}
+                        ? `${selected.name}${selected.archived ? t(' · archived') : ''}`
+                        : t('Choose a category for this expense.')}
                     </Text>
                     {available.length ? (
                       <ActionButton
@@ -172,18 +173,18 @@ export const TransactionForm = ({
                         disabled={operation.busy}
                         onPress={() => setPicking(true)}
                       >
-                        Choose category
+                        {t('Choose category')}
                       </ActionButton>
                     ) : categoryError ? (
                       <FormMessage message={categoryError} />
                     ) : (
-                      <Text>Create a category in Plan before entering an expense.</Text>
+                      <Text>{t('Create a category in Plan before entering an expense.')}</Text>
                     )}
                   </>
                 ) : null}
                 <AppInput
-                  label="Note (optional)"
-                  accessibilityLabel="Transaction note"
+                  label={t('Note (optional)')}
+                  accessibilityLabel={t('Transaction note')}
                   value={note}
                   onChangeText={setNote}
                   multiline
@@ -198,7 +199,7 @@ export const TransactionForm = ({
                   disabled={operation.busy}
                   onPress={save}
                 >
-                  Save transaction
+                  {t('Save transaction')}
                 </ActionButton>
                 {initial ? (
                   <ActionButton
@@ -208,16 +209,16 @@ export const TransactionForm = ({
                       setPhase('delete');
                     }}
                   >
-                    Delete transaction
+                    {t('Delete transaction')}
                   </ActionButton>
                 ) : null}
                 <ActionButton disabled={operation.busy} onPress={requestClose}>
-                  Cancel
+                  {t('Cancel')}
                 </ActionButton>
               </>
             ) : phase === 'delete' ? (
               <>
-                <Text>The record will be removed and monthly totals recalculated.</Text>
+                <Text>{t('The record will be removed and monthly totals recalculated.')}</Text>
                 <FormMessage message={operation.message} />
                 <ActionButton
                   mode="contained"
@@ -233,19 +234,19 @@ export const TransactionForm = ({
                     )
                   }
                 >
-                  Delete
+                  {t('Delete')}
                 </ActionButton>
                 <ActionButton disabled={operation.busy} onPress={() => setPhase('edit')}>
-                  Keep transaction
+                  {t('Keep transaction')}
                 </ActionButton>
               </>
             ) : (
               <>
-                <Text>Your saved record stays unchanged.</Text>
+                <Text>{t('Your saved record stays unchanged.')}</Text>
                 <ActionButton mode="contained" onPress={onClose}>
-                  Discard edits
+                  {t('Discard edits')}
                 </ActionButton>
-                <ActionButton onPress={() => setPhase('edit')}>Keep editing</ActionButton>
+                <ActionButton onPress={() => setPhase('edit')}>{t('Keep editing')}</ActionButton>
               </>
             )}
           </ScrollView>

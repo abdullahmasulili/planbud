@@ -1,7 +1,9 @@
+import { DateInput } from '@/shared/presentation/date-input';
+import { useI18n } from '@/shared/presentation/i18n';
 import { useEffect, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Dialog, Text, useTheme } from 'react-native-paper';
+import { Card, Dialog, Text, useTheme } from 'react-native-paper';
 import { AppDialog } from '@/shared/presentation/dialog';
 import type { BudgetService, Category, PlanVersion } from '../application/public';
 import type { Profile } from '@/domains/settings/application/public';
@@ -24,6 +26,7 @@ import { useOperation } from '@/shared/presentation/use-operation';
  * @param props.onPreview Opens decision support for the saved plan after resolving drafts.
  * @param props.onDirtyChange Reports draft ownership to the focus refresh coordinator.
  * @param props.staleDraft Whether source changes require explicit draft disposal and reload.
+ * @param props.onNamedPlans Opens independent planning estimates.
  * @returns One virtualized keyboard-aware scroll owner for monthly estimates.
  */
 export const BudgetForm = ({
@@ -37,6 +40,7 @@ export const BudgetForm = ({
   onPreview,
   onDirtyChange,
   staleDraft = false,
+  onNamedPlans,
 }: {
   version: PlanVersion;
   categories: readonly Category[];
@@ -48,13 +52,17 @@ export const BudgetForm = ({
   onPreview?: () => void;
   onDirtyChange?: (dirty: boolean) => void;
   staleDraft?: boolean;
+  onNamedPlans?: () => void;
 }) => {
+  const { t } = useI18n();
+  // Keep an open draft's decimal separator stable when Settings changes language.
+  const [inputLocale] = useState(profile.locale);
   const theme = useTheme();
   const rows = categories.filter(
     (category) =>
       !category.archived || version.plan.limits.some((limit) => limit.categoryId === category.id),
   );
-  const originalIncome = amountInput(version.plan.plannedIncome, profile.currency, profile.locale);
+  const originalIncome = amountInput(version.plan.plannedIncome, profile.currency, inputLocale);
   /** Resolves an existing limit or a legal zero for an unplanned category.
    * @param id Stable category identity.
    * @returns Exact locale-decimal initial input.
@@ -63,7 +71,7 @@ export const BudgetForm = ({
     amountInput(
       version.plan.limits.find((limit) => limit.categoryId === id)?.amount ?? 0,
       profile.currency,
-      profile.locale,
+      inputLocale,
     );
   const [income, setIncome] = useState(originalIncome);
   const [limits, setLimits] = useState<Record<string, string>>(() =>
@@ -100,11 +108,11 @@ export const BudgetForm = ({
   /** Parses exact minor units before saving against the original data revision. */
   const save = () => {
     operation.run(async () => {
-      const parsedIncome = parseAmount(income, profile.currency, profile.locale);
+      const parsedIncome = parseAmount(income, profile.currency, inputLocale);
       if (!parsedIncome.ok) return parsedIncome;
       const nextLimits: { categoryId: string; amount: number }[] = [];
       for (const category of rows) {
-        const parsed = parseAmount(limits[category.id] ?? '', profile.currency, profile.locale);
+        const parsed = parseAmount(limits[category.id] ?? '', profile.currency, inputLocale);
         if (!parsed.ok) return parsed;
         nextLimits.push({ categoryId: category.id, amount: parsed.value });
       }
@@ -127,83 +135,106 @@ export const BudgetForm = ({
           contentContainerStyle={styles.content}
           ListHeaderComponent={
             <View style={styles.section}>
-              <Text variant="headlineMedium">Monthly plan</Text>
+              <Text variant="headlineMedium">{t('Monthly plan')}</Text>
+              {onNamedPlans ? (
+                <ActionButton
+                  mode="outlined"
+                  icon="folder-outline"
+                  disabled={dirty || operation.busy}
+                  onPress={onNamedPlans}
+                >
+                  {t('Named plans')}
+                </ActionButton>
+              ) : null}
+              {dirty && onNamedPlans ? (
+                <Text>{t('Save or discard edits before opening named plans.')}</Text>
+              ) : null}
               <Text>
-                Estimates for {version.plan.month}. Saving one month keeps every other month
-                independent.
+                {t('Estimates for')} {version.plan.month}
+                {t('. Saving one month keeps every other month independent.')}
               </Text>
-              <AppInput
-                label="Planning month"
-                accessibilityLabel="Planning month"
+              <DateInput
+                mode="month"
+                label={t('Planning month')}
+                accessibilityLabel={t('Planning month')}
                 value={month}
                 onChangeText={setMonth}
-                placeholder="YYYY-MM"
-                maxLength={7}
                 disabled={operation.busy}
               />
               <ActionButton mode="outlined" onPress={openMonth} disabled={operation.busy}>
-                Open month
+                {t('Open month')}
               </ActionButton>
               <FormMessage message={monthError} />
               <AppInput
-                label={`Planned income (${profile.currency.code})`}
-                accessibilityLabel={`Planned income (${profile.currency.code})`}
+                label={t('Planned income ({0})', { 0: profile.currency.code })}
+                accessibilityLabel={t('Planned income ({0})', { 0: profile.currency.code })}
                 value={income}
                 onChangeText={setIncome}
                 keyboardType="decimal-pad"
                 maxLength={40}
                 disabled={operation.busy}
               />
-              <Text variant="titleLarge">Category limits</Text>
-              <Text>Enter amounts without grouping separators. Zero is a valid limit.</Text>
+              <Text variant="titleLarge">{t('Category limits')}</Text>
+              <Text>{t('Enter amounts without grouping separators. Zero is a valid limit.')}</Text>
             </View>
           }
           renderItem={({ item }) => (
-            <View style={styles.section}>
-              <Text variant="titleMedium">
-                {item.name}
-                {item.archived ? ' · archived' : ''}
-              </Text>
-              <Text>{item.kind === 'essential' ? 'Essential' : 'Flexible'}</Text>
-              <AppInput
-                label={`${item.name} limit (${profile.currency.code})`}
-                accessibilityLabel={`${item.name} limit (${profile.currency.code})`}
-                keyboardType="decimal-pad"
-                maxLength={40}
-                value={limits[item.id] ?? ''}
-                onChangeText={(text) => setLimits((current) => ({ ...current, [item.id]: text }))}
-                disabled={operation.busy}
-              />
-              <ActionButton
-                accessibilityLabel={`Edit category ${item.name}`}
-                disabled={dirty || operation.busy}
-                onPress={() => onEditCategory(item)}
-              >
-                Edit category
-              </ActionButton>
-            </View>
+            <Card mode="outlined">
+              <Card.Content style={styles.section}>
+                <Text variant="titleMedium">
+                  {item.name}
+                  {item.archived ? t(' · archived') : ''}
+                </Text>
+                <Text>{item.kind === 'essential' ? t('Essential') : t('Flexible')}</Text>
+                <AppInput
+                  label={t('{0} limit ({1})', { 0: item.name, 1: profile.currency.code })}
+                  accessibilityLabel={t('{0} limit ({1})', {
+                    0: item.name,
+                    1: profile.currency.code,
+                  })}
+                  keyboardType="decimal-pad"
+                  maxLength={40}
+                  value={limits[item.id] ?? ''}
+                  onChangeText={(text) => setLimits((current) => ({ ...current, [item.id]: text }))}
+                  disabled={operation.busy}
+                />
+                <ActionButton
+                  accessibilityLabel={t('Edit category {0}', { 0: item.name })}
+                  disabled={dirty || operation.busy}
+                  onPress={() => onEditCategory(item)}
+                >
+                  {t('Edit category')}
+                </ActionButton>
+              </Card.Content>
+            </Card>
           )}
-          ListEmptyComponent={<Text>Add a category to plan essential and flexible spending.</Text>}
+          ListEmptyComponent={
+            <Text>{t('Add a category to plan essential and flexible spending.')}</Text>
+          }
           ListFooterComponent={
             <View style={styles.section}>
-              {dirty ? <Text>Save or discard budget edits before changing categories.</Text> : null}
+              {dirty ? (
+                <Text>{t('Save or discard budget edits before changing categories.')}</Text>
+              ) : null}
               <ActionButton
                 mode="outlined"
                 disabled={dirty || operation.busy}
                 onPress={() => onEditCategory(null)}
               >
-                Add category
+                {t('Add category')}
               </ActionButton>
               <FormMessage message={operation.message} />
               {staleDraft ? (
                 <>
-                  <Text>Your data changed. Discard this draft and reload before saving.</Text>
+                  <Text>
+                    {t('Your data changed. Discard this draft and reload before saving.')}
+                  </Text>
                   <ActionButton
                     onPress={() =>
                       dirty ? setPendingMonth(version.plan.month) : onOpenMonth(version.plan.month)
                     }
                   >
-                    Reload changed plan
+                    {t('Reload changed plan')}
                   </ActionButton>
                 </>
               ) : null}
@@ -213,20 +244,20 @@ export const BudgetForm = ({
                 loading={operation.busy}
                 disabled={operation.busy || staleDraft}
               >
-                Save budget
+                {t('Save budget')}
               </ActionButton>
               <ActionButton onPress={discard} disabled={!dirty || operation.busy}>
-                Discard edits
+                {t('Discard edits')}
               </ActionButton>
               {onPreview ? (
                 <>
-                  <Text>Save or discard edits before previewing goal allocations.</Text>
+                  <Text>{t('Save or discard edits before previewing goal allocations.')}</Text>
                   <ActionButton
                     mode="outlined"
                     onPress={onPreview}
                     disabled={dirty || operation.busy}
                   >
-                    Preview goal allocations
+                    {t('Preview goal allocations')}
                   </ActionButton>
                 </>
               ) : null}
@@ -235,9 +266,12 @@ export const BudgetForm = ({
         />
       </KeyboardAvoidingView>
       <AppDialog visible={pendingMonth !== null} onDismiss={() => setPendingMonth(null)}>
-        <Dialog.Title>Discard unsaved edits?</Dialog.Title>
+        <Dialog.Title>{t('Discard unsaved edits?')}</Dialog.Title>
         <Dialog.Content style={styles.section}>
-          <Text>Your saved plan stays unchanged. Open {pendingMonth} and discard this draft?</Text>
+          <Text>
+            {t('Your saved plan stays unchanged. Open')} {pendingMonth}{' '}
+            {t('and discard this draft?')}
+          </Text>
           <ActionButton
             mode="contained"
             onPress={() => {
@@ -245,9 +279,9 @@ export const BudgetForm = ({
               setPendingMonth(null);
             }}
           >
-            Discard and open
+            {t('Discard and open')}
           </ActionButton>
-          <ActionButton onPress={() => setPendingMonth(null)}>Keep editing</ActionButton>
+          <ActionButton onPress={() => setPendingMonth(null)}>{t('Keep editing')}</ActionButton>
         </Dialog.Content>
       </AppDialog>
     </SafeAreaView>

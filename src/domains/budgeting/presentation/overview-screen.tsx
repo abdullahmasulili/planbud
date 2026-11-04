@@ -1,15 +1,26 @@
+import { DateInput } from '@/shared/presentation/date-input';
+import { useI18n } from '@/shared/presentation/i18n';
 import { useCallback, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import {
+  BackHandler,
+  FlatList,
+  Keyboard,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ActivityIndicator, List, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Card, FAB, Text, useTheme } from 'react-native-paper';
 import type { BudgetService } from '../application/public';
 import type { TransactionService } from '@/domains/transactions/application/public';
 import type { Profile } from '@/domains/settings/application/public';
+import { ComparisonChart } from '@/shared/presentation/charts';
+import { OverviewCards } from './overview-cards';
 import { readOverview } from '../application/overview-service';
 import type { BudgetOverview } from '../application/overview-service';
 import { launchOperation } from '@/shared/presentation/operation-launcher';
-import { AppInput, ActionButton } from '@/shared/presentation/controls';
+import { ActionButton } from '@/shared/presentation/controls';
 import { FormMessage } from '@/shared/presentation/screen';
 import { formatMoney } from '@/shared/presentation/money-format';
 import { parseDate } from '@/shared/domain/calendar-date';
@@ -27,6 +38,8 @@ import type { GoalAttention } from '../application/goal-attention';
  * @param props.onSettings Opens settings and backup navigation.
  * @param props.goals Optional current source-progress read for attention labels.
  * @param props.onGoals Opens all goals and contribution history.
+ * @param props.onNewPlanning Opens a new independent planning draft.
+ * @param props.onRecordSpending Opens a new expense draft.
  * @returns Virtualized category comparisons without inventing historical amounts.
  */
 export const OverviewScreen = ({
@@ -38,6 +51,8 @@ export const OverviewScreen = ({
   onSettings,
   goals,
   onGoals,
+  onNewPlanning,
+  onRecordSpending,
 }: {
   profile: Profile;
   budgets: Pick<BudgetService, 'readMonth' | 'readCategories'>;
@@ -47,8 +62,24 @@ export const OverviewScreen = ({
   onSettings: () => void;
   goals?: Pick<GoalService, 'readGoals'>;
   onGoals?: () => void;
+  onNewPlanning: () => void;
+  onRecordSpending: () => void;
 }) => {
+  const { t } = useI18n();
   const theme = useTheme();
+  const { width } = useWindowDimensions();
+  const [actionsOpen, setActionsOpen] = useState(false);
+  useFocusEffect(useCallback(() => () => setActionsOpen(false), []));
+  useFocusEffect(
+    useCallback(() => {
+      if (!actionsOpen) return;
+      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+        setActionsOpen(false);
+        return true;
+      });
+      return () => subscription.remove();
+    }, [actionsOpen]),
+  );
   const [month, setMonth] = useState(initialMonth);
   const [selection, setSelection] = useState({ month: initialMonth, attempt: 0 });
   const [data, setData] = useState<BudgetOverview | null>(null);
@@ -109,110 +140,129 @@ export const OverviewScreen = ({
         contentContainerStyle={styles.content}
         ListHeaderComponent={
           <View style={styles.section}>
-            <Text variant="headlineMedium">Your month</Text>
-            <Text>{profile.currency.code} · estimates and actual activity</Text>
-            <AppInput
-              label="Overview month"
-              accessibilityLabel="Overview month"
+            <Text variant="headlineMedium">{t('Your month')}</Text>
+            <Text>
+              {profile.currency.code} {t('· estimates and actual activity')}
+            </Text>
+            <DateInput
+              mode="month"
+              label={t('Overview month')}
+              accessibilityLabel={t('Overview month')}
               value={month}
               onChangeText={setMonth}
-              maxLength={7}
-              placeholder="YYYY-MM"
             />
             <ActionButton mode="outlined" onPress={openMonth} disabled={busy}>
-              Open month
+              {t('Open month')}
             </ActionButton>
             <FormMessage message={message} />
-            {busy ? <ActivityIndicator accessibilityLabel="Loading overview" /> : null}
-            {data ? (
-              <>
-                <Text variant="titleLarge">
-                  {data.remainingSpending < 0
-                    ? 'Over planned spending'
-                    : 'Remaining planned spending'}
-                </Text>
-                <Text variant="headlineMedium">
-                  {formatMoney(Math.abs(data.remainingSpending), profile.currency, profile.locale)}
-                </Text>
-                <Text>
-                  Planned income:{' '}
-                  {formatMoney(data.plannedIncome, profile.currency, profile.locale)}
-                </Text>
-                <Text>
-                  Recorded income:{' '}
-                  {formatMoney(data.actualIncome, profile.currency, profile.locale)}
-                </Text>
-                <Text>
-                  Spending limits:{' '}
-                  {formatMoney(data.plannedSpending, profile.currency, profile.locale)}
-                </Text>
-                <Text>
-                  Recorded spending:{' '}
-                  {formatMoney(data.actualSpending, profile.currency, profile.locale)}
-                </Text>
-                <Text>
-                  Estimates change only when you save a plan. Goal contributions are separate
-                  earmarking records.
-                </Text>
-              </>
-            ) : null}
+            {busy ? <ActivityIndicator accessibilityLabel={t('Loading overview')} /> : null}
+            {data ? <OverviewCards data={data} profile={profile} /> : null}
             <ActionButton mode="contained" onPress={onPlan}>
-              Open plan
+              {t('Open plan')}
             </ActionButton>
-            <ActionButton onPress={onSettings}>Settings</ActionButton>
-            <Text variant="titleLarge">Categories</Text>
+            <ActionButton onPress={onSettings}>{t('Settings')}</ActionButton>
+            <Text variant="titleLarge">{t('Categories')}</Text>
           </View>
         }
         renderItem={({ item }) => (
-          <List.Item
-            title={item.name}
-            titleNumberOfLines={0}
-            description={`Limit ${formatMoney(item.limit, profile.currency, profile.locale)} · spent ${formatMoney(item.spent, profile.currency, profile.locale)}\n${item.remaining < 0 ? 'Over by' : 'Remaining'} ${formatMoney(Math.abs(item.remaining), profile.currency, profile.locale)}`}
-            descriptionNumberOfLines={0}
-          />
+          <Card mode="outlined">
+            <Card.Content style={styles.section}>
+              <Text variant="titleMedium">{item.name}</Text>
+              <ComparisonChart
+                label={t('{0} spending', { 0: item.name })}
+                first={{
+                  label: t('Limit'),
+                  value: item.limit,
+                  formatted: formatMoney(item.limit, profile.currency, profile.locale),
+                }}
+                second={{
+                  label: t('Spent'),
+                  value: item.spent,
+                  formatted: formatMoney(item.spent, profile.currency, profile.locale),
+                }}
+                overLimit
+              />
+              <Text
+                style={{
+                  color: item.remaining < 0 ? theme.colors.error : theme.colors.onSurfaceVariant,
+                }}
+              >
+                {item.remaining < 0 ? t('Over by') : t('Remaining')}{' '}
+                {formatMoney(Math.abs(item.remaining), profile.currency, profile.locale)}
+              </Text>
+            </Card.Content>
+          </Card>
         )}
         ListEmptyComponent={
           !busy && !message ? (
             <Text>
-              No category plan or spending for this month. Open Plan to set your estimates.
+              {t('No category plan or spending for this month. Open Plan to set your estimates.')}
             </Text>
           ) : undefined
         }
         ListFooterComponent={
           goals && onGoals ? (
             <View style={styles.section}>
-              <Text variant="titleLarge">Goals needing attention today</Text>
+              <Text variant="titleLarge">{t('Goals needing attention today')}</Text>
               <FormMessage message={goalMessage} />
               {attention?.goals.map((goal) => (
                 <View key={goal.id} style={{ gap: 8 }}>
                   <Text variant="titleMedium">
                     {goal.name}
-                    {goal.overdue ? ' · overdue' : ''}
+                    {goal.overdue ? t(' · overdue') : ''}
                   </Text>
                   <Text>
-                    Saved {formatMoney(goal.saved, profile.currency, profile.locale)} of{' '}
-                    {formatMoney(goal.target, profile.currency, profile.locale)} · remaining{' '}
+                    {t('Saved')} {formatMoney(goal.saved, profile.currency, profile.locale)}{' '}
+                    {t('of')} {formatMoney(goal.target, profile.currency, profile.locale)}{' '}
+                    {t('· remaining')}{' '}
                     {formatMoney(goal.remaining, profile.currency, profile.locale)}
                   </Text>
                 </View>
               ))}
               {attention?.count === 0 ? (
                 <Text>
-                  No active incomplete goals. Create or reopen a goal to inform your plan.
+                  {t('No active incomplete goals. Create or reopen a goal to inform your plan.')}
                 </Text>
               ) : null}
               <ActionButton onPress={onGoals}>
-                View all goals{attention ? ` (${attention.count} active incomplete)` : ''}
+                {t('View all goals')}
+                {attention ? t(' ({0} active incomplete)', { 0: attention.count }) : ''}
               </ActionButton>
             </View>
           ) : undefined
         }
+      />
+      <FAB.Group
+        visible
+        open={actionsOpen}
+        icon={actionsOpen ? 'close' : 'plus'}
+        accessibilityLabel={actionsOpen ? 'Close quick actions' : 'Open quick actions'}
+        onStateChange={({ open }) => {
+          if (open) Keyboard.dismiss();
+          setActionsOpen(open);
+        }}
+        actions={[
+          {
+            icon: 'notebook-plus-outline',
+            label: 'New Planning',
+            size: 'medium',
+            labelStyle: { maxWidth: width - 160 },
+            onPress: onNewPlanning,
+          },
+          {
+            icon: 'receipt',
+            label: 'Record Spending',
+            size: 'medium',
+            labelStyle: { maxWidth: width - 160 },
+            onPress: onRecordSpending,
+          },
+        ]}
       />
     </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  content: { padding: 24, gap: 16 },
+  content: { padding: 24, paddingBottom: 112, gap: 16 },
   section: { gap: 16 },
 });

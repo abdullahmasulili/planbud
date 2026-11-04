@@ -22,6 +22,12 @@ const HomeRoute = () => {
         onSettings={() => router.push('/settings')}
         goals={services.goals}
         onGoals={() => router.navigate('/goals')}
+        onNewPlanning={() =>
+          router.push({ pathname: '/plans', params: { create: services.newId() } })
+        }
+        onRecordSpending={() =>
+          router.navigate({ pathname: '/transactions', params: { create: services.newId() } })
+        }
       />
     </>
   );

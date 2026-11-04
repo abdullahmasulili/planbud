@@ -1,4 +1,4 @@
-import { Redirect } from 'expo-router';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useStore } from 'zustand';
 import { useServices } from '@/composition/services';
 import { TransactionsScreen } from '@/domains/transactions/presentation/transactions-screen';
@@ -8,6 +8,7 @@ import { calendarToday } from '@/shared/presentation/calendar-today';
  * @returns Transaction recording, filtering, and correction flows or setup.
  */
 const TransactionsRoute = () => {
+  const { create } = useLocalSearchParams<{ create?: string }>();
   const { services, settings, transactions } = useServices();
   const profile = useStore(settings, (state) => state.profile);
   const today = calendarToday();
@@ -19,6 +20,7 @@ const TransactionsRoute = () => {
       initialMonth={today.slice(0, 7)}
       today={today}
       newId={services.newId}
+      createRequest={typeof create === 'string' ? create : ''}
     />
   ) : (
     <Redirect href="/setup" />
