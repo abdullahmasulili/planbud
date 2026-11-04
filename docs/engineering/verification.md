@@ -79,3 +79,26 @@ Extended TalkBack, minimum-API qualification, and standalone release acceptance 
 - Added a one-tap Indonesian rupiah choice in setup. Whole IDR amounts omit zero display decimals; nonzero sen and the canonical two-decimal stored precision are preserved. Host checks cover selection/confirmation, decimal-comma parsing, zero, negative differences, fractional sen, maximum safe amounts, and both display locales. `pnpm check` passed with 170 tests across 57 suites.
 - Maestro CLI verified IDR onboarding in Indonesian, a synthetic income displayed as Rp10.000, and a second synthetic income of 0,50 producing Rp10.000,50. The fractional portion was resumed after updating the shared keyboard helper for Gboard’s resource-ID-free suggestion banner. Added `.maestro/idr.yaml` for a fresh-profile replay.
 - The app-level clear-data action returned a generic error during test setup while the development app was being rebuilt. The user approved Android app-data reset for the disposable profile. Native clear-data was not requalified; no product reset implementation was changed. After the emulator restarted, the CLI replaced the disconnected Maestro MCP session.
+
+## Buddy Wallet icons, 2026-11-04
+
+No external ticket. Scope: UI-011, UI-002, OFF-003. The selected wallet replaces the legacy app icon and transparent adaptive/monochrome layers. Expo notification configuration supplies the white small-icon mask and full-color large icon. App appearance remains automatic; launcher appearance follows Android rather than the in-app override.
+
+- `pnpm lint` and `pnpm typecheck` passed after the final code/test changes.
+- `pnpm test -- tests/tooling/brand-icons.test.ts tests/tooling/guardrails.test.ts` passed: 10 tests in 2 suites, including idempotent night colors, preservation of unrelated colors, and automatic messaging/analytics initialization disabled.
+- `pnpm check:artifacts` and `pnpm check:release` passed.
+- Before PR publication, full `pnpm check` passed: 161 tests in 56 suites, formatting, lint, typecheck, dependency boundaries, portable artifacts, and release guards.
+- Expo SDK 58 CNG prebuild and Android `:app:processDebugResources --max-workers=2` passed. Generated adaptive XML references foreground, monochrome, and `iconBackground`; day/night colors resolve to `#208AEF`/`#005EAD`. Generated manifest metadata references the notification small and large drawables and disables messaging auto-initialization and analytics collection.
+- PNG self-checks passed: 1024 px adaptive and monochrome layers, 96 px notification mask, white visible pixels, transparent backgrounds, and all adaptive foreground pixels inside the 66/108 safe circle.
+- An isolated native fixture on the API 37 emulator loaded the generated Android icon/notification resources, asserted the adaptive night colors and monochrome availability, rendered the masks, and posted a local notification. Inspected [light launcher/masks](../../output/icon-verification/light-launcher.png), [dark launcher/masks](../../output/icon-verification/dark-launcher.png), [light notification](../../output/icon-verification/light-notification.png), and [dark notification](../../output/icon-verification/dark-notification.png). The wallet remained visible without clipping; the notification status icon used the white wallet silhouette and the large icon retained brand blue. Monochrome preview colors were explicit fixture tints, not a claim of a particular wallpaper palette.
+- The preview fixture was removed and the emulator's original light mode restored. The existing installed app and its data were not replaced.
+- Two independent read-only configuration/offline reviews found no material issues; both distinguished generated resource checks from full release qualification.
+
+Icon visual gate:
+
+- Hard gate PASS: the user explicitly approved this symbol; launcher and notification images contain no text or fabricated claims.
+- Purpose gate PASS: the wallet represents budgeting; its smile expresses the selected Buddy identity. Blue and white follow the existing palette.
+- Liveliness gate PASS: ENERGY 1 / RHYTHM 1 / MOTION 1 matches the calm design brief; the wallet is the single focal point with no decorative motion.
+- Craftsmanship gate PASS for this icon scope: alpha/safe-zone assertions and API 37 native previews verify visible shapes, transparent cutouts, both background colors, and notification rendering. Full app release checks remain outside this evidence.
+
+Full application compilation/installation, standalone release/offline qualification with the new native dependency, OEM launcher caching behavior, and minimum-API runtime checks were not performed. A new Android binary is required for these assets and native settings to take effect; Metro reload alone cannot update them.
