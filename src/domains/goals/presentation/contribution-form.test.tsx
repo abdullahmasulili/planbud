@@ -33,7 +33,12 @@ it('MONEY-003 corrects actual contribution amount/date and requires explicit del
     </TestScreen>,
   );
   await fireEvent.changeText(screen.getByLabelText('Contribution amount'), '2.50');
-  await fireEvent.changeText(screen.getByLabelText('Contribution date'), '2026-11-01');
+  await fireEvent.press(screen.getByRole('button', { name: 'Contribution date' }));
+  await fireEvent(
+    screen.getByTestId('native-date-picker'),
+    'dateSelected',
+    new Date('2026-11-01T00:00:00Z'),
+  );
   await fireEvent.press(screen.getByRole('button', { name: 'Save contribution' }));
   expect(saved).toMatchObject([{ input: { amount: 250, date: '2026-11-01' } }]);
   await fireEvent.press(screen.getByRole('button', { name: 'Delete contribution' }));

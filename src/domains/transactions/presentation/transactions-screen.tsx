@@ -1,3 +1,4 @@
+import { DateInput } from '@/shared/presentation/date-input';
 import { useI18n } from '@/shared/presentation/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
@@ -12,7 +13,7 @@ import { parseDate } from '@/shared/domain/calendar-date';
 import type { Transaction } from '../application/public';
 import type { createTransactionStore } from './transaction-store';
 import { TransactionForm } from './transaction-form';
-import { AppInput, ActionButton } from '@/shared/presentation/controls';
+import { ActionButton } from '@/shared/presentation/controls';
 import { ChoiceGroup } from '@/shared/presentation/choice-group';
 import { FormMessage } from '@/shared/presentation/screen';
 import { formatMoney } from '@/shared/presentation/money-format';
@@ -148,13 +149,12 @@ export const TransactionsScreen = ({
             <View style={styles.section}>
               <Text variant="headlineMedium">{t('Transactions')}</Text>
               <Text>{t('Actual income and spending stay separate from goal contributions.')}</Text>
-              <AppInput
+              <DateInput
+                mode="month"
                 label={t('History month')}
                 accessibilityLabel={t('History month')}
-                placeholder={t('YYYY-MM')}
                 value={month}
                 onChangeText={setMonth}
-                maxLength={7}
               />
               <ActionButton mode="outlined" onPress={openMonth} disabled={status === 'loading'}>
                 {t('Open month')}

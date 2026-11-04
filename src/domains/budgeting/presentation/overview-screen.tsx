@@ -1,3 +1,4 @@
+import { DateInput } from '@/shared/presentation/date-input';
 import { useI18n } from '@/shared/presentation/i18n';
 import { useCallback, useState } from 'react';
 import {
@@ -19,7 +20,7 @@ import { OverviewCards } from './overview-cards';
 import { readOverview } from '../application/overview-service';
 import type { BudgetOverview } from '../application/overview-service';
 import { launchOperation } from '@/shared/presentation/operation-launcher';
-import { AppInput, ActionButton } from '@/shared/presentation/controls';
+import { ActionButton } from '@/shared/presentation/controls';
 import { FormMessage } from '@/shared/presentation/screen';
 import { formatMoney } from '@/shared/presentation/money-format';
 import { parseDate } from '@/shared/domain/calendar-date';
@@ -143,13 +144,12 @@ export const OverviewScreen = ({
             <Text>
               {profile.currency.code} {t('· estimates and actual activity')}
             </Text>
-            <AppInput
+            <DateInput
+              mode="month"
               label={t('Overview month')}
               accessibilityLabel={t('Overview month')}
               value={month}
               onChangeText={setMonth}
-              maxLength={7}
-              placeholder={t('YYYY-MM')}
             />
             <ActionButton mode="outlined" onPress={openMonth} disabled={busy}>
               {t('Open month')}

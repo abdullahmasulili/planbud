@@ -107,7 +107,8 @@ it('TXN-002 filters loaded entries without mutating records and distinguishes em
     expect(
       screen.getByText('No income in the loaded entries. Load more or change the filter.'),
     ).toBeOnTheScreen();
-    await fireEvent.changeText(screen.getByLabelText('History month'), '2026-11');
+    await fireEvent.press(screen.getByRole('button', { name: 'History month' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'November 2026' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Open month' }));
     await waitFor(() => expect(store.getState().month).toBe('2026-11'));
     await waitFor(() => expect(store.getState().status).toBe('ready'));
@@ -147,7 +148,8 @@ it('TXN-002 refreshes new categories on tab return while retaining the selected 
       </TestScreen>,
     );
     await waitFor(() => expect(store.getState().status).toBe('ready'));
-    await fireEvent.changeText(screen.getByLabelText('History month'), '2026-09');
+    await fireEvent.press(screen.getByRole('button', { name: 'History month' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'September 2026' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Open month' }));
     await waitFor(() => expect(store.getState().status).toBe('ready'));
     await fireEvent.press(screen.getByRole('radio', { name: 'Expenses' }));
@@ -165,7 +167,9 @@ it('TXN-002 refreshes new categories on tab return while retaining the selected 
     });
     await waitFor(() => expect(store.getState().status).toBe('ready'));
     expect(store.getState()).toMatchObject({ month: '2026-09', filter: 'expense' });
-    expect(screen.getByLabelText('History month')).toHaveDisplayValue('2026-09');
+    expect(screen.getByRole('button', { name: 'History month' })).toHaveAccessibilityValue({
+      text: '2026-09',
+    });
     await fireEvent.press(screen.getByRole('button', { name: 'New transaction' }));
     await fireEvent.press(await screen.findByRole('button', { name: 'Choose category' }));
     expect(await screen.findByText('Groceries')).toBeOnTheScreen();

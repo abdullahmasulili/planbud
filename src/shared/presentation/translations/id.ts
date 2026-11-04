@@ -1,5 +1,16 @@
 /** Bundled Indonesian interface copy; keys are the English source messages. */
 export const indonesian: Readonly<Record<string, string>> = {
+  'Not set': 'Belum diatur',
+  'Choose a month and year': 'Pilih bulan dan tahun',
+  'Open calendar': 'Buka kalender',
+  'Choose date': 'Pilih tanggal',
+  'Clear {0}': 'Hapus {0}',
+  'Previous year': 'Tahun sebelumnya',
+  'Next year': 'Tahun berikutnya',
+  'Spending by category': 'Pengeluaran per kategori',
+  'Total spent': 'Total pengeluaran',
+  'No spending this month. Record an expense in Transactions to see your breakdown.':
+    'Belum ada pengeluaran bulan ini. Catat pengeluaran di Transaksi untuk melihat rinciannya.',
   'Indonesian rupiah (IDR)': 'Rupiah Indonesia (IDR)',
   ' ({0} active incomplete)': ' ({0} aktif belum selesai)',
   ' · archived': ' · diarsipkan',
