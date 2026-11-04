@@ -64,3 +64,26 @@ Native development walkthrough on API 36, 2026-10-28:
 - Initial Maestro launch/inspection was unreliable after emulator restart. Direct Android UI hierarchy and screenshot inspection supplied the evidence above. An interrupted run was attributable to Android updating WebView and stopping its clients, recorded in the system event log; saved data remained intact.
 
 Extended TalkBack, minimum-API qualification, and standalone release acceptance for these new screens remain pending. Earlier release/device evidence above applies to the preceding candidate.
+
+## Buddy Wallet icons, 2026-11-04
+
+No external ticket. Scope: UI-011, UI-002, OFF-003. The selected wallet replaces the legacy app icon and transparent adaptive/monochrome layers. Expo notification configuration supplies the white small-icon mask and full-color large icon. App appearance remains automatic; launcher appearance follows Android rather than the in-app override.
+
+- `pnpm lint` and `pnpm typecheck` passed after the final code/test changes.
+- `pnpm test -- tests/tooling/brand-icons.test.ts tests/tooling/guardrails.test.ts` passed: 10 tests in 2 suites, including idempotent night colors, preservation of unrelated colors, and automatic messaging/analytics initialization disabled.
+- `pnpm check:artifacts` and `pnpm check:release` passed.
+- Before PR publication, full `pnpm check` passed: 161 tests in 56 suites, formatting, lint, typecheck, dependency boundaries, portable artifacts, and release guards.
+- Expo SDK 58 CNG prebuild and Android `:app:processDebugResources --max-workers=2` passed. Generated adaptive XML references foreground, monochrome, and `iconBackground`; day/night colors resolve to `#208AEF`/`#005EAD`. Generated manifest metadata references the notification small and large drawables and disables messaging auto-initialization and analytics collection.
+- PNG self-checks passed: 1024 px adaptive and monochrome layers, 96 px notification mask, white visible pixels, transparent backgrounds, and all adaptive foreground pixels inside the 66/108 safe circle.
+- An isolated native fixture on the API 37 emulator loaded the generated Android icon/notification resources, asserted the adaptive night colors and monochrome availability, rendered the masks, and posted a local notification. Inspected [light launcher/masks](../../output/icon-verification/light-launcher.png), [dark launcher/masks](../../output/icon-verification/dark-launcher.png), [light notification](../../output/icon-verification/light-notification.png), and [dark notification](../../output/icon-verification/dark-notification.png). The wallet remained visible without clipping; the notification status icon used the white wallet silhouette and the large icon retained brand blue. Monochrome preview colors were explicit fixture tints, not a claim of a particular wallpaper palette.
+- The preview fixture was removed and the emulator's original light mode restored. The existing installed app and its data were not replaced.
+- Two independent read-only configuration/offline reviews found no material issues; both distinguished generated resource checks from full release qualification.
+
+Icon visual gate:
+
+- Hard gate PASS: the user explicitly approved this symbol; launcher and notification images contain no text or fabricated claims.
+- Purpose gate PASS: the wallet represents budgeting; its smile expresses the selected Buddy identity. Blue and white follow the existing palette.
+- Liveliness gate PASS: ENERGY 1 / RHYTHM 1 / MOTION 1 matches the calm design brief; the wallet is the single focal point with no decorative motion.
+- Craftsmanship gate PASS for this icon scope: alpha/safe-zone assertions and API 37 native previews verify visible shapes, transparent cutouts, both background colors, and notification rendering. Full app release checks remain outside this evidence.
+
+Full application compilation/installation, standalone release/offline qualification with the new native dependency, OEM launcher caching behavior, and minimum-API runtime checks were not performed. A new Android binary is required for these assets and native settings to take effect; Metro reload alone cannot update them.

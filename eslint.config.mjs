@@ -18,7 +18,7 @@ export default [
     ],
   },
   {
-    files: ['**/*.{ts,tsx,mjs}', 'plugins/with-offline-android.cjs'],
+    files: ['**/*.{ts,tsx,mjs}', 'plugins/*.cjs'],
     plugins: { project: { rules: projectRules }, jsdoc: jsdocPlugin },
     rules: {
       'no-var': 'error',
@@ -42,7 +42,7 @@ export default [
     },
   },
   {
-    files: ['plugins/with-offline-android.cjs'],
+    files: ['plugins/*.cjs'],
     rules: { 'no-restricted-syntax': 'off' },
   },
   {
