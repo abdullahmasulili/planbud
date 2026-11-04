@@ -8,4 +8,4 @@ Jest 30 with jest-expo runs domain, application, and component tests. Native And
 
 Optional build scripts for the exact installed versions of Parcel Watcher and unrs-resolver are denied in pnpm configuration. Their prebuilt packages are verified through lint/test execution; no dependency script is implicitly approved and supply-chain checks remain enabled.
 
-The Jest configuration is the only authored CommonJS configuration exception. Promise observation is restricted to the documented operation launcher; ordinary code uses async/await. Repository-relative references are required in authored and delivered artifacts.
+Jest and Expo CNG plugins use CommonJS configuration entries; application modules use ES modules. Promise observation is restricted to the documented operation launcher; ordinary code uses async/await. Repository-relative references are required in authored and delivered artifacts.

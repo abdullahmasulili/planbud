@@ -9,9 +9,8 @@
     "userInterfaceStyle": "automatic",
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#208AEF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
@@ -38,6 +37,13 @@
       ],
       "expo-sqlite",
       "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "largeIcon": "./assets/images/icon.png"
+        }
+      ],
       [
         "expo-font",
         {
@@ -74,7 +80,8 @@
           "configureAndroidBackup": false
         }
       ],
-      "./plugins/with-offline-android.cjs"
+      "./plugins/with-offline-android.cjs",
+      "./plugins/with-brand-icons.cjs"
     ],
     "experiments": {
       "typedRoutes": true,
