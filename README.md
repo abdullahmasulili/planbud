@@ -44,3 +44,5 @@ EAS profiles are also provided for an explicitly configured Expo account. Local 
 Pushes to the dedicated `gitops/release-build` branch run the [Android release workflow](.github/workflows/android-release.yml) directly on a GitHub runner, without EAS. Successful runs provide the APK and checksum under **Actions → Android release APK → run → Artifacts**, with a download link in the run summary. Downloads are retained for 14 days.
 
 Configure the two signing secrets described in the [release setup](docs/release/android-checklist.md#github-actions-release-builds) before publishing this branch. The workflow runs all engineering checks and scans the APK before uploading it.
+
+Review workflow and app changes through separate working-branch PRs into `dev`. Promote approved `dev` changes to `gitops/release-build` when an APK should be generated.

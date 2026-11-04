@@ -26,7 +26,7 @@ Read `docs/engineering/verification.md` for executed evidence. This checklist is
 
 ## GitHub Actions release builds
 
-The dedicated release target is `gitops/release-build`. Every push to that branch triggers [Android release APK](../../.github/workflows/android-release.yml); pushes to other branches and pull requests do not trigger signing. Merge approved changes, including the workflow, into that branch and push it to generate a build. A newer push cancels an unfinished older build.
+The dedicated release target is `gitops/release-build`. Every push to that branch triggers [Android release APK](../../.github/workflows/android-release.yml); pushes to other branches and pull requests do not trigger signing. Submit workflow and app changes from a separate working branch through a PR targeting `dev`. After review and merge, promote approved `dev` changes to `gitops/release-build` and push that branch to generate a build. The release branch is reserved for build promotion and is not a PR source branch. A newer push cancels an unfinished older build.
 
 Before the first push, configure these repository secrets under **Settings → Secrets and variables → Actions**:
 
