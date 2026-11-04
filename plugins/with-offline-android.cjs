@@ -1,4 +1,5 @@
 const {
+  AndroidConfig,
   withAndroidManifest,
   withDangerousMod,
   withAppBuildGradle,
@@ -37,6 +38,11 @@ const withOfflineAndroid = (config) => {
     app.$['android:allowBackup'] = 'false';
     app.$['android:fullBackupContent'] = '@xml/planbud_backup_rules';
     app.$['android:dataExtractionRules'] = '@xml/planbud_data_extraction_rules';
+    for (const name of [
+      'firebase_messaging_auto_init_enabled',
+      'firebase_analytics_collection_enabled',
+    ])
+      AndroidConfig.Manifest.addMetaDataItemToMainApplication(app, name, 'false');
     const activity = app.activity?.find((item) =>
       item.$['android:name']?.endsWith('.MainActivity'),
     );
