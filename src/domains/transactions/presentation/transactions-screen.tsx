@@ -26,6 +26,7 @@ import { launchOperation } from '@/shared/presentation/operation-launcher';
  * @param props.initialMonth First calendar month to load.
  * @param props.today Local date suggested for new entries.
  * @param props.newId Supplies stable record and action identities for each form.
+ * @param props.createRequest Unique navigation request to open a new expense draft once.
  * @returns One virtualized history scroll owner and complete source-entry dialogs.
  */
 export const TransactionsScreen = ({
@@ -35,6 +36,7 @@ export const TransactionsScreen = ({
   initialMonth,
   today,
   newId,
+  createRequest,
 }: {
   profile: Profile;
   store: ReturnType<typeof createTransactionStore>;
@@ -42,6 +44,7 @@ export const TransactionsScreen = ({
   initialMonth: string;
   today: string;
   newId: () => string;
+  createRequest?: string;
 }) => {
   const theme = useTheme();
   const records = useStore(store, (state) => state.records);
@@ -56,6 +59,14 @@ export const TransactionsScreen = ({
   const [categoryError, setCategoryError] = useState('');
   const [editing, setEditing] = useState<{ record: Transaction | null } | null>(null);
   const [notice, setNotice] = useState('');
+  const handledCreate = useRef<string | undefined>(undefined);
+  useFocusEffect(
+    useCallback(() => {
+      if (!createRequest || handledCreate.current === createRequest) return;
+      handledCreate.current = createRequest;
+      setEditing({ record: null });
+    }, [createRequest]),
+  );
   const cancelRead = useRef<(() => void) | undefined>(undefined);
   const cancelPage = useRef<(() => void) | undefined>(undefined);
   /** Refreshes history and labels, ignoring category completions after blur or teardown.

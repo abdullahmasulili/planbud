@@ -15,6 +15,41 @@ beforeEach(() => {
   jest.mocked(useFocusEffect).mockImplementation((effect) => useEffect(effect, [effect]));
 });
 
+it('opens a Home planning request after loading and consumes it without reopening on reload', async () => {
+  const database = createDatabaseHandle(createHostDatabase());
+  try {
+    await migrateDatabase(database);
+    const profile = await createProfileRepository(database).initialize({
+      id: 'p',
+      currency: { code: 'USD', exponent: 2 },
+      locale: 'en-US',
+      appearance: 'system',
+    });
+    const service = createNamedPlanService(createNamedPlanRepository(database));
+    const store = createNamedPlanStore(service);
+    let sequence = 0;
+    const view = await render(
+      <TestScreen>
+        <NamedPlansScreen
+          profile={profile}
+          service={service}
+          store={store}
+          newId={() => `quick-${++sequence}`}
+          createRequest="home"
+        />
+      </TestScreen>,
+    );
+    expect(await screen.findByLabelText('Plan name')).toHaveDisplayValue('');
+    await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Reload plans' }));
+    await waitFor(() => expect(store.getState().status).toBe('ready'));
+    expect(screen.queryByLabelText('Plan name')).toBeNull();
+    await view.unmount();
+  } finally {
+    await database.close();
+  }
+}, 30000);
+
 it('PLAN-001/UI-010 creates multiple plans and protects drafts and confirmed deletion', async () => {
   const database = createDatabaseHandle(createHostDatabase());
   try {
