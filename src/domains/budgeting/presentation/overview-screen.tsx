@@ -1,8 +1,15 @@
 import { useCallback, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import {
+  BackHandler,
+  FlatList,
+  Keyboard,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ActivityIndicator, Card, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Card, FAB, Text, useTheme } from 'react-native-paper';
 import type { BudgetService } from '../application/public';
 import type { TransactionService } from '@/domains/transactions/application/public';
 import type { Profile } from '@/domains/settings/application/public';
@@ -29,6 +36,8 @@ import type { GoalAttention } from '../application/goal-attention';
  * @param props.onSettings Opens settings and backup navigation.
  * @param props.goals Optional current source-progress read for attention labels.
  * @param props.onGoals Opens all goals and contribution history.
+ * @param props.onNewPlanning Opens a new independent planning draft.
+ * @param props.onRecordSpending Opens a new expense draft.
  * @returns Virtualized category comparisons without inventing historical amounts.
  */
 export const OverviewScreen = ({
@@ -40,6 +49,8 @@ export const OverviewScreen = ({
   onSettings,
   goals,
   onGoals,
+  onNewPlanning,
+  onRecordSpending,
 }: {
   profile: Profile;
   budgets: Pick<BudgetService, 'readMonth' | 'readCategories'>;
@@ -49,8 +60,23 @@ export const OverviewScreen = ({
   onSettings: () => void;
   goals?: Pick<GoalService, 'readGoals'>;
   onGoals?: () => void;
+  onNewPlanning: () => void;
+  onRecordSpending: () => void;
 }) => {
   const theme = useTheme();
+  const { width } = useWindowDimensions();
+  const [actionsOpen, setActionsOpen] = useState(false);
+  useFocusEffect(useCallback(() => () => setActionsOpen(false), []));
+  useFocusEffect(
+    useCallback(() => {
+      if (!actionsOpen) return;
+      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+        setActionsOpen(false);
+        return true;
+      });
+      return () => subscription.remove();
+    }, [actionsOpen]),
+  );
   const [month, setMonth] = useState(initialMonth);
   const [selection, setSelection] = useState({ month: initialMonth, attempt: 0 });
   const [data, setData] = useState<BudgetOverview | null>(null);
@@ -200,11 +226,37 @@ export const OverviewScreen = ({
           ) : undefined
         }
       />
+      <FAB.Group
+        visible
+        open={actionsOpen}
+        icon={actionsOpen ? 'close' : 'plus'}
+        accessibilityLabel={actionsOpen ? 'Close quick actions' : 'Open quick actions'}
+        onStateChange={({ open }) => {
+          if (open) Keyboard.dismiss();
+          setActionsOpen(open);
+        }}
+        actions={[
+          {
+            icon: 'notebook-plus-outline',
+            label: 'New Planning',
+            size: 'medium',
+            labelStyle: { maxWidth: width - 160 },
+            onPress: onNewPlanning,
+          },
+          {
+            icon: 'receipt',
+            label: 'Record Spending',
+            size: 'medium',
+            labelStyle: { maxWidth: width - 160 },
+            onPress: onRecordSpending,
+          },
+        ]}
+      />
     </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  content: { padding: 24, gap: 16 },
+  content: { padding: 24, paddingBottom: 112, gap: 16 },
   section: { gap: 16 },
 });

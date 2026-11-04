@@ -23,6 +23,7 @@ import { useOperation } from '@/shared/presentation/use-operation';
  * @param props.service Revision-checked source mutations.
  * @param props.store Provider-owned named-plan projections.
  * @param props.newId Generates stable new plan and expense identities.
+ * @param props.createRequest Unique navigation request to open a new draft once after loading.
  * @returns Virtualized plan cards and guarded editors, without changing actual activity.
  */
 export const NamedPlansScreen = ({
@@ -30,11 +31,13 @@ export const NamedPlansScreen = ({
   service,
   store,
   newId,
+  createRequest,
 }: {
   profile: Profile;
   service: NamedPlanService;
   store: ReturnType<typeof createNamedPlanStore>;
   newId: () => string;
+  createRequest?: string;
 }) => {
   const theme = useTheme();
   const version = useStore(store, (state) => state.version);
@@ -45,6 +48,20 @@ export const NamedPlansScreen = ({
   const [notice, setNotice] = useState('');
   const operation = useOperation();
   const cancel = useRef<(() => void) | undefined>(undefined);
+  const handledCreate = useRef<string | undefined>(undefined);
+  useFocusEffect(
+    useCallback(() => {
+      if (
+        !createRequest ||
+        handledCreate.current === createRequest ||
+        !version ||
+        status !== 'ready'
+      )
+        return;
+      handledCreate.current = createRequest;
+      setEditing({ plan: null, revision: version.revision });
+    }, [createRequest, status, version]),
+  );
   /** Loads the current projection through the observed terminal async boundary. */
   const load = useCallback(() => {
     cancel.current?.();

@@ -18,6 +18,8 @@ Spacing follows 4, 8, 12, 16, 24, and 32 dp. Screen edges use 24 dp; related for
 
 Status uses text alongside color. Errors explain how to recover; destructive actions require an explicit confirmation. Focus uses outlined inputs and native accessibility focus. No decorative entrance motion. Respect safe areas and keyboard visibility. Transaction history owns one virtualized scroll surface.
 
+Home's primary FAB reveals two labeled actions above it: New Planning (notebook plus) and Record Spending (receipt). The icons distinguish estimates from actual activity; labels keep both actions explicit. Material elevation separates the floating controls from the overview, and a backdrop marks the open menu. Keep the FAB above the native tabs, reserve scroll space below content, and let action labels wrap at large text sizes.
+
 Font source: [Tokotype Plus Jakarta Sans](https://github.com/tokotype/PlusJakartaSans). The bundled SIL Open Font License is in `assets/fonts/OFL.txt`. Native screenshots and contrast assertions are recorded in the verification document as they are executed.
 
 ## App identity
