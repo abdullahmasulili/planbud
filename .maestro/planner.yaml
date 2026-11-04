@@ -6,9 +6,8 @@ tags:
 ---
 - launchApp:
     clearState: true
-- assertVisible: Your money, on your device
-- tapOn: I confirm USD for my records
-- tapOn: Start planning
+- assertVisible: Meet PlanBud
+- runFlow: helpers/complete-setup.yaml
 - assertVisible: Your month
 - tapOn: Plan
 - scrollUntilVisible:

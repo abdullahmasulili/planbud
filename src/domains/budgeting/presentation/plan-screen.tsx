@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { useStore } from 'zustand';
@@ -50,6 +51,7 @@ export const PlanScreen = ({
     readonly onGoals: () => void;
   };
 }) => {
+  const { t } = useI18n();
   const version = useStore(store, (state) => state.version);
   const categories = useStore(store, (state) => state.categories);
   const status = useStore(store, (state) => state.status);
@@ -161,13 +163,13 @@ export const PlanScreen = ({
         />
       ) : (
         <Screen>
-          <Text variant="headlineMedium">Monthly plan</Text>
+          <Text variant="headlineMedium">{t('Monthly plan')}</Text>
           {status === 'loading' ? (
-            <ActivityIndicator accessibilityLabel="Loading this month" />
+            <ActivityIndicator accessibilityLabel={t('Loading this month')} />
           ) : null}
           <FormMessage message={message} />
           <ActionButton onPress={() => load(store.getState().month || initialMonth)}>
-            Reload month
+            {t('Reload month')}
           </ActionButton>
         </Screen>
       )}
@@ -184,7 +186,7 @@ export const PlanScreen = ({
         />
       ) : null}
       <Snackbar visible={saved} onDismiss={() => setSaved(false)} duration={3000}>
-        Changes saved
+        {t('Changes saved')}
       </Snackbar>
       <FormMessage message={previewOperation.message} />
       {previewing && planning ? (

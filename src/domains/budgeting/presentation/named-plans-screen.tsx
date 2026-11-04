@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { useCallback, useRef, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
@@ -36,6 +37,7 @@ export const NamedPlansScreen = ({
   store: ReturnType<typeof createNamedPlanStore>;
   newId: () => string;
 }) => {
+  const { t } = useI18n();
   const theme = useTheme();
   const version = useStore(store, (state) => state.version);
   const status = useStore(store, (state) => state.status);
@@ -73,13 +75,16 @@ export const NamedPlansScreen = ({
         contentContainerStyle={styles.content}
         ListHeaderComponent={
           <View style={styles.section}>
-            <Text variant="headlineMedium">Your plans</Text>
+            <Text variant="headlineMedium">{t('Your plans')}</Text>
             <Text>
-              Make room for a vacation, a celebration, or your next project. Each plan has its own
-              funding and expense estimates.
+              {t(
+                'Make room for a vacation, a celebration, or your next project. Each plan has its own funding and expense estimates.',
+              )}
             </Text>
             <Text variant="bodySmall">
-              Estimates only · separate from monthly income, transactions, and goal allocations.
+              {t(
+                'Estimates only · separate from monthly income, transactions, and goal allocations.',
+              )}
             </Text>
             <ActionButton
               mode="contained"
@@ -88,14 +93,14 @@ export const NamedPlansScreen = ({
                 if (version) setEditing({ plan: null, revision: version.revision });
               }}
             >
-              New plan
+              {t('New plan')}
             </ActionButton>
             <FormMessage message={message} />
             {status === 'loading' ? (
-              <ActivityIndicator accessibilityLabel="Loading named plans" />
+              <ActivityIndicator accessibilityLabel={t('Loading named plans')} />
             ) : null}
             <ActionButton onPress={load} disabled={status === 'loading'}>
-              Reload plans
+              {t('Reload plans')}
             </ActionButton>
           </View>
         }
@@ -105,14 +110,16 @@ export const NamedPlansScreen = ({
             <Card mode="outlined">
               <Card.Content style={styles.section}>
                 <Text variant="titleLarge">{item.name}</Text>
-                <Text>Funding {formatMoney(item.funding, profile.currency, profile.locale)}</Text>
+                <Text>
+                  {t('Funding')} {formatMoney(item.funding, profile.currency, profile.locale)}
+                </Text>
                 <BudgetGauge
-                  label="Funding allocated"
+                  label={t('Funding allocated')}
                   value={totals.allocated}
                   limit={item.funding}
                 />
                 <Text>
-                  Expense estimates{' '}
+                  {t('Expense estimates')}{' '}
                   {formatMoney(totals.allocated, profile.currency, profile.locale)}
                 </Text>
                 <Text
@@ -121,10 +128,10 @@ export const NamedPlansScreen = ({
                       totals.remaining < 0 ? theme.colors.error : theme.colors.onSurfaceVariant,
                   }}
                 >
-                  {totals.remaining < 0 ? 'Overallocated by' : 'Unallocated'}{' '}
+                  {totals.remaining < 0 ? t('Overallocated by') : t('Unallocated')}{' '}
                   {formatMoney(Math.abs(totals.remaining), profile.currency, profile.locale)}
                 </Text>
-                <Text variant="titleMedium">Expense breakdown</Text>
+                <Text variant="titleMedium">{t('Expense breakdown')}</Text>
                 {item.items.slice(0, 3).map((expense) => (
                   <View key={expense.id} style={{ gap: 4 }}>
                     <Text>{expense.name}</Text>
@@ -135,31 +142,31 @@ export const NamedPlansScreen = ({
                 ))}
                 <Text variant="bodySmall">
                   {item.items.length > 3
-                    ? `${item.items.length - 3} more estimates · edit to review all`
+                    ? t('{0} more estimates · edit to review all', { 0: item.items.length - 3 })
                     : item.items.length === 0
-                      ? 'Add expenses to build your plan.'
-                      : 'Planning estimates only'}
+                      ? t('Add expenses to build your plan.')
+                      : t('Planning estimates only')}
                 </Text>
                 <ActionButton
                   mode="outlined"
-                  accessibilityLabel={`Edit ${item.name}`}
+                  accessibilityLabel={t('Edit {0}', { 0: item.name })}
                   disabled={status === 'loading'}
                   onPress={() => {
                     if (version) setEditing({ plan: item, revision: version.revision });
                   }}
                 >
-                  Edit plan
+                  {t('Edit plan')}
                 </ActionButton>
                 <ActionButton
                   textColor={theme.colors.error}
-                  accessibilityLabel={`Delete ${item.name}`}
+                  accessibilityLabel={t('Delete {0}', { 0: item.name })}
                   disabled={status === 'loading'}
                   onPress={() => {
                     operation.clearMessage();
                     if (version) setDeleting({ plan: item, revision: version.revision });
                   }}
                 >
-                  Delete plan
+                  {t('Delete plan')}
                 </ActionButton>
               </Card.Content>
             </Card>
@@ -169,9 +176,9 @@ export const NamedPlansScreen = ({
           status === 'ready' ? (
             <Card mode="outlined">
               <Card.Content style={styles.section}>
-                <Text variant="titleLarge">No named plans yet</Text>
+                <Text variant="titleLarge">{t('No named plans yet')}</Text>
                 <Text>
-                  Create a plan, set its funding, and add expense estimates to see what fits.
+                  {t('Create a plan, set its funding, and add expense estimates to see what fits.')}
                 </Text>
               </Card.Content>
             </Card>
@@ -208,15 +215,16 @@ export const NamedPlansScreen = ({
               contentContainerStyle={{ paddingVertical: 24, gap: 16 }}
             >
               <Text variant="titleLarge" accessibilityRole="header">
-                Delete {deleting.plan.name}?
+                {t('Delete')} {deleting.plan.name}?
               </Text>
               <Text>
-                This removes this plan and its expense estimates. Monthly budgets, transactions, and
-                goals stay unchanged.
+                {t(
+                  'This removes this plan and its expense estimates. Monthly budgets, transactions, and goals stay unchanged.',
+                )}
               </Text>
               <FormMessage message={operation.message} />
               <ActionButton disabled={operation.busy} onPress={() => setDeleting(null)}>
-                Keep plan
+                {t('Keep plan')}
               </ActionButton>
               <ActionButton
                 mode="contained"
@@ -239,14 +247,14 @@ export const NamedPlansScreen = ({
                   )
                 }
               >
-                Delete plan
+                {t('Delete plan')}
               </ActionButton>
             </ScrollView>
           </Dialog.ScrollArea>
         </AppDialog>
       ) : null}
       <Snackbar visible={Boolean(notice)} onDismiss={() => setNotice('')} duration={3000}>
-        {notice}
+        {t(notice)}
       </Snackbar>
     </SafeAreaView>
   );

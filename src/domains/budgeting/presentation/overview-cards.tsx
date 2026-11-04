@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { StyleSheet, View } from 'react-native';
 import { Card, Text, useTheme } from 'react-native-paper';
 import type { BudgetOverview } from '../application/overview-service';
@@ -12,6 +13,7 @@ import { formatMoney } from '@/shared/presentation/money-format';
  * @returns A spending gauge and labeled financial comparison cards, with exact amounts.
  */
 export const OverviewCards = ({ data, profile }: { data: BudgetOverview; profile: Profile }) => {
+  const { t } = useI18n();
   const theme = useTheme();
   /** Formats canonical amounts in the confirmed currency.
    * @param amount Minor-unit amount.
@@ -23,38 +25,40 @@ export const OverviewCards = ({ data, profile }: { data: BudgetOverview; profile
       <Card mode="contained" style={{ backgroundColor: theme.colors.primaryContainer }}>
         <Card.Content style={styles.content}>
           <Text variant="titleMedium" style={{ color: theme.colors.onPrimaryContainer }}>
-            {data.remainingSpending < 0 ? 'Over planned spending' : 'Remaining planned spending'}
+            {data.remainingSpending < 0
+              ? t('Over planned spending')
+              : t('Remaining planned spending')}
           </Text>
           <Text variant="headlineLarge" style={{ color: theme.colors.onPrimaryContainer }}>
             {money(Math.abs(data.remainingSpending))}
           </Text>
           <BudgetGauge
-            label="Spending used"
+            label={t('Spending used')}
             value={data.actualSpending}
             limit={data.plannedSpending}
           />
           <Text style={{ color: theme.colors.onPrimaryContainer }}>
-            Spent {money(data.actualSpending)} of {money(data.plannedSpending)}
+            {t('Spent')} {money(data.actualSpending)} {t('of')} {money(data.plannedSpending)}
           </Text>
           {data.plannedSpending === 0 ? (
             <Text style={{ color: theme.colors.onPrimaryContainer }}>
-              Set category limits in Plan to compare your spending.
+              {t('Set category limits in Plan to compare your spending.')}
             </Text>
           ) : null}
         </Card.Content>
       </Card>
       <Card mode="outlined">
         <Card.Content style={styles.content}>
-          <Text variant="titleLarge">Income</Text>
+          <Text variant="titleLarge">{t('Income')}</Text>
           <ComparisonChart
-            label="Income comparison"
+            label={t('Income comparison')}
             first={{
-              label: 'Planned income',
+              label: t('Planned income'),
               value: data.plannedIncome,
               formatted: money(data.plannedIncome),
             }}
             second={{
-              label: 'Recorded income',
+              label: t('Recorded income'),
               value: data.actualIncome,
               formatted: money(data.actualIncome),
             }}
@@ -63,24 +67,25 @@ export const OverviewCards = ({ data, profile }: { data: BudgetOverview; profile
       </Card>
       <Card mode="outlined">
         <Card.Content style={styles.content}>
-          <Text variant="titleLarge">Spending</Text>
+          <Text variant="titleLarge">{t('Spending')}</Text>
           <ComparisonChart
-            label="Spending comparison"
+            label={t('Spending comparison')}
             first={{
-              label: 'Spending limits',
+              label: t('Spending limits'),
               value: data.plannedSpending,
               formatted: money(data.plannedSpending),
             }}
             second={{
-              label: 'Recorded spending',
+              label: t('Recorded spending'),
               value: data.actualSpending,
               formatted: money(data.actualSpending),
             }}
             overLimit
           />
           <Text variant="bodySmall">
-            Estimates change when you save a plan. Goal contributions are separate earmarking
-            records.
+            {t(
+              'Estimates change when you save a plan. Goal contributions are separate earmarking records.',
+            )}
           </Text>
         </Card.Content>
       </Card>

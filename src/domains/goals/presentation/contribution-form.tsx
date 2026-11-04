@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { useState } from 'react';
 import { ScrollView } from 'react-native';
 import { Dialog, Text } from 'react-native-paper';
@@ -42,12 +43,13 @@ export const ContributionForm = ({
   onRemove: (command: Command<{ readonly id: string }>) => Promise<Result<void>>;
   onClose: () => void;
 }) => {
+  const { t } = useI18n();
+  // Keep an open draft's decimal separator stable when Settings changes language.
+  const [inputLocale] = useState(profile.locale);
   const [id] = useState(() => initial?.id ?? newId());
   const [operationId] = useState(newId);
   const [deleteId] = useState(newId);
-  const originalAmount = initial
-    ? amountInput(initial.amount, profile.currency, profile.locale)
-    : '';
+  const originalAmount = initial ? amountInput(initial.amount, profile.currency, inputLocale) : '';
   const [amount, setAmount] = useState(originalAmount);
   const [date, setDate] = useState(initial?.date ?? today);
   const [phase, setPhase] = useState<'edit' | 'discard' | 'delete'>('edit');
@@ -63,7 +65,7 @@ export const ContributionForm = ({
   /** Parses exact local input and preserves action identity across retries. */
   const save = () =>
     operation.run(async () => {
-      const parsed = parseAmount(amount, profile.currency, profile.locale);
+      const parsed = parseAmount(amount, profile.currency, inputLocale);
       if (!parsed.ok) return parsed;
       return await onSave({ operationId, input: { id, goalId, amount: parsed.value, date } });
     }, onClose);
@@ -71,12 +73,12 @@ export const ContributionForm = ({
     <AppDialog visible dismissable={!operation.busy} onDismiss={close} style={{ maxHeight: '90%' }}>
       <Dialog.Title>
         {phase === 'delete'
-          ? 'Delete contribution?'
+          ? t('Delete contribution?')
           : phase === 'discard'
-            ? 'Discard unsaved edits?'
+            ? t('Discard unsaved edits?')
             : initial
-              ? 'Edit contribution'
-              : 'New contribution'}
+              ? t('Edit contribution')
+              : t('New contribution')}
       </Dialog.Title>
       <Dialog.ScrollArea>
         <ScrollView
@@ -86,12 +88,13 @@ export const ContributionForm = ({
           {phase === 'edit' ? (
             <>
               <Text>
-                Record money actually earmarked for this goal. Planned allocations do not count as
-                savings.
+                {t(
+                  'Record money actually earmarked for this goal. Planned allocations do not count as savings.',
+                )}
               </Text>
               <AppInput
-                label={`Amount (${profile.currency.code})`}
-                accessibilityLabel="Contribution amount"
+                label={t('Amount ({0})', { 0: profile.currency.code })}
+                accessibilityLabel={t('Contribution amount')}
                 value={amount}
                 onChangeText={setAmount}
                 keyboardType="decimal-pad"
@@ -99,12 +102,12 @@ export const ContributionForm = ({
                 disabled={operation.busy}
               />
               <AppInput
-                label="Contribution date"
-                accessibilityLabel="Contribution date"
+                label={t('Contribution date')}
+                accessibilityLabel={t('Contribution date')}
                 value={date}
                 onChangeText={setDate}
                 maxLength={10}
-                placeholder="YYYY-MM-DD"
+                placeholder={t('YYYY-MM-DD')}
                 disabled={operation.busy}
               />
               <FormMessage message={operation.message} />
@@ -114,7 +117,7 @@ export const ContributionForm = ({
                 disabled={operation.busy}
                 loading={operation.busy}
               >
-                Save contribution
+                {t('Save contribution')}
               </ActionButton>
               {initial ? (
                 <ActionButton
@@ -124,16 +127,18 @@ export const ContributionForm = ({
                     setPhase('delete');
                   }}
                 >
-                  Delete contribution
+                  {t('Delete contribution')}
                 </ActionButton>
               ) : null}
               <ActionButton onPress={close} disabled={operation.busy}>
-                Cancel
+                {t('Cancel')}
               </ActionButton>
             </>
           ) : phase === 'delete' ? (
             <>
-              <Text>Actual goal savings will be recalculated after this record is removed.</Text>
+              <Text>
+                {t('Actual goal savings will be recalculated after this record is removed.')}
+              </Text>
               <FormMessage message={operation.message} />
               <ActionButton
                 mode="contained"
@@ -146,19 +151,19 @@ export const ContributionForm = ({
                   )
                 }
               >
-                Delete
+                {t('Delete')}
               </ActionButton>
               <ActionButton disabled={operation.busy} onPress={() => setPhase('edit')}>
-                Keep contribution
+                {t('Keep contribution')}
               </ActionButton>
             </>
           ) : (
             <>
-              <Text>Your saved history stays unchanged.</Text>
+              <Text>{t('Your saved history stays unchanged.')}</Text>
               <ActionButton mode="contained" onPress={onClose}>
-                Discard edits
+                {t('Discard edits')}
               </ActionButton>
-              <ActionButton onPress={() => setPhase('edit')}>Keep editing</ActionButton>
+              <ActionButton onPress={() => setPhase('edit')}>{t('Keep editing')}</ActionButton>
             </>
           )}
         </ScrollView>

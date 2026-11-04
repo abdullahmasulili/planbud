@@ -22,7 +22,7 @@ name: Explicit local reset preserves external encrypted files
 - tapOn: I understand this cannot be undone without my backup and phrase
 - tapOn: Clear all local data
 - extendedWaitUntil:
-    visible: Your money, on your device
+    visible: Meet PlanBud
     timeout: 60000
 - scrollUntilVisible:
     element: Restore an existing backup

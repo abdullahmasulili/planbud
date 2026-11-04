@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { useState } from 'react';
 import { FlatList } from 'react-native';
 import { Dialog, List, Text, useTheme } from 'react-native-paper';
@@ -24,6 +25,7 @@ export const CategoryPicker = ({
   onSelected: (id: string) => void;
   onClose: () => void;
 }) => {
+  const { t } = useI18n();
   const [search, setSearch] = useState('');
   const theme = useTheme();
   const visible = categories.filter((category) =>
@@ -31,11 +33,11 @@ export const CategoryPicker = ({
   );
   return (
     <AppDialog visible onDismiss={onClose} style={{ maxHeight: '90%' }}>
-      <Dialog.Title>Expense category</Dialog.Title>
+      <Dialog.Title>{t('Expense category')}</Dialog.Title>
       <Dialog.Content>
         <AppInput
-          label="Search categories"
-          accessibilityLabel="Search categories"
+          label={t('Search categories')}
+          accessibilityLabel={t('Search categories')}
           value={search}
           onChangeText={setSearch}
           maxLength={120}
@@ -50,7 +52,7 @@ export const CategoryPicker = ({
             <List.Item
               title={item.name}
               titleNumberOfLines={0}
-              description={`${item.kind === 'essential' ? 'Essential' : 'Flexible'}${item.archived ? ' · archived' : ''}`}
+              description={`${t(item.kind === 'essential' ? 'Essential' : 'Flexible')}${item.archived ? t(' · archived') : ''}`}
               accessibilityState={{ selected: item.id === selected }}
               onPress={() => onSelected(item.id)}
               style={{
@@ -60,11 +62,11 @@ export const CategoryPicker = ({
               }}
             />
           )}
-          ListEmptyComponent={<Text>No matching categories.</Text>}
+          ListEmptyComponent={<Text>{t('No matching categories.')}</Text>}
         />
       </Dialog.ScrollArea>
       <Dialog.Actions>
-        <ActionButton onPress={onClose}>Cancel</ActionButton>
+        <ActionButton onPress={onClose}>{t('Cancel')}</ActionButton>
       </Dialog.Actions>
     </AppDialog>
   );

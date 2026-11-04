@@ -4,7 +4,7 @@ appId: com.planbud.app
 name: Restore the app's encrypted export without its original protected storage
 ---
 - launchApp
-- assertVisible: Your money, on your device
+- assertVisible: Meet PlanBud
 - scrollUntilVisible:
     element: Restore an existing backup
     direction: DOWN

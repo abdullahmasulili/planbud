@@ -6,6 +6,26 @@ import type { ProfileService, ProfilePort } from './public';
  * @returns Validated, sanitized settings operations.
  */
 export const createProfileService = (repository: ProfilePort): ProfileService => ({
+  /** Changes display language and number formatting without converting stored money.
+   * @param locale Supported English or Indonesian locale.
+   * @returns Completion or a retryable validation/storage failure.
+   */
+  changeLocale: async (locale) => {
+    if (locale !== 'en-US' && locale !== 'id-ID')
+      return {
+        ok: false,
+        error: { code: 'invalid-locale', message: 'Choose English or Indonesian.' },
+      };
+    try {
+      await repository.setLocale(locale);
+      return { ok: true, value: undefined };
+    } catch {
+      return {
+        ok: false,
+        error: { code: 'profile-unavailable', message: 'Unable to save language. Try again.' },
+      };
+    }
+  },
   /** Loads the confirmed profile without exposing storage diagnostics.
    * @returns Profile, first-launch absence, or a recoverable read error.
    */

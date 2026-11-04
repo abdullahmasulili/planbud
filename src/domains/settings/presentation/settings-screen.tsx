@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { Text } from 'react-native-paper';
 import type { Profile, ProfileService } from '../application/public';
 import { Screen, FormMessage } from '@/shared/presentation/screen';
@@ -30,18 +31,35 @@ export const SettingsScreen = ({
   onBackup?: () => void;
   onClear?: () => void;
 }) => {
+  const { t } = useI18n();
   const operation = useOperation();
   return (
     <Screen>
-      <Text variant="titleLarge">Appearance</Text>
-      <Text>Follow your device or choose a scheme for Plan Bud.</Text>
+      <Text variant="titleLarge">{t('Language')}</Text>
+      <ChoiceGroup
+        label={t('Language')}
+        value={profile.locale.startsWith('id') ? 'id-ID' : 'en-US'}
+        options={[
+          { value: 'en-US', label: 'English' },
+          { value: 'id-ID', label: 'Bahasa Indonesia' },
+        ]}
+        disabled={operation.busy}
+        onChange={(locale) =>
+          operation.run(
+            async () => await service.changeLocale(locale),
+            () => onUpdated({ ...profile, locale }),
+          )
+        }
+      />
+      <Text variant="titleLarge">{t('Appearance')}</Text>
+      <Text>{t('Follow your device or choose a scheme for Plan Bud.')}</Text>
       <ChoiceGroup<Profile['appearance']>
-        label="Appearance"
+        label={t('Appearance')}
         value={profile.appearance}
         options={[
-          { value: 'system', label: 'Use device setting' },
-          { value: 'light', label: 'Light' },
-          { value: 'dark', label: 'Dark' },
+          { value: 'system', label: t('Use device setting') },
+          { value: 'light', label: t('Light') },
+          { value: 'dark', label: t('Dark') },
         ]}
         disabled={operation.busy}
         onChange={(mode) =>
@@ -52,22 +70,22 @@ export const SettingsScreen = ({
         }
       />
       <FormMessage message={operation.message} />
-      <Text variant="titleLarge">Currency</Text>
+      <Text variant="titleLarge">{t('Currency')}</Text>
       <Text>
         {profile.currency.code} · {profile.locale}
       </Text>
-      <Text>Amounts use your confirmed currency. All records stay on this device.</Text>
+      <Text>{t('Amounts use your confirmed currency. All records stay on this device.')}</Text>
       {onRecovery ? (
         <ActionButton mode="outlined" onPress={onRecovery}>
-          Recovery phrase
+          {t('Recovery phrase')}
         </ActionButton>
       ) : null}
       {onBackup ? (
         <ActionButton mode="outlined" onPress={onBackup}>
-          Encrypted backups
+          {t('Encrypted backups')}
         </ActionButton>
       ) : null}
-      {onClear ? <ActionButton onPress={onClear}>Clear local data</ActionButton> : null}
+      {onClear ? <ActionButton onPress={onClear}>{t('Clear local data')}</ActionButton> : null}
     </Screen>
   );
 };

@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { useCallback, useRef, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
@@ -35,6 +36,7 @@ export const GoalsScreen = ({
   today: string;
   newId: () => string;
 }) => {
+  const { t } = useI18n();
   const theme = useTheme();
   const goals = useStore(store, (state) => state.goals);
   const status = useStore(store, (state) => state.status);
@@ -75,11 +77,11 @@ export const GoalsScreen = ({
         contentContainerStyle={styles.content}
         ListHeaderComponent={
           <View style={styles.section}>
-            <Text variant="headlineMedium">Goals</Text>
-            <Text>Actual savings equal starting savings plus recorded contributions.</Text>
+            <Text variant="headlineMedium">{t('Goals')}</Text>
+            <Text>{t('Actual savings equal starting savings plus recorded contributions.')}</Text>
             <FormMessage message={message} />
             <ActionButton mode="outlined" disabled={status === 'loading'} onPress={load}>
-              Reload goals
+              {t('Reload goals')}
             </ActionButton>
           </View>
         }
@@ -88,63 +90,71 @@ export const GoalsScreen = ({
             <Card.Content style={styles.section}>
               <Text variant="titleLarge">{item.name}</Text>
               <Text>
-                {item.priority} priority · {item.state}
-                {item.overdue ? ' · overdue' : ''}
-                {item.deadline ? ` · due ${item.deadline}` : ' · no deadline'}
+                {t(item.priority)} {t('priority ·')} {t(item.state)}
+                {item.overdue ? t(' · overdue') : ''}
+                {item.deadline ? t(' · due {0}', { 0: item.deadline }) : t(' · no deadline')}
               </Text>
               <Text
-                accessibilityLabel={`Saved ${formatMoney(item.saved, profile.currency, profile.locale)} of target ${formatMoney(item.target, profile.currency, profile.locale)}. Remaining ${formatMoney(item.remaining, profile.currency, profile.locale)}.`}
+                accessibilityLabel={t('Saved {0} of target {1}. Remaining {2}.', {
+                  0: formatMoney(item.saved, profile.currency, profile.locale),
+                  1: formatMoney(item.target, profile.currency, profile.locale),
+                  2: formatMoney(item.remaining, profile.currency, profile.locale),
+                })}
               >
-                Saved {formatMoney(item.saved, profile.currency, profile.locale)} of{' '}
+                {t('Saved')} {formatMoney(item.saved, profile.currency, profile.locale)} {t('of')}{' '}
                 {formatMoney(item.target, profile.currency, profile.locale)}
-                {'\n'}Remaining {formatMoney(item.remaining, profile.currency, profile.locale)}
+                {'\n'}
+                {t('Remaining')} {formatMoney(item.remaining, profile.currency, profile.locale)}
               </Text>
               <ComparisonChart
-                label={`${item.name} savings`}
+                label={t('{0} savings', { 0: item.name })}
                 first={{
-                  label: 'Target',
+                  label: t('Target'),
                   value: item.target,
                   formatted: formatMoney(item.target, profile.currency, profile.locale),
                 }}
                 second={{
-                  label: 'Saved',
+                  label: t('Saved'),
                   value: item.saved,
                   formatted: formatMoney(item.saved, profile.currency, profile.locale),
                 }}
               />
               <ActionButton
                 onPress={() => setEditing({ goal: item })}
-                accessibilityLabel={`Edit goal ${item.name}`}
+                accessibilityLabel={t('Edit goal {0}', { 0: item.name })}
               >
-                Edit goal
+                {t('Edit goal')}
               </ActionButton>
               <ActionButton
                 mode="outlined"
                 onPress={() => setContribution({ goalId: item.id, record: null })}
-                accessibilityLabel={`Add contribution to ${item.name}`}
+                accessibilityLabel={t('Add contribution to {0}', { 0: item.name })}
               >
-                Add contribution
+                {t('Add contribution')}
               </ActionButton>
               <ActionButton
                 onPress={() => setHistoryId(item.id)}
-                accessibilityLabel={`Contribution history for ${item.name}`}
+                accessibilityLabel={t('Contribution history for {0}', { 0: item.name })}
               >
-                Contribution history ({item.contributions.length})
+                {t('Contribution history (')}
+                {item.contributions.length})
               </ActionButton>
             </Card.Content>
           </Card>
         )}
         ListEmptyComponent={
           status === 'loading' ? (
-            <ActivityIndicator accessibilityLabel="Loading goals" />
+            <ActivityIndicator accessibilityLabel={t('Loading goals')} />
           ) : (
-            <Text>No goals yet. Create a goal to see progress and inform your monthly plan.</Text>
+            <Text>
+              {t('No goals yet. Create a goal to see progress and inform your monthly plan.')}
+            </Text>
           )
         }
       />
       <View style={styles.action}>
         <ActionButton mode="contained" onPress={() => setEditing({ goal: null })}>
-          New goal
+          {t('New goal')}
         </ActionButton>
       </View>
       {editing ? (
@@ -170,7 +180,9 @@ export const GoalsScreen = ({
       ) : null}
       {history ? (
         <AppDialog visible onDismiss={() => setHistoryId(null)} style={{ maxHeight: '85%' }}>
-          <Dialog.Title>{history.name} · history</Dialog.Title>
+          <Dialog.Title>
+            {history.name} {t('· history')}
+          </Dialog.Title>
           <Dialog.ScrollArea style={{ minHeight: 120, maxHeight: 400 }}>
             <FlatList
               data={history.contributions}
@@ -179,7 +191,10 @@ export const GoalsScreen = ({
                 <List.Item
                   title={formatMoney(item.amount, profile.currency, profile.locale)}
                   description={item.date}
-                  accessibilityLabel={`Edit contribution ${formatMoney(item.amount, profile.currency, profile.locale)} on ${item.date}`}
+                  accessibilityLabel={t('Edit contribution {0} on {1}', {
+                    0: formatMoney(item.amount, profile.currency, profile.locale),
+                    1: item.date,
+                  })}
                   onPress={() => {
                     setContribution({ goalId: history.id, record: item });
                     setHistoryId(null);
@@ -187,12 +202,12 @@ export const GoalsScreen = ({
                 />
               )}
               ListEmptyComponent={
-                <Text>No recorded contributions. Starting savings remain separate.</Text>
+                <Text>{t('No recorded contributions. Starting savings remain separate.')}</Text>
               }
             />
           </Dialog.ScrollArea>
           <Dialog.Actions>
-            <ActionButton onPress={() => setHistoryId(null)}>Close history</ActionButton>
+            <ActionButton onPress={() => setHistoryId(null)}>{t('Close history')}</ActionButton>
           </Dialog.Actions>
         </AppDialog>
       ) : null}

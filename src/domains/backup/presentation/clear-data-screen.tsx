@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { useState } from 'react';
 import { Checkbox, Text } from 'react-native-paper';
 import type { RestoreService } from '../application/restore-service';
@@ -11,26 +12,27 @@ import { useOperation } from '@/shared/presentation/use-operation';
  * @returns Explicit irreversible clear action; never accesses external backup files.
  */
 export const ClearDataScreen = ({ service }: { service: RestoreService }) => {
+  const { t } = useI18n();
   const [confirmed, setConfirmed] = useState(false);
   const [notice, setNotice] = useState('');
   const operation = useOperation();
   return (
     <Screen>
-      <Text variant="headlineMedium">Clear local data</Text>
+      <Text variant="headlineMedium">{t('Clear local data')}</Text>
       <Text>
-        This deletes your profile, budgets, transactions, goals, history and local recovery binding.
-        Export a backup and retain its phrase first if you need these records. External .planbud
-        files are not deleted.
+        {t(
+          'This deletes your profile, budgets, transactions, goals, history and local recovery binding. Export a backup and retain its phrase first if you need these records. External .planbud files are not deleted.',
+        )}
       </Text>
       <Checkbox.Item
-        label="I understand this cannot be undone without my backup and phrase"
+        label={t('I understand this cannot be undone without my backup and phrase')}
         labelMaxFontSizeMultiplier={0}
         status={confirmed ? 'checked' : 'unchecked'}
         disabled={operation.busy}
         onPress={() => setConfirmed(!confirmed)}
       />
       <FormMessage message={operation.message} />
-      <Text>{notice}</Text>
+      <Text>{t(notice)}</Text>
       <ActionButton
         mode="contained"
         disabled={!confirmed || operation.busy}
@@ -47,7 +49,7 @@ export const ClearDataScreen = ({ service }: { service: RestoreService }) => {
           )
         }
       >
-        Clear all local data
+        {t('Clear all local data')}
       </ActionButton>
     </Screen>
   );
