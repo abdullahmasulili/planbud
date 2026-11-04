@@ -1,4 +1,5 @@
 import { DateInput } from '@/shared/presentation/date-input';
+import { useI18n } from '@/shared/presentation/i18n';
 import { useCallback, useState } from 'react';
 import {
   BackHandler,
@@ -64,6 +65,7 @@ export const OverviewScreen = ({
   onNewPlanning: () => void;
   onRecordSpending: () => void;
 }) => {
+  const { t } = useI18n();
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const [actionsOpen, setActionsOpen] = useState(false);
@@ -138,26 +140,28 @@ export const OverviewScreen = ({
         contentContainerStyle={styles.content}
         ListHeaderComponent={
           <View style={styles.section}>
-            <Text variant="headlineMedium">Your month</Text>
-            <Text>{profile.currency.code} · estimates and actual activity</Text>
+            <Text variant="headlineMedium">{t('Your month')}</Text>
+            <Text>
+              {profile.currency.code} {t('· estimates and actual activity')}
+            </Text>
             <DateInput
               mode="month"
-              label="Overview month"
-              accessibilityLabel="Overview month"
+              label={t('Overview month')}
+              accessibilityLabel={t('Overview month')}
               value={month}
               onChangeText={setMonth}
             />
             <ActionButton mode="outlined" onPress={openMonth} disabled={busy}>
-              Open month
+              {t('Open month')}
             </ActionButton>
             <FormMessage message={message} />
-            {busy ? <ActivityIndicator accessibilityLabel="Loading overview" /> : null}
+            {busy ? <ActivityIndicator accessibilityLabel={t('Loading overview')} /> : null}
             {data ? <OverviewCards data={data} profile={profile} /> : null}
             <ActionButton mode="contained" onPress={onPlan}>
-              Open plan
+              {t('Open plan')}
             </ActionButton>
-            <ActionButton onPress={onSettings}>Settings</ActionButton>
-            <Text variant="titleLarge">Categories</Text>
+            <ActionButton onPress={onSettings}>{t('Settings')}</ActionButton>
+            <Text variant="titleLarge">{t('Categories')}</Text>
           </View>
         }
         renderItem={({ item }) => (
@@ -165,14 +169,14 @@ export const OverviewScreen = ({
             <Card.Content style={styles.section}>
               <Text variant="titleMedium">{item.name}</Text>
               <ComparisonChart
-                label={`${item.name} spending`}
+                label={t('{0} spending', { 0: item.name })}
                 first={{
-                  label: 'Limit',
+                  label: t('Limit'),
                   value: item.limit,
                   formatted: formatMoney(item.limit, profile.currency, profile.locale),
                 }}
                 second={{
-                  label: 'Spent',
+                  label: t('Spent'),
                   value: item.spent,
                   formatted: formatMoney(item.spent, profile.currency, profile.locale),
                 }}
@@ -183,7 +187,7 @@ export const OverviewScreen = ({
                   color: item.remaining < 0 ? theme.colors.error : theme.colors.onSurfaceVariant,
                 }}
               >
-                {item.remaining < 0 ? 'Over by' : 'Remaining'}{' '}
+                {item.remaining < 0 ? t('Over by') : t('Remaining')}{' '}
                 {formatMoney(Math.abs(item.remaining), profile.currency, profile.locale)}
               </Text>
             </Card.Content>
@@ -192,35 +196,37 @@ export const OverviewScreen = ({
         ListEmptyComponent={
           !busy && !message ? (
             <Text>
-              No category plan or spending for this month. Open Plan to set your estimates.
+              {t('No category plan or spending for this month. Open Plan to set your estimates.')}
             </Text>
           ) : undefined
         }
         ListFooterComponent={
           goals && onGoals ? (
             <View style={styles.section}>
-              <Text variant="titleLarge">Goals needing attention today</Text>
+              <Text variant="titleLarge">{t('Goals needing attention today')}</Text>
               <FormMessage message={goalMessage} />
               {attention?.goals.map((goal) => (
                 <View key={goal.id} style={{ gap: 8 }}>
                   <Text variant="titleMedium">
                     {goal.name}
-                    {goal.overdue ? ' · overdue' : ''}
+                    {goal.overdue ? t(' · overdue') : ''}
                   </Text>
                   <Text>
-                    Saved {formatMoney(goal.saved, profile.currency, profile.locale)} of{' '}
-                    {formatMoney(goal.target, profile.currency, profile.locale)} · remaining{' '}
+                    {t('Saved')} {formatMoney(goal.saved, profile.currency, profile.locale)}{' '}
+                    {t('of')} {formatMoney(goal.target, profile.currency, profile.locale)}{' '}
+                    {t('· remaining')}{' '}
                     {formatMoney(goal.remaining, profile.currency, profile.locale)}
                   </Text>
                 </View>
               ))}
               {attention?.count === 0 ? (
                 <Text>
-                  No active incomplete goals. Create or reopen a goal to inform your plan.
+                  {t('No active incomplete goals. Create or reopen a goal to inform your plan.')}
                 </Text>
               ) : null}
               <ActionButton onPress={onGoals}>
-                View all goals{attention ? ` (${attention.count} active incomplete)` : ''}
+                {t('View all goals')}
+                {attention ? t(' ({0} active incomplete)', { 0: attention.count }) : ''}
               </ActionButton>
             </View>
           ) : undefined

@@ -80,3 +80,21 @@ describe('local profile persistence', () => {
     }
   });
 });
+
+it('persists a language change without changing currency and refuses invalid locales', async () => {
+  const database = createDatabaseHandle(createHostDatabase());
+  try {
+    await migrateDatabase(database);
+    const repository = createProfileRepository(database);
+    await repository.initialize(profile);
+    await repository.setLocale('en-US');
+    await repository.setLocale('en-US');
+    expect(await repository.read()).toEqual({ ...profile, locale: 'en-US' });
+    expect(await database.revision()).toBe(2);
+    await expect(repository.setLocale('invalid_locale')).rejects.toThrow();
+    expect(await database.revision()).toBe(2);
+    expect(await repository.read()).toEqual({ ...profile, locale: 'en-US' });
+  } finally {
+    await database.close();
+  }
+});

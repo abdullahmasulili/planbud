@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { TestScreen } from '../../../tests/helpers/test-screen';
 import { DateInput } from './date-input';
+import { LocaleContext } from './i18n';
 
 it('DATE-001 opens on the saved calendar date and preserves it when cancelled', async () => {
   const change = jest.fn();
@@ -73,4 +74,34 @@ it('DATE-002 chooses a whole month across years and leaves it unchanged on cance
   await fireEvent.press(screen.getByRole('button', { name: 'History month' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
   expect(change).not.toHaveBeenCalled();
+});
+
+it('UI-013 uses the saved Indonesian locale for month names and picker actions', async () => {
+  const change = jest.fn();
+  await render(
+    <TestScreen>
+      <LocaleContext.Provider value="id-ID">
+        <DateInput label="Bulan riwayat" value="2026-10" onChangeText={change} mode="month" />
+      </LocaleContext.Provider>
+    </TestScreen>,
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Bulan riwayat' }));
+  expect(screen.getByRole('button', { name: 'Tahun sebelumnya' })).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Batal' })).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole('button', { name: 'Januari 2026' }));
+  expect(change).toHaveBeenCalledWith('2026-01');
+});
+
+it('UI-013 translates optional deadline clearing without changing its date value', async () => {
+  const change = jest.fn();
+  await render(
+    <TestScreen>
+      <LocaleContext.Provider value="id-ID">
+        <DateInput label="Tenggat tujuan" value="2026-10-20" onChangeText={change} optional />
+      </LocaleContext.Provider>
+    </TestScreen>,
+  );
+  expect(screen.getByText('2026-10-20')).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole('button', { name: 'Hapus tenggat tujuan' }));
+  expect(change).toHaveBeenCalledWith('');
 });

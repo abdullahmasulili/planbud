@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { Card, Dialog, Text } from 'react-native-paper';
@@ -41,14 +42,17 @@ export const NamedPlanForm = ({
   onSaved: () => void;
   onClose: () => void;
 }) => {
+  const { t } = useI18n();
+  // Keep an open draft's decimal separator stable when Settings changes language.
+  const [inputLocale] = useState(profile.locale);
   const [id] = useState(() => initial?.id ?? newId());
   const [name, setName] = useState(initial?.name ?? '');
-  const originalFunding = amountInput(initial?.funding ?? 0, profile.currency, profile.locale);
+  const originalFunding = amountInput(initial?.funding ?? 0, profile.currency, inputLocale);
   const [funding, setFunding] = useState(originalFunding);
   const [originalItems] = useState(() =>
     (initial?.items ?? []).map((item) => ({
       ...item,
-      amount: amountInput(item.amount, profile.currency, profile.locale),
+      amount: amountInput(item.amount, profile.currency, inputLocale),
     })),
   );
   const [items, setItems] = useState(originalItems);
@@ -62,11 +66,11 @@ export const NamedPlanForm = ({
    * @returns Canonical draft or the first field/domain failure, without modifying records.
    */
   const parseDraft = (): Result<NamedPlan> => {
-    const parsedFunding = parseAmount(funding, profile.currency, profile.locale);
+    const parsedFunding = parseAmount(funding, profile.currency, inputLocale);
     if (!parsedFunding.ok) return parsedFunding;
     const parsedItems: NamedPlan['items'][number][] = [];
     for (const item of items) {
-      const amount = parseAmount(item.amount, profile.currency, profile.locale);
+      const amount = parseAmount(item.amount, profile.currency, inputLocale);
       if (!amount.ok) return amount;
       parsedItems.push({ ...item, amount: amount.value });
     }
@@ -90,15 +94,15 @@ export const NamedPlanForm = ({
   return (
     <AppDialog visible onDismiss={close} dismissable={!operation.busy} style={styles.dialog}>
       <Dialog.Title>
-        {discard ? 'Discard unsaved edits?' : initial ? 'Edit plan' : 'New plan'}
+        {discard ? t('Discard unsaved edits?') : initial ? t('Edit plan') : t('New plan')}
       </Dialog.Title>
       <Dialog.ScrollArea style={styles.scroll}>
         {discard ? (
           <View style={styles.content}>
-            <Text>Your saved plans stay unchanged.</Text>
-            <ActionButton onPress={() => setDiscard(false)}>Keep editing</ActionButton>
+            <Text>{t('Your saved plans stay unchanged.')}</Text>
+            <ActionButton onPress={() => setDiscard(false)}>{t('Keep editing')}</ActionButton>
             <ActionButton mode="contained" onPress={onClose}>
-              Discard edits
+              {t('Discard edits')}
             </ActionButton>
           </View>
         ) : (
@@ -110,20 +114,21 @@ export const NamedPlanForm = ({
             ListHeaderComponent={
               <View style={styles.section}>
                 <Text>
-                  Plan a vacation, an event, or another expense. These estimates stay separate from
-                  monthly transactions.
+                  {t(
+                    'Plan a vacation, an event, or another expense. These estimates stay separate from monthly transactions.',
+                  )}
                 </Text>
                 <AppInput
-                  label="Plan name"
-                  accessibilityLabel="Plan name"
+                  label={t('Plan name')}
+                  accessibilityLabel={t('Plan name')}
                   value={name}
                   onChangeText={setName}
                   maxLength={120}
                   disabled={operation.busy}
                 />
                 <AppInput
-                  label={`Plan funding (${profile.currency.code})`}
-                  accessibilityLabel={`Plan funding (${profile.currency.code})`}
+                  label={t('Plan funding ({0})', { 0: profile.currency.code })}
+                  accessibilityLabel={t('Plan funding ({0})', { 0: profile.currency.code })}
                   value={funding}
                   onChangeText={setFunding}
                   keyboardType="decimal-pad"
@@ -133,25 +138,25 @@ export const NamedPlanForm = ({
                 {draft.ok && totals ? (
                   <>
                     <BudgetGauge
-                      label="Funding allocated"
+                      label={t('Funding allocated')}
                       value={totals.allocated}
                       limit={draft.value.funding}
                     />
                     <Text>
-                      {totals.remaining < 0 ? 'Overallocated by' : 'Unallocated'}{' '}
+                      {totals.remaining < 0 ? t('Overallocated by') : t('Unallocated')}{' '}
                       {formatMoney(Math.abs(totals.remaining), profile.currency, profile.locale)}
                     </Text>
                   </>
                 ) : null}
-                <Text variant="titleLarge">Expense estimates</Text>
+                <Text variant="titleLarge">{t('Expense estimates')}</Text>
               </View>
             }
             renderItem={({ item, index }) => (
               <Card mode="outlined">
                 <Card.Content style={styles.section}>
                   <AppInput
-                    label={`Expense ${index + 1} name`}
-                    accessibilityLabel={`Expense ${index + 1} name`}
+                    label={t('Expense {0} name', { 0: index + 1 })}
+                    accessibilityLabel={t('Expense {0} name', { 0: index + 1 })}
                     value={item.name}
                     maxLength={120}
                     disabled={operation.busy}
@@ -162,8 +167,14 @@ export const NamedPlanForm = ({
                     }
                   />
                   <AppInput
-                    label={`Expense ${index + 1} amount (${profile.currency.code})`}
-                    accessibilityLabel={`Expense ${index + 1} amount (${profile.currency.code})`}
+                    label={t('Expense {0} amount ({1})', {
+                      0: index + 1,
+                      1: profile.currency.code,
+                    })}
+                    accessibilityLabel={t('Expense {0} amount ({1})', {
+                      0: index + 1,
+                      1: profile.currency.code,
+                    })}
                     value={item.amount}
                     keyboardType="decimal-pad"
                     maxLength={40}
@@ -175,19 +186,19 @@ export const NamedPlanForm = ({
                     }
                   />
                   <ActionButton
-                    accessibilityLabel={`Remove expense ${index + 1}`}
+                    accessibilityLabel={t('Remove expense {0}', { 0: index + 1 })}
                     disabled={operation.busy}
                     onPress={() =>
                       setItems((current) => current.filter((row) => row.id !== item.id))
                     }
                   >
-                    Remove expense
+                    {t('Remove expense')}
                   </ActionButton>
                 </Card.Content>
               </Card>
             )}
             ListEmptyComponent={
-              <Text>No estimates yet. Add expenses such as travel and accommodation.</Text>
+              <Text>{t('No estimates yet. Add expenses such as travel and accommodation.')}</Text>
             }
             ListFooterComponent={
               <View style={styles.section}>
@@ -198,15 +209,15 @@ export const NamedPlanForm = ({
                     const nextItem = {
                       id: newId(),
                       name: '',
-                      amount: amountInput(0, profile.currency, profile.locale),
+                      amount: amountInput(0, profile.currency, inputLocale),
                     };
                     setItems((current) => [...current, nextItem]);
                   }}
                 >
-                  Add expense
+                  {t('Add expense')}
                 </ActionButton>
                 {items.length >= MAX_PLAN_ITEMS ? (
-                  <Text>A plan supports up to 100 expense estimates.</Text>
+                  <Text>{t('A plan supports up to 100 expense estimates.')}</Text>
                 ) : null}
                 <FormMessage message={operation.message} />
                 <ActionButton
@@ -215,10 +226,10 @@ export const NamedPlanForm = ({
                   disabled={operation.busy}
                   loading={operation.busy}
                 >
-                  Save plan
+                  {t('Save plan')}
                 </ActionButton>
                 <ActionButton onPress={close} disabled={operation.busy}>
-                  Cancel
+                  {t('Cancel')}
                 </ActionButton>
               </View>
             }

@@ -3,6 +3,7 @@ import { Card, Text, useTheme } from 'react-native-paper';
 import Svg, { Circle } from 'react-native-svg';
 import type { Profile } from '@/domains/settings/application/public';
 import { formatMoney } from '@/shared/presentation/money-format';
+import { useI18n } from '@/shared/presentation/i18n';
 import type { BudgetOverview } from '../application/overview-service';
 
 /** Summarizes the selected month's actual category spending, with exact text equivalents.
@@ -12,6 +13,7 @@ import type { BudgetOverview } from '../application/overview-service';
  * @returns A donut and largest-first category legend, or an actionable zero-spending state.
  */
 export const SpendingSummary = ({ data, profile }: { data: BudgetOverview; profile: Profile }) => {
+  const { t } = useI18n();
   const theme = useTheme();
   const categories = data.categories
     .filter((row) => row.spent > 0)
@@ -42,7 +44,7 @@ export const SpendingSummary = ({ data, profile }: { data: BudgetOverview; profi
   return (
     <Card mode="outlined">
       <Card.Content style={styles.content}>
-        <Text variant="titleLarge">Spending by category</Text>
+        <Text variant="titleLarge">{t('Spending by category')}</Text>
         <View
           style={styles.donut}
           accessibilityElementsHidden
@@ -77,14 +79,14 @@ export const SpendingSummary = ({ data, profile }: { data: BudgetOverview; profi
           </Svg>
         </View>
         <View style={styles.total}>
-          <Text variant="bodyMedium">Total spent</Text>
+          <Text variant="bodyMedium">{t('Total spent')}</Text>
           <Text variant="headlineSmall">
             {formatMoney(data.actualSpending, profile.currency, profile.locale)}
           </Text>
         </View>
         {segments.length === 0 ? (
           <Text>
-            No spending this month. Record an expense in Transactions to see your breakdown.
+            {t('No spending this month. Record an expense in Transactions to see your breakdown.')}
           </Text>
         ) : (
           segments.map((segment) => (

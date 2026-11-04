@@ -1,4 +1,5 @@
 import { DateInput } from '@/shared/presentation/date-input';
+import { useI18n } from '@/shared/presentation/i18n';
 import { useState } from 'react';
 import { ScrollView } from 'react-native';
 import { Dialog, Text } from 'react-native-paper';
@@ -35,15 +36,16 @@ export const GoalForm = ({
   onSave: (command: Command<Goal>) => Promise<Result<Goal>>;
   onClose: () => void;
 }) => {
+  const { t } = useI18n();
+  // Keep an open draft's decimal separator stable when Settings changes language.
+  const [inputLocale] = useState(profile.locale);
   const [id] = useState(() => initial?.id ?? newId());
   const [operationId] = useState(newId);
   const [name, setName] = useState(initial?.name ?? '');
-  const originalTarget = initial
-    ? amountInput(initial.target, profile.currency, profile.locale)
-    : '';
-  const originalSaved = amountInput(initial?.startingSaved ?? 0, profile.currency, profile.locale);
+  const originalTarget = initial ? amountInput(initial.target, profile.currency, inputLocale) : '';
+  const originalSaved = amountInput(initial?.startingSaved ?? 0, profile.currency, inputLocale);
   const originalDesired = initial?.desiredMonthly
-    ? amountInput(initial.desiredMonthly, profile.currency, profile.locale)
+    ? amountInput(initial.desiredMonthly, profile.currency, inputLocale)
     : '';
   const [target, setTarget] = useState(originalTarget);
   const [saved, setSaved] = useState(originalSaved);
@@ -70,12 +72,12 @@ export const GoalForm = ({
   /** Parses locale amounts and submits the same operation identity on retries. */
   const save = () =>
     operation.run(async () => {
-      const targetResult = parseAmount(target, profile.currency, profile.locale);
+      const targetResult = parseAmount(target, profile.currency, inputLocale);
       if (!targetResult.ok) return targetResult;
-      const savedResult = parseAmount(saved, profile.currency, profile.locale);
+      const savedResult = parseAmount(saved, profile.currency, inputLocale);
       if (!savedResult.ok) return savedResult;
       const desiredResult = desired.trim()
-        ? parseAmount(desired, profile.currency, profile.locale)
+        ? parseAmount(desired, profile.currency, inputLocale)
         : ({ ok: true, value: null } satisfies Result<number | null>);
       if (!desiredResult.ok) return desiredResult;
       return await onSave({
@@ -95,7 +97,7 @@ export const GoalForm = ({
   return (
     <AppDialog visible onDismiss={close} dismissable={!operation.busy} style={{ maxHeight: '90%' }}>
       <Dialog.Title>
-        {discard ? 'Discard unsaved edits?' : initial ? 'Edit goal' : 'New goal'}
+        {discard ? t('Discard unsaved edits?') : initial ? t('Edit goal') : t('New goal')}
       </Dialog.Title>
       <Dialog.ScrollArea>
         <ScrollView
@@ -104,25 +106,25 @@ export const GoalForm = ({
         >
           {discard ? (
             <>
-              <Text>Your saved goal and actual history stay unchanged.</Text>
+              <Text>{t('Your saved goal and actual history stay unchanged.')}</Text>
               <ActionButton mode="contained" onPress={onClose}>
-                Discard edits
+                {t('Discard edits')}
               </ActionButton>
-              <ActionButton onPress={() => setDiscard(false)}>Keep editing</ActionButton>
+              <ActionButton onPress={() => setDiscard(false)}>{t('Keep editing')}</ActionButton>
             </>
           ) : (
             <>
               <AppInput
-                label="Goal name"
-                accessibilityLabel="Goal name"
+                label={t('Goal name')}
+                accessibilityLabel={t('Goal name')}
                 value={name}
                 onChangeText={setName}
                 maxLength={120}
                 disabled={operation.busy}
               />
               <AppInput
-                label={`Target (${profile.currency.code})`}
-                accessibilityLabel="Goal target"
+                label={t('Target ({0})', { 0: profile.currency.code })}
+                accessibilityLabel={t('Goal target')}
                 value={target}
                 onChangeText={setTarget}
                 keyboardType="decimal-pad"
@@ -130,56 +132,60 @@ export const GoalForm = ({
                 disabled={operation.busy}
               />
               <AppInput
-                label={`Starting savings (${profile.currency.code})`}
-                accessibilityLabel="Starting savings"
+                label={t('Starting savings ({0})', { 0: profile.currency.code })}
+                accessibilityLabel={t('Starting savings')}
                 value={saved}
                 onChangeText={setSaved}
                 keyboardType="decimal-pad"
                 maxLength={40}
                 disabled={operation.busy}
               />
-              <Text>Starting savings exclude contributions recorded in this app.</Text>
+              <Text>{t('Starting savings exclude contributions recorded in this app.')}</Text>
               <DateInput
                 optional
-                label="Deadline (optional)"
-                accessibilityLabel="Goal deadline"
+                label={t('Deadline (optional)')}
+                accessibilityLabel={t('Goal deadline')}
                 value={deadline}
                 onChangeText={setDeadline}
                 disabled={operation.busy}
               />
               <AppInput
-                label={`Desired monthly (${profile.currency.code}, optional)`}
-                accessibilityLabel="Desired monthly contribution"
+                label={t('Desired monthly ({0}, optional)', { 0: profile.currency.code })}
+                accessibilityLabel={t('Desired monthly contribution')}
                 value={desired}
                 onChangeText={setDesired}
                 keyboardType="decimal-pad"
                 maxLength={40}
                 disabled={operation.busy}
               />
-              <Text>An undated goal needs a desired monthly amount for automatic allocation.</Text>
+              <Text>
+                {t('An undated goal needs a desired monthly amount for automatic allocation.')}
+              </Text>
               <ChoiceGroup<Goal['priority']>
-                label="Goal priority"
+                label={t('Goal priority')}
                 value={priority}
                 options={[
-                  { value: 'high', label: 'High' },
-                  { value: 'medium', label: 'Medium' },
-                  { value: 'low', label: 'Low' },
+                  { value: 'high', label: t('High') },
+                  { value: 'medium', label: t('Medium') },
+                  { value: 'low', label: t('Low') },
                 ]}
                 onChange={setPriority}
                 disabled={operation.busy}
               />
               <ChoiceGroup<Goal['state']>
-                label="Goal state"
+                label={t('Goal state')}
                 value={state}
                 options={[
-                  { value: 'active', label: 'Active' },
-                  { value: 'completed', label: 'Completed' },
-                  { value: 'archived', label: 'Archived' },
+                  { value: 'active', label: t('Active') },
+                  { value: 'completed', label: t('Completed') },
+                  { value: 'archived', label: t('Archived') },
                 ]}
                 onChange={setState}
                 disabled={operation.busy}
               />
-              <Text>Completion and archival preserve actual savings and contribution history.</Text>
+              <Text>
+                {t('Completion and archival preserve actual savings and contribution history.')}
+              </Text>
               <FormMessage message={operation.message} />
               <ActionButton
                 mode="contained"
@@ -187,10 +193,10 @@ export const GoalForm = ({
                 disabled={operation.busy}
                 loading={operation.busy}
               >
-                Save goal
+                {t('Save goal')}
               </ActionButton>
               <ActionButton onPress={close} disabled={operation.busy}>
-                Cancel
+                {t('Cancel')}
               </ActionButton>
             </>
           )}

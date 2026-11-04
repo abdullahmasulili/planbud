@@ -26,6 +26,21 @@ const readProfile = async (sql: SqlExecutor): Promise<Profile | null> => {
  * @returns Profile port with idempotent confirmation and appearance updates.
  */
 export const createProfileRepository = (database: DatabaseHandle): ProfilePort => ({
+  /** Atomically persists display locale, retaining currency and all financial values.
+   * @param locale Canonical locale validated by the profile contract.
+   * @returns Completion; rejects missing profiles or invalid locale metadata.
+   */
+  setLocale: async (locale) => {
+    await database.write(async (sql) => {
+      const existing = await readProfile(sql);
+      if (!existing) throw new Error('Confirm a profile before changing language.');
+      const parsed = parseProfile({ ...existing, locale });
+      if (!parsed.ok) throw new Error(parsed.error.message);
+      if (existing.locale === locale) return { value: undefined, changed: false };
+      await sql.execute('UPDATE profiles SET locale=? WHERE singleton=1', [locale]);
+      return { value: undefined, changed: true };
+    });
+  },
   /** Reads the current durable profile.
    * @returns Confirmed profile or first-launch absence.
    */

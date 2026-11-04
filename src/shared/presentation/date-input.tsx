@@ -6,6 +6,7 @@ import { parseDate } from '../domain/calendar-date';
 import { ActionButton } from './controls';
 import { AppDialog } from './dialog';
 import { calendarToday } from './calendar-today';
+import { useI18n } from './i18n';
 
 /** Selects calendar dates or whole months without typing or shifting stored dates across timezones.
  * @param props Controlled calendar value and field presentation.
@@ -35,6 +36,7 @@ export const DateInput = ({
   optional?: boolean;
   disabled?: boolean;
 }) => {
+  const { locale, t } = useI18n();
   const theme = useTheme();
   const { fontScale } = useWindowDimensions();
   const [open, setOpen] = useState(false);
@@ -46,8 +48,8 @@ export const DateInput = ({
       <TouchableRipple
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
-        accessibilityValue={{ text: value || 'Not set' }}
-        accessibilityHint={mode === 'month' ? 'Choose a month and year' : 'Open calendar'}
+        accessibilityValue={{ text: value || t('Not set') }}
+        accessibilityHint={mode === 'month' ? t('Choose a month and year') : t('Open calendar')}
         accessibilityState={{ disabled }}
         disabled={disabled}
         onPress={() => {
@@ -61,20 +63,22 @@ export const DateInput = ({
             <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
               {label}
             </Text>
-            <Text variant="bodyLarge">{value || 'Choose date'}</Text>
+            <Text variant="bodyLarge">{value || t('Choose date')}</Text>
           </View>
           <Icon source="calendar" size={24} color={theme.colors.onSurfaceVariant} />
         </View>
       </TouchableRipple>
       {optional && value ? (
         <ActionButton disabled={disabled} onPress={() => onChangeText('')}>
-          Clear {accessibilityLabel.toLowerCase()}
+          {t('Clear {0}', { 0: accessibilityLabel.toLowerCase() })}
         </ActionButton>
       ) : null}
       {open && mode === 'date' ? (
         <Host colorScheme={theme.dark ? 'dark' : 'light'} seedColor={theme.colors.primary}>
           <DatePickerDialog
             initialDate={selected}
+            confirmButtonLabel={t('OK')}
+            dismissButtonLabel={t('Cancel')}
             onDismissRequest={() => setOpen(false)}
             onDateSelected={(picked) => {
               // Compose returns the selected calendar day as UTC midnight, not a local instant.
@@ -92,7 +96,7 @@ export const DateInput = ({
             <ScrollView contentContainerStyle={styles.group}>
               <View style={styles.year}>
                 <ActionButton
-                  accessibilityLabel="Previous year"
+                  accessibilityLabel={t('Previous year')}
                   disabled={year <= 1}
                   onPress={() => setYear(year - 1)}
                 >
@@ -102,7 +106,7 @@ export const DateInput = ({
                   {year}
                 </Text>
                 <ActionButton
-                  accessibilityLabel="Next year"
+                  accessibilityLabel={t('Next year')}
                   disabled={year >= 9999}
                   onPress={() => setYear(year + 1)}
                 >
@@ -112,7 +116,7 @@ export const DateInput = ({
               <View style={styles.months}>
                 {Array.from({ length: 12 }, (_, index) => {
                   const month = `${String(year).padStart(4, '0')}-${String(index + 1).padStart(2, '0')}`;
-                  const name = new Date(`${month}-01T12:00:00Z`).toLocaleString(undefined, {
+                  const name = new Date(`${month}-01T12:00:00Z`).toLocaleString(locale, {
                     month: 'long',
                     timeZone: 'UTC',
                   });
@@ -136,7 +140,7 @@ export const DateInput = ({
             </ScrollView>
           </Dialog.ScrollArea>
           <Dialog.Actions>
-            <ActionButton onPress={() => setOpen(false)}>Cancel</ActionButton>
+            <ActionButton onPress={() => setOpen(false)}>{t('Cancel')}</ActionButton>
           </Dialog.Actions>
         </AppDialog>
       ) : null}

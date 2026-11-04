@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { useState } from 'react';
 import { AppInput, ActionButton } from '@/shared/presentation/controls';
 
@@ -23,12 +24,13 @@ export const PhraseInput = ({
   onSubmit: (words: string) => void;
   onCancel: () => void;
 }) => {
+  const { t } = useI18n();
   const [words, setWords] = useState('');
   return (
     <>
       <AppInput
-        label="12 recovery words in order"
-        accessibilityLabel="12 recovery words in order"
+        label={t('12 recovery words in order')}
+        accessibilityLabel={t('12 recovery words in order')}
         value={words}
         onChangeText={setWords}
         secureTextEntry
@@ -50,7 +52,7 @@ export const PhraseInput = ({
         {label}
       </ActionButton>
       <ActionButton disabled={busy} onPress={onCancel}>
-        Cancel
+        {t('Cancel')}
       </ActionButton>
     </>
   );

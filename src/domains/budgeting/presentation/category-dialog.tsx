@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { useState } from 'react';
 import { ScrollView } from 'react-native';
 import { Dialog, Text } from 'react-native-paper';
@@ -30,6 +31,7 @@ export const CategoryDialog = ({
   onSaved: () => void;
   onCancel: () => void;
 }) => {
+  const { t } = useI18n();
   const [id] = useState(() => category?.id ?? newId());
   const [name, setName] = useState(category?.name ?? '');
   const [kind, setKind] = useState<Category['kind']>(category?.kind ?? 'flexible');
@@ -47,30 +49,31 @@ export const CategoryDialog = ({
       dismissable={!operation.busy}
       onDismiss={onCancel}
     >
-      <Dialog.Title>{category ? 'Edit category' : 'New category'}</Dialog.Title>
+      <Dialog.Title>{category ? t('Edit category') : t('New category')}</Dialog.Title>
       <Dialog.ScrollArea>
         <ScrollView
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ paddingVertical: 16, gap: 16 }}
         >
           <AppInput
-            label="Category name"
-            accessibilityLabel="Category name"
+            label={t('Category name')}
+            accessibilityLabel={t('Category name')}
             value={name}
             onChangeText={setName}
             maxLength={120}
             disabled={operation.busy}
           />
           <Text>
-            Essential covers needs you want to protect. Flexible limits can be adjusted during
-            planning.
+            {t(
+              'Essential covers needs you want to protect. Flexible limits can be adjusted during planning.',
+            )}
           </Text>
           <ChoiceGroup<Category['kind']>
-            label="Category kind"
+            label={t('Category kind')}
             value={kind}
             options={[
-              { value: 'essential', label: 'Essential' },
-              { value: 'flexible', label: 'Flexible' },
+              { value: 'essential', label: t('Essential') },
+              { value: 'flexible', label: t('Flexible') },
             ]}
             onChange={setKind}
             disabled={operation.busy}
@@ -82,18 +85,18 @@ export const CategoryDialog = ({
             disabled={operation.busy}
             onPress={() => save(category?.archived ?? false)}
           >
-            Save category
+            {t('Save category')}
           </ActionButton>
           {category ? (
             <>
-              <Text>Archiving hides a category from new entries and keeps its history.</Text>
+              <Text>{t('Archiving hides a category from new entries and keeps its history.')}</Text>
               <ActionButton disabled={operation.busy} onPress={() => save(!category.archived)}>
-                {category.archived ? 'Unarchive category' : 'Archive category'}
+                {category.archived ? t('Unarchive category') : t('Archive category')}
               </ActionButton>
             </>
           ) : null}
           <ActionButton onPress={onCancel} disabled={operation.busy}>
-            Cancel
+            {t('Cancel')}
           </ActionButton>
         </ScrollView>
       </Dialog.ScrollArea>

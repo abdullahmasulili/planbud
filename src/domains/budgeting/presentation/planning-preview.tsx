@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import { FlatList, View } from 'react-native';
 import { useStore } from 'zustand';
 import { Checkbox, Dialog, Text } from 'react-native-paper';
@@ -37,6 +38,7 @@ export const PlanningPreviewDialog = ({
   onApplied: () => void;
   onGoals: () => void;
 }) => {
+  const { t } = useI18n();
   const preview = useStore(store, (state) => state.preview);
   const suggestions = useStore(store, (state) => state.suggestions);
   const selected = useStore(store, (state) => state.selected);
@@ -55,7 +57,7 @@ export const PlanningPreviewDialog = ({
       onDismiss={onClose}
       style={{ maxHeight: '90%' }}
     >
-      <Dialog.Title>Planning preview</Dialog.Title>
+      <Dialog.Title>{t('Planning preview')}</Dialog.Title>
       <Dialog.ScrollArea style={{ minHeight: 180, maxHeight: 600 }}>
         <FlatList
           data={preview?.allocations ?? []}
@@ -64,18 +66,26 @@ export const PlanningPreviewDialog = ({
           ListHeaderComponent={
             <View style={{ gap: 16 }}>
               <Text>
-                Estimates for {preview?.month}. These allocations do not increase actual savings or
-                guarantee deadlines.
+                {t('Estimates for')} {preview?.month}
+                {t('. These allocations do not increase actual savings or guarantee deadlines.')}
               </Text>
               <Text>
-                Capacity: {money(preview?.capacity ?? 0)} · deficit: {money(preview?.deficit ?? 0)}
+                {t('Capacity:')} {money(preview?.capacity ?? 0)} {t('· deficit:')}{' '}
+                {money(preview?.deficit ?? 0)}
               </Text>
               <FormMessage message={message || operation.message} />
               {suggestions.length ? (
-                <Text>Optional flexible-limit reductions. Essential limits are protected.</Text>
+                <Text>
+                  {t('Optional flexible-limit reductions. Essential limits are protected.')}
+                </Text>
               ) : null}
               {suggestions.map((edit) => {
-                const label = `Set ${categoryNames.find((item) => item.id === edit.categoryId)?.name ?? edit.categoryId} limit to ${money(edit.amount)}`;
+                const label = t('Set {0} limit to {1}', {
+                  0:
+                    categoryNames.find((item) => item.id === edit.categoryId)?.name ??
+                    edit.categoryId,
+                  1: money(edit.amount),
+                });
                 return (
                   <Checkbox.Item
                     key={edit.categoryId}
@@ -96,9 +106,9 @@ export const PlanningPreviewDialog = ({
                 disabled={operation.busy}
                 onPress={() => operation.run(store.getState().review, () => undefined)}
               >
-                Preview selected adjustments
+                {t('Preview selected adjustments')}
               </ActionButton>
-              {!reviewed ? <Text>Review the changed selection before applying.</Text> : null}
+              {!reviewed ? <Text>{t('Review the changed selection before applying.')}</Text> : null}
             </View>
           }
           renderItem={({ item }) => (
@@ -106,25 +116,28 @@ export const PlanningPreviewDialog = ({
               <Text variant="titleMedium">
                 {goalNames.find((goal) => goal.id === item.goalId)?.name ?? item.goalId}
               </Text>
-              <Text>Required {money(item.requested)}</Text>
               <Text>
-                Proposed {money(item.allocated)} · gap {money(item.gap)}
+                {t('Required')} {money(item.requested)}
+              </Text>
+              <Text>
+                {t('Proposed')} {money(item.allocated)} {t('· gap')} {money(item.gap)}
               </Text>
               {item.reasons.map((reason) => (
-                <Text key={reason}>{reason}</Text>
+                <Text key={reason}>{t(reason)}</Text>
               ))}
             </View>
           )}
           ListEmptyComponent={
             <Text>
-              No eligible goal allocation. Add an active goal or review its deadline and monthly
-              amount.
+              {t(
+                'No eligible goal allocation. Add an active goal or review its deadline and monthly amount.',
+              )}
             </Text>
           }
           ListFooterComponent={
             <View style={{ gap: 16 }}>
               <ActionButton onPress={onGoals} disabled={operation.busy}>
-                Edit goals, priorities or deadlines
+                {t('Edit goals, priorities or deadlines')}
               </ActionButton>
               <ActionButton
                 mode="contained"
@@ -132,10 +145,10 @@ export const PlanningPreviewDialog = ({
                 loading={operation.busy}
                 onPress={() => operation.run(store.getState().apply, onApplied)}
               >
-                Apply reviewed plan
+                {t('Apply reviewed plan')}
               </ActionButton>
               <ActionButton onPress={onClose} disabled={operation.busy}>
-                Cancel preview
+                {t('Cancel preview')}
               </ActionButton>
             </View>
           }

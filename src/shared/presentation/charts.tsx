@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import Svg, { Path } from 'react-native-svg';
+import { useI18n } from './i18n';
 
 /** Shows a semicircular measure with a clamped visual fill and truthful text for zero/over-limit states.
  * @param props Nonnegative canonical amounts in matching units and an accessible measure label.
@@ -18,11 +19,12 @@ export const BudgetGauge = ({
   value: number;
   limit: number;
 }) => {
+  const { t } = useI18n();
   const theme = useTheme();
   const fraction = limit > 0 ? value / limit : value > 0 ? 1 : 0;
   const fill = Math.max(0, Math.min(1, fraction));
   const text =
-    limit > 0 ? `${Math.round(fraction * 100)}%` : value > 0 ? 'No limit set' : 'Not allocated';
+    limit > 0 ? `${Math.round(fraction * 100)}%` : t(value > 0 ? 'No limit set' : 'Not allocated');
   const color = value > limit ? theme.colors.error : theme.colors.primary;
   return (
     <View style={styles.gaugeGroup}>

@@ -1,0 +1,14 @@
+# Fresh English onboarding; currency remains the explicit device suggestion.
+appId: com.planbud.app
+---
+- assertVisible: Meet PlanBud
+- tapOn: Continue
+- tapOn: Allow protected storage
+- tapOn: Continue
+- tapOn: I confirm USD for my records
+- scrollUntilVisible:
+    element: Continue
+    direction: DOWN
+- tapOn: Continue
+- assertVisible: You’re ready to plan the future
+- tapOn: Get started

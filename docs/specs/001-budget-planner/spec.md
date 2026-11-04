@@ -5,6 +5,8 @@ Date: 2026-10-20 (Asia/Jakarta)
 
 ## Purpose and confirmed requirements
 
+2026-11-04 onboarding amendment: First launch has four steps: explain the app; request consent for protected recovery storage; choose English or Indonesian, confirm currency and preview system/light/dark appearance; then show readiness and Get started. Preferences persist only after successful completion. Android protected app storage needs no runtime storage permission; explain that recovery setup later creates and confirms the phrase in Backups, while folder selection applies only to encrypted exports. Preserve the existing recovery safeguards. The final checkmark rises from the bottom to the middle, bounces, spins once and is revealed; respect reduced motion. Translate app-owned navigation, forms, feedback and backup guidance offline, and allow language changes in Settings without converting financial values. Native document providers own their own language. IDR has a one-tap setup choice. Display whole rupiah amounts without zero decimals, retaining nonzero sen and the existing two-decimal storage precision.
+
 Build a personal budget planner in the existing Expo project. Success means the user can plan spending against financial goals, record actual activity, and recover data without any remote service.
 
 | ID       | Confirmed requirement                                                                                                                                                                                                                 |

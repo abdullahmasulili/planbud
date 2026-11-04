@@ -3,6 +3,7 @@ import { TestScreen } from '../../../../tests/helpers/test-screen';
 import type { BudgetOverview } from '../application/overview-service';
 import type { Profile } from '@/domains/settings/application/public';
 import { SpendingSummary } from './spending-summary';
+import { LocaleContext } from '@/shared/presentation/i18n';
 
 const profile: Profile = {
   id: 'p',
@@ -60,4 +61,21 @@ it('UI-006 shows an empty ring and next action when the selected month has no sp
   expect(screen.queryAllByTestId('spending-segment', { includeHiddenElements: true })).toHaveLength(
     0,
   );
+});
+
+it('UI-014 follows Indonesian copy and whole-rupiah formatting without translating category names', async () => {
+  await render(
+    <TestScreen>
+      <LocaleContext.Provider value="id-ID">
+        <SpendingSummary
+          data={overview}
+          profile={{ ...profile, locale: 'id-ID', currency: { code: 'IDR', exponent: 2 } }}
+        />
+      </LocaleContext.Provider>
+    </TestScreen>,
+  );
+  expect(screen.getByText('Pengeluaran per kategori')).toBeOnTheScreen();
+  expect(screen.getByText('Total pengeluaran')).toBeOnTheScreen();
+  expect(screen.getByText(/^Rp\s*40$/)).toBeOnTheScreen();
+  expect(screen.getByText('Food')).toBeOnTheScreen();
 });

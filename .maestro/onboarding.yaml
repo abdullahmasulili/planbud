@@ -1,0 +1,38 @@
+# Precondition: a fresh disposable English-locale installation, with USD suggested.
+# This confirms preferences only; it creates no financial records or recovery phrase.
+appId: com.planbud.app
+name: Four-step onboarding and persisted language and theme
+---
+- launchApp
+- assertVisible: Meet PlanBud
+- tapOn: Continue
+- assertVisible: Keep your recovery phrase safe
+- assertNotVisible: Get started
+- tapOn: Allow protected storage
+- assertVisible: Protected storage allowed. Create your phrase later in Backups.
+- tapOn: Continue
+- back
+- assertVisible: Protected storage allowed. Create your phrase later in Backups.
+- tapOn: Continue
+- tapOn: I confirm USD for my records
+- tapOn: Bahasa Indonesia
+- assertVisible: Sesuaikan untuk Anda
+- scrollUntilVisible:
+    element: Gelap
+    direction: DOWN
+- tapOn: Gelap
+- scrollUntilVisible:
+    element: Lanjutkan
+    direction: DOWN
+- tapOn: Lanjutkan
+- assertVisible: Anda siap merencanakan masa depan
+- assertVisible: Mulai
+- tapOn: Mulai
+- assertVisible: Bulan Anda
+- assertVisible: Ringkasan
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible: Bulan Anda
+    timeout: 60000
+- assertVisible: Ringkasan

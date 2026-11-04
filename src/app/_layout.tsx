@@ -1,3 +1,4 @@
+import { useI18n } from '@/shared/presentation/i18n';
 import type { ErrorBoundaryProps } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import { buildTheme, resolveScheme } from '@/shared/presentation/theme';
@@ -13,14 +14,15 @@ import { useOperation } from '@/shared/presentation/use-operation';
  * @returns Sanitized recovery screen with an observed retry action.
  */
 export const ErrorBoundary = ({ retry }: ErrorBoundaryProps) => {
+  const { t } = useI18n();
   const operation = useOperation();
   const theme = buildTheme(resolveScheme('system', useColorScheme()));
   return (
     <SafeAreaProvider>
       <PaperProvider theme={theme.paper}>
         <Screen>
-          <Text variant="headlineSmall">Unable to show this screen</Text>
-          <Text>Your saved records stay on this device. Try opening the screen again.</Text>
+          <Text variant="headlineSmall">{t('Unable to show this screen')}</Text>
+          <Text>{t('Your saved records stay on this device. Try opening the screen again.')}</Text>
           <Button
             mode="contained"
             disabled={operation.busy}
@@ -35,7 +37,7 @@ export const ErrorBoundary = ({ retry }: ErrorBoundaryProps) => {
             }
             contentStyle={{ minHeight: 48 }}
           >
-            Try again
+            {t('Try again')}
           </Button>
           <FormMessage message={operation.message} />
         </Screen>

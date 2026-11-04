@@ -22,6 +22,12 @@ Home's primary FAB reveals two labeled actions above it: New Planning (notebook 
 
 Font source: [Tokotype Plus Jakarta Sans](https://github.com/tokotype/PlusJakartaSans). The bundled SIL Open Font License is in `assets/fonts/OFL.txt`. Native screenshots and contrast assertions are recorded in the verification document as they are executed.
 
+## First launch
+
+The four-step onboarding introduces PlanBud, explains protected recovery storage and requests consent, previews language/currency/theme, then offers Get started. A four-segment progress indicator and Back action retain local selections. Only Get started persists the profile. English and Indonesian copy is bundled offline; the profile locale owns language and number formatting. Existing drafts retain the decimal format they opened with. Offer a one-tap Indonesian rupiah (IDR) choice; show whole amounts such as Rp10.000 without zero decimals, and retain nonzero decimals such as Rp10.000,50.
+
+The final step uses one requested completion animation: the mark rises from below the screen into the middle, bounces lightly, spins once, and reveals a check. This is the explicit exception to the no-entrance-motion rule, requested on 2026-11-04. It never loops. Reduced motion, including an unavailable preference read, shows the completed mark directly. Recovery words remain English BIP-39 words; ordinary user-entered names and notes are never translated.
+
 ## App identity
 
 The approved Buddy Wallet is the app symbol, without a wordmark inside the icon. `assets/images/icon.png` is the full-color legacy and notification large icon. The transparent 1024 px adaptive foreground and monochrome mask share a centered 460 px-wide wallet, keeping the full mark inside Android's 66/108 safe circle. Android supplies the adaptive outline rather than baking a rounded tile into the foreground.
