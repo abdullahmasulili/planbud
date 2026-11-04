@@ -12,9 +12,15 @@ name: IDR setup and exact rupiah display
 - tapOn: Allow protected storage
 - tapOn: Continue
 - scrollUntilVisible:
-    element: Indonesian rupiah \(IDR\)
+    element: Currency code
     direction: DOWN
-- tapOn: Indonesian rupiah \(IDR\)
+- tapOn: Currency code
+- scrollUntilVisible:
+    element: IDR - Indonesia Rupiah
+    direction: DOWN
+    speed: 20
+    timeout: 60000
+- tapOn: IDR - Indonesia Rupiah
 - scrollUntilVisible:
     element: I confirm IDR for my records
     direction: DOWN

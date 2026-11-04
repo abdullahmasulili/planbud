@@ -16,6 +16,38 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
+// Host views cannot measure Paper's animated menu; Android checks the real anchor and scrolling.
+jest.mock('react-native-paper', () => {
+  const paper = jest.requireActual<typeof import('react-native-paper')>('react-native-paper');
+  const { createElement, isValidElement } = jest.requireActual<typeof import('react')>('react');
+  const { View, Pressable } = jest.requireActual<typeof import('react-native')>('react-native');
+  return {
+    ...paper,
+    /** Models menu visibility and outside dismissal without native measurement.
+     * @param props Paper menu boundary, including the real anchor and option children.
+     * @returns Host controls for the menu's interaction contract.
+     */
+    Menu: (props: import('react').ComponentProps<typeof paper.Menu>) =>
+      createElement(
+        View,
+        null,
+        isValidElement(props.anchor) ? props.anchor : null,
+        props.visible
+          ? createElement(
+              View,
+              null,
+              createElement(Pressable, {
+                accessibilityRole: 'button',
+                accessibilityLabel: props.overlayAccessibilityLabel,
+                onPress: props.onDismiss,
+              }),
+              props.children,
+            )
+          : null,
+      ),
+  };
+});
+
 // Host tests model the native confirmation/cancellation boundary; Android verifies the real calendar.
 jest.mock('@expo/ui/jetpack-compose', () => {
   const { createElement } = jest.requireActual<typeof import('react')>('react');

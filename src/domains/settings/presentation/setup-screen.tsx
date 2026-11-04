@@ -4,7 +4,7 @@ import { useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Checkbox, Icon, PaperProvider, Text, useTheme } from 'react-native-paper';
 import type { Profile, ProfileService } from '../application/public';
-import { AppInput, ActionButton } from '@/shared/presentation/controls';
+import { ActionButton } from '@/shared/presentation/controls';
 import { Screen, FormMessage } from '@/shared/presentation/screen';
 import { ChoiceGroup } from '@/shared/presentation/choice-group';
 import { useOperation } from '@/shared/presentation/use-operation';
@@ -12,6 +12,7 @@ import { buildTheme, resolveScheme } from '@/shared/presentation/theme';
 import { LocaleContext, translate } from '@/shared/presentation/i18n';
 import { currencyFor } from '@/shared/domain/money';
 import { SetupCompletion } from './setup-completion';
+import { CurrencyPicker } from './currency-picker';
 
 /** Guides first launch through introduction, storage consent, preferences and explicit completion.
  * @param props Stable confirmation use case, device suggestions and implemented navigation.
@@ -176,28 +177,14 @@ export const SetupScreen = ({
                   ]}
                   onChange={setLocale}
                 />
-                <AppInput
-                  label={t('Currency code')}
+                <CurrencyPicker
                   value={code}
-                  onChangeText={(value) => {
-                    setCode(value.toUpperCase());
+                  onChange={(value) => {
+                    if (value === code) return;
+                    setCode(value);
                     setConfirmed(false);
                   }}
-                  autoCapitalize="characters"
-                  maxLength={3}
-                  error={!currency.ok}
                 />
-                <ActionButton
-                  mode={code === 'IDR' ? 'contained-tonal' : 'outlined'}
-                  accessibilityState={{ selected: code === 'IDR' }}
-                  onPress={() => {
-                    if (code === 'IDR') return;
-                    setCode('IDR');
-                    setConfirmed(false);
-                  }}
-                >
-                  {t('Indonesian rupiah (IDR)')}
-                </ActionButton>
                 <Text>
                   {t(
                     'Currency is fixed after setup. Changing it requires clearing local data or restoring another profile.',
