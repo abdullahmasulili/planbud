@@ -34,10 +34,12 @@ With Java 17 and the Android SDK configured locally:
 
 ```sh
 pnpm android:preview
-pnpm scan:release dist/android/plan-bud-preview.apk
+pnpm scan:release dist/android/plan-bud-v1.0.0-build1.apk
 ```
 
-The build uses Expo Continuous Native Generation and produces a signed standalone APK plus its checksum in `dist/android/`. The first build creates a private signing identity in the ignored `.private/android-signing/` folder. Preserve both files there securely for future updates; they are separate from the app's recovery phrase. Never commit or share them with the APK. A subsequent build reuses that identity and refuses to overwrite an incomplete pair.
+The build uses Expo Continuous Native Generation and produces a signed standalone APK plus its checksum in `dist/android/`. Release identifiers use `<app version>+<build number>`, for example `1.0.0+42`, with filename `plan-bud-v1.0.0-build42.apk`. The app version comes from `app.json`; CI counts release runs for that version, so changing to `1.1.0` starts at `1.1.0+1`. Android's internal `versionCode` uses the global workflow run number and continues increasing to preserve update compatibility. Local builds default to build 1; set `PLAN_BUD_BUILD_NUMBER` for the visible number and `PLAN_BUD_VERSION_CODE` higher than the installed Android code when preparing a local update.
+
+The first build creates a private signing identity in the ignored `.private/android-signing/` folder. Preserve both files there securely for future updates; they are separate from the app's recovery phrase. Never commit or share them with the APK. A subsequent build reuses that identity and refuses to overwrite an incomplete pair.
 
 EAS profiles are also provided for an explicitly configured Expo account. Local APK generation does not require an Apple account or an EAS subscription.
 

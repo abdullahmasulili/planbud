@@ -5,12 +5,18 @@ import {
   writeFileSync,
   copyFileSync,
   chmodSync,
+  appendFileSync,
 } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { randomBytes, createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
+import { getConfig } from 'expo/config';
 
 const root = process.cwd();
+const { exp } = getConfig(root);
+const releaseVersion = `${exp.version}+${exp.extra.releaseBuildNumber}`;
+const releaseName = `plan-bud-v${exp.version}-build${exp.extra.releaseBuildNumber}`;
+const apkName = `${releaseName}.apk`;
 const privateFolder = resolve(root, '.private/android-signing');
 const keystore = join(privateFolder, 'personal.p12');
 const passwordFile = join(privateFolder, 'password');
@@ -87,10 +93,15 @@ run(
 );
 const output = resolve(root, 'dist/android');
 mkdirSync(output, { recursive: true });
-const apk = join(output, 'plan-bud-preview.apk');
+const apk = join(output, apkName);
 copyFileSync(resolve(root, 'android/app/build/outputs/apk/release/app-release.apk'), apk);
 const digest = createHash('sha256').update(readFileSync(apk)).digest('hex');
-writeFileSync(join(output, 'SHA256SUMS.txt'), `${digest}  plan-bud-preview.apk\n`);
+writeFileSync(join(output, 'SHA256SUMS.txt'), `${digest}  ${apkName}\n`);
+if (process.env.GITHUB_OUTPUT)
+  appendFileSync(
+    process.env.GITHUB_OUTPUT,
+    `artifact-name=${releaseName}\napk-path=dist/android/${apkName}\nrelease-version=${releaseVersion}\nversion-code=${exp.android.versionCode}\n`,
+  );
 process.stdout.write(
-  'Standalone APK prepared in dist/android. Run the artifact scan and offline Android walkthrough before delivery.\n',
+  `Release ${releaseVersion} prepared in dist/android/${apkName}. Run the artifact scan and offline Android walkthrough before delivery.\n`,
 );
