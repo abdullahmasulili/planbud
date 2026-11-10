@@ -145,3 +145,9 @@ No standalone release APK, physical-device, manual TalkBack, or hardware-keyboar
 - UI-007, DEV-001, DEV-002: The Settings index links to dedicated Language, Appearance, and Currency pages and the existing local data screens. Developer tools retains the mock data switch.
 - `pnpm check` passed with 210 tests across 65 suites. Updated component tests verify the Settings destinations and both states of the development switch. Updated Maestro flows to open the preference pages.
 - On the Android development emulator, opened all three preference pages from Settings and used Back to return. Dark appearance remained selected after reopening its page. Switching preview on showed seeded Overview data and hid local data destinations. Switching it off returned to the saved profile and restored those destinations. The updated Maestro flows were not rerun.
+
+## Settings menu and Phosphor icons, 2026-11-10
+
+- UI-005 and UI-007: Settings uses left-aligned titles and descriptions, dividers between destinations, and trailing Phosphor icons. One Backup and restore row opens the page with encrypted export and import.
+- Bundled the Phosphor Regular 2.1.2 font subset and its MIT license. The font character map matched all 19 glyphs used by the app. Existing Expo font support renders the icons without a new package or network request.
+- On the Android development emulator, verified the Settings rows and native tab icons in light and dark appearance. Opened the combined destination and verified both export and import actions were present. The updated Maestro flows and actual backup operations were not rerun.

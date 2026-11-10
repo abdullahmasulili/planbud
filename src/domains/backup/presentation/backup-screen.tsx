@@ -26,7 +26,7 @@ export const BackupScreen = ({
   recovery: RecoveryService;
   exports: ExportService;
   onRecovery: () => void;
-  onRestore?: () => void;
+  onRestore?: (() => void) | undefined;
 }) => {
   const { t, locale } = useI18n();
   const [status, setStatus] = useState<RecoveryStatus | 'loading'>('loading');

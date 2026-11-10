@@ -4,6 +4,6 @@ appId: com.planbud.app
 - runFlow: hide-keyboard.yaml
 - tapOn: Settings
 - scrollUntilVisible:
-    element: Back up data
+    element: Backup and restore
     direction: DOWN
-- tapOn: Back up data
+- tapOn: Backup and restore

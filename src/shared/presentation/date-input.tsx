@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { DatePickerDialog, Host } from '@expo/ui/jetpack-compose';
-import { Dialog, Icon, Text, TouchableRipple, useTheme } from 'react-native-paper';
+import { Dialog, Text, TouchableRipple, useTheme } from 'react-native-paper';
 import { parseDate } from '../domain/calendar-date';
 import { ActionButton } from './controls';
 import { AppDialog } from './dialog';
 import { calendarToday } from './calendar-today';
 import { useI18n } from './i18n';
+import { PhosphorIcon } from './phosphor-icon';
 
 /** Selects calendar dates or whole months without typing or shifting stored dates across timezones.
  * @param props Controlled calendar value and field presentation.
@@ -65,7 +66,13 @@ export const DateInput = ({
             </Text>
             <Text variant="bodyLarge">{value || t('Choose date')}</Text>
           </View>
-          <Icon source="calendar" size={24} color={theme.colors.onSurfaceVariant} />
+          <PhosphorIcon
+            name="calendar"
+            size={24}
+            color={theme.colors.onSurfaceVariant}
+            allowFontScaling={false}
+            accessible={false}
+          />
         </View>
       </TouchableRipple>
       {optional && value ? (

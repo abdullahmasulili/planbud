@@ -62,7 +62,7 @@ export const indonesian: Readonly<Record<string, string>> = {
     'Pengarsipan menyembunyikan kategori dari catatan baru dan mempertahankan riwayatnya.',
   'Authenticate and preview': 'Verifikasi dan pratinjau',
   Back: 'Kembali',
-  'Back up data': 'Cadangkan data',
+  'Backup and restore': 'Cadangkan dan pulihkan',
   Backups: 'Cadangan',
   'Both your encrypted .planbud file and its 12-word phrase are required to restore. Neither the app nor a service can reset a lost phrase or recover a missing file.':
     'Pemulihan memerlukan berkas .planbud terenkripsi dan frasa 12 katanya. Aplikasi maupun layanan lain tidak dapat mereset frasa yang hilang atau memulihkan berkas yang hilang.',
@@ -299,7 +299,12 @@ export const indonesian: Readonly<Record<string, string>> = {
   'Set up a phrase': 'Siapkan frasa',
   'Set up new phrase': 'Siapkan frasa baru',
   Settings: 'Pengaturan',
-  'Restore data': 'Pulihkan data',
+  'Choose English or Bahasa Indonesia.': 'Pilih bahasa Inggris atau bahasa Indonesia.',
+  'Use light, dark, or your device setting.': 'Pilih tampilan terang, gelap, atau ikuti perangkat.',
+  'View the currency used for your records.': 'Lihat mata uang yang digunakan untuk catatan Anda.',
+  'Export or import an encrypted backup.': 'Ekspor atau impor cadangan terenkripsi.',
+  'Set up or view your 12-word phrase.': 'Siapkan atau lihat frasa pemulihan 12 kata Anda.',
+  'Delete Plan Bud records on this device.': 'Hapus catatan Plan Bud di perangkat ini.',
   'To use a different currency, clear local data and set up again or restore another backup.':
     'Untuk memakai mata uang lain, hapus data lokal lalu siapkan ulang aplikasi, atau pulihkan cadangan lain.',
   'Showing the last loaded records. Reload for current totals.':

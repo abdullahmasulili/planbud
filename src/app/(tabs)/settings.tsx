@@ -18,11 +18,6 @@ const SettingsRoute = () => {
         services.recovery && services.sensitiveScreen ? () => router.push('/recovery') : undefined
       }
       onBackup={services.recovery && services.exports ? () => router.push('/backup') : undefined}
-      onRestore={
-        services.restores && services.backupFiles && services.sensitiveScreen
-          ? () => router.push('/restore')
-          : undefined
-      }
       onClear={services.restores ? () => router.push('/clear-data') : undefined}
       onShowMockData={services.showMockData}
       onExitPreview={services.exitPreview}

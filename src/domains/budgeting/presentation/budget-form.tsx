@@ -13,6 +13,7 @@ import { amountInput } from '@/shared/presentation/money-format';
 import { AppInput, ActionButton } from '@/shared/presentation/controls';
 import { FormMessage } from '@/shared/presentation/screen';
 import { useOperation } from '@/shared/presentation/use-operation';
+import { phosphorIcon } from '@/shared/presentation/phosphor-icon';
 
 /** Owns unsaved month fields while durable records remain behind application operations.
  * @param props Loaded estimates and explicit save, edit, and month-switch capabilities.
@@ -139,7 +140,7 @@ export const BudgetForm = ({
               {onNamedPlans ? (
                 <ActionButton
                   mode="outlined"
-                  icon="folder-outline"
+                  icon={phosphorIcon('folder')}
                   disabled={dirty || operation.busy}
                   onPress={onNamedPlans}
                 >

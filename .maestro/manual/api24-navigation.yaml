@@ -10,9 +10,9 @@ name: Android 7 native stack push and pop regression
       - tapOn: Settings
       - assertVisible: Appearance
       - scrollUntilVisible:
-          element: Back up data
+          element: Backup and restore
           direction: DOWN
-      - tapOn: Back up data
+      - tapOn: Backup and restore
       - assertVisible: Encrypted backups
       - back
       - scrollUntilVisible:

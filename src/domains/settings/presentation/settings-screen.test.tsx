@@ -104,7 +104,6 @@ it('UI-007 DEV-001 DEV-002 shows only destination rows and the preview switch on
   const onAppearance = jest.fn();
   const onCurrency = jest.fn();
   const onBackup = jest.fn();
-  const onRestore = jest.fn();
   const onRecovery = jest.fn();
   const onShowMockData = jest.fn();
   const onExitPreview = jest.fn();
@@ -115,7 +114,6 @@ it('UI-007 DEV-001 DEV-002 shows only destination rows and the preview switch on
         onAppearance={onAppearance}
         onCurrency={onCurrency}
         onBackup={onBackup}
-        onRestore={onRestore}
         onRecovery={onRecovery}
         onShowMockData={onShowMockData}
       />
@@ -128,10 +126,12 @@ it('UI-007 DEV-001 DEV-002 shows only destination rows and the preview switch on
   expect(onAppearance).toHaveBeenCalledTimes(1);
   await fireEvent.press(screen.getByRole('button', { name: 'Currency' }));
   expect(onCurrency).toHaveBeenCalledTimes(1);
-  await fireEvent.press(screen.getByRole('button', { name: 'Back up data' }));
+  const backups = screen.getByRole('button', { name: 'Backup and restore' });
+  expect(backups).toHaveProp('accessibilityHint', 'Export or import an encrypted backup.');
+  expect(screen.getByText('Export or import an encrypted backup.')).toBeOnTheScreen();
+  await fireEvent.press(backups);
   expect(onBackup).toHaveBeenCalledTimes(1);
-  await fireEvent.press(screen.getByRole('button', { name: 'Restore data' }));
-  expect(onRestore).toHaveBeenCalledTimes(1);
+  expect(screen.queryByRole('button', { name: 'Restore data' })).toBeNull();
   await fireEvent.press(screen.getByRole('button', { name: 'Manage recovery phrase' }));
   expect(onRecovery).toHaveBeenCalledTimes(1);
   await fireEvent(
@@ -151,8 +151,7 @@ it('UI-007 DEV-001 DEV-002 shows only destination rows and the preview switch on
       />
     </TestScreen>,
   );
-  expect(screen.queryByRole('button', { name: 'Back up data' })).toBeNull();
-  expect(screen.queryByRole('button', { name: 'Restore data' })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Backup and restore' })).toBeNull();
   await fireEvent(
     screen.getByRole('switch', { name: 'Mock data preview', checked: true }),
     'valueChange',

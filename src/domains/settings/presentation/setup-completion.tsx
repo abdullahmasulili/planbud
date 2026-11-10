@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, StyleSheet, useWindowDimensions } from 'react-native';
-import { Icon, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 import { launchOperation } from '@/shared/presentation/operation-launcher';
+import { PhosphorIcon } from '@/shared/presentation/phosphor-icon';
 
 /** Marks the final step with a single flight, bounce, spin and check reveal.
  * @returns A decorative completion mark; reduced motion or a failed preference read shows it immediately.
@@ -106,7 +107,12 @@ export const SetupCompletion = () => {
           ],
         }}
       >
-        <Icon source="check" size={56} color={theme.colors.onPrimaryContainer} />
+        <PhosphorIcon
+          name="check"
+          size={56}
+          color={theme.colors.onPrimaryContainer}
+          allowFontScaling={false}
+        />
       </Animated.View>
     </Animated.View>
   );
