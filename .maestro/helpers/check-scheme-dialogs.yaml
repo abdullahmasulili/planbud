@@ -1,7 +1,7 @@
 # Non-clearing layout checks; cancels every financial draft without saving.
 appId: com.planbud.app
 ---
-- openLink: planbud://settings
+- openLink: planbud://settings/appearance
 - tapOn: ${SCHEME}
 - assertVisible:
     text: ${SCHEME}

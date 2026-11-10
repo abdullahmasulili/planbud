@@ -139,3 +139,9 @@ No standalone release APK, physical-device, manual TalkBack, or hardware-keyboar
 - `pnpm check` passed with 210 tests across 65 suites. Component tests cover Settings actions, preview-only actions, and the absence of mock data on the onboarding welcome screen.
 - On the Android development emulator, completed fresh onboarding, switched to Indonesian and dark appearance from Settings, opened encrypted backup, and navigated to the protected restore and recovery screens. Opened mock data, verified that Overview had no exit banner, and exited from Settings back to the empty local profile.
 - Maestro disconnected before executing the smoke flow, so the emulator checks used direct input and visual inspection. No backup was exported or imported, and no phrase was generated or revealed.
+
+## Settings subpages, 2026-11-10
+
+- UI-007, DEV-001, DEV-002: The Settings index links to dedicated Language, Appearance, and Currency pages and the existing local data screens. Developer tools retains the mock data switch.
+- `pnpm check` passed with 210 tests across 65 suites. Updated component tests verify the Settings destinations and both states of the development switch. Updated Maestro flows to open the preference pages.
+- On the Android development emulator, opened all three preference pages from Settings and used Back to return. Dark appearance remained selected after reopening its page. Switching preview on showed seeded Overview data and hid local data destinations. Switching it off returned to the saved profile and restored those destinations. The updated Maestro flows were not rerun.

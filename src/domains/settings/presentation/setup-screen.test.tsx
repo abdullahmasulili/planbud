@@ -48,6 +48,7 @@ it('requires storage consent and currency confirmation; saves only after the fin
   );
   expect(screen.getByText('Meet PlanBud')).toBeOnTheScreen();
   expect(screen.queryByRole('button', { name: 'Show mock data' })).toBeNull();
+  expect(screen.queryByRole('switch', { name: 'Mock data preview' })).toBeNull();
   await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
   expect(screen.queryByRole('button', { name: 'Continue' })).toBeNull();
   await fireEvent.press(screen.getByRole('button', { name: 'Allow protected storage' }));

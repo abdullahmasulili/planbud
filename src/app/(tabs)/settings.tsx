@@ -3,17 +3,17 @@ import { useStore } from 'zustand';
 import { useServices } from '@/composition/services';
 import { SettingsScreen } from '@/domains/settings/presentation/settings-screen';
 
-/** Connects settings presentation to its scoped service and loaded projection.
+/** Connects the Settings index to the available preference and local data pages.
  * @returns Settings for a confirmed profile, otherwise first-run setup.
  */
 const SettingsRoute = () => {
   const { services, settings } = useServices();
-  const profile = useStore(settings, (state) => state.profile);
-  return profile ? (
+  const hasProfile = useStore(settings, (state) => state.profile !== null);
+  return hasProfile ? (
     <SettingsScreen
-      profile={profile}
-      service={services.profiles}
-      onUpdated={settings.getState().replaceProfile}
+      onLanguage={() => router.push('/settings/language')}
+      onAppearance={() => router.push('/settings/appearance')}
+      onCurrency={() => router.push('/settings/currency')}
       onRecovery={
         services.recovery && services.sensitiveScreen ? () => router.push('/recovery') : undefined
       }
