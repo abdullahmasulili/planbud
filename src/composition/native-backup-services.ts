@@ -10,6 +10,7 @@ import {
   recoveryFingerprint,
 } from '@/domains/backup/infrastructure/mnemonic-codec';
 import { sensitiveScreen } from '@/domains/backup/infrastructure/sensitive-screen';
+import { copyRecoveryPhrase } from '@/domains/backup/infrastructure/recovery-clipboard';
 import { createSnapshotRepository } from '@/domains/backup/infrastructure/snapshot-repository';
 import { createExportService } from '@/domains/backup/application/export-service';
 import { createBackupCodec } from '@/domains/backup/infrastructure/backup-codec';
@@ -52,6 +53,7 @@ export const createNativeBackupServices = (
       newGeneration: randomUUID,
     }),
     sensitiveScreen,
+    copyRecoveryPhrase,
     exports: createExportService({
       snapshots: createSnapshotRepository(database, () => new Date().toISOString()),
       metadata,

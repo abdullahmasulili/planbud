@@ -9,6 +9,7 @@ import { createSettingsStore } from '@/domains/settings/presentation/settings-st
 import { createGoalStore } from '@/domains/goals/presentation/goal-store';
 import { createPlanningStore } from '@/domains/budgeting/presentation/planning-store';
 import type { RecoveryService } from '@/domains/backup/application/public';
+import type { CopyRecoveryPhrase } from '@/domains/backup/application/recovery-ports';
 import type { SensitiveScreenPort } from '@/domains/backup/application/sensitive-screen-port';
 import type { ExportService } from '@/domains/backup/application/export-service';
 import type { RestoreService } from '@/domains/backup/application/restore-service';
@@ -21,6 +22,7 @@ export type Services = RuntimeServices & {
   readonly showMockData?: (() => void) | undefined;
   readonly exitPreview?: (() => void) | undefined;
   readonly recovery?: RecoveryService;
+  readonly copyRecoveryPhrase?: CopyRecoveryPhrase;
   readonly sensitiveScreen?: SensitiveScreenPort;
   readonly exports?: ExportService;
   readonly restores?: RestoreService;

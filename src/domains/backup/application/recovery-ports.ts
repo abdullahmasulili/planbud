@@ -1,5 +1,7 @@
 import type { Result } from '@/shared/domain/result';
 
+/** Copies a deliberately revealed phrase in order to the sensitive system clipboard. */
+export type CopyRecoveryPhrase = (words: readonly string[]) => Promise<Result<void>>;
 /** Synchronous native CSPRNG capability; failure must never fall back to a PRNG. */
 export type RandomPort = { readonly bytes: (length: number) => Uint8Array };
 /** Portable nonsecret generation identity. */

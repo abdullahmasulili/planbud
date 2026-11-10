@@ -1,25 +1,47 @@
 import { useI18n } from '@/shared/presentation/i18n';
 import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Checkbox, Text } from 'react-native-paper';
 import type { RecoveryService } from '../application/public';
+import type { CopyRecoveryPhrase } from '../application/recovery-ports';
 import type { SensitiveScreenPort } from '../application/sensitive-screen-port';
 import { useRecoveryFlow } from './use-recovery-flow';
 import { PhraseInput } from './phrase-input';
 import { Screen, FormMessage } from '@/shared/presentation/screen';
 import { AppInput, ActionButton } from '@/shared/presentation/controls';
+import { useOperation } from '@/shared/presentation/use-operation';
+
+const WORDS_PER_ROW = 3;
+const WORD_LABELS = [
+  'First',
+  'Second',
+  'Third',
+  'Fourth',
+  'Fifth',
+  'Sixth',
+  'Seventh',
+  'Eighth',
+  'Ninth',
+  'Tenth',
+  'Eleventh',
+  'Twelfth',
+];
 
 /** Presents explicit phrase generation/reveal with local state and native capture protection.
  * @param props Secret-session service and native sensitive-view protection.
  * @param props.service Recovery lifecycle capability; secrets never enter the provider value.
  * @param props.protection Capture and recents protection leases.
+ * @param props.copyPhrase Copies the revealed words only on explicit request.
  * @returns Ordered phrase, distinct-word confirmation and deliberate replacement controls.
  */
 export const RecoveryScreen = ({
   service,
   protection,
+  copyPhrase,
 }: {
   service: RecoveryService;
   protection: SensitiveScreenPort;
+  copyPhrase: CopyRecoveryPhrase;
 }) => {
   const { t } = useI18n();
   const flow = useRecoveryFlow(service, protection);
@@ -93,11 +115,42 @@ export const RecoveryScreen = ({
               'Capture is blocked while this screen is open. This does not protect words you share or write elsewhere.',
             )}
           </Text>
-          {flow.words.map((word, index) => (
-            <Text key={index} variant="titleLarge" selectable={false}>
-              {index + 1}. {word}
-            </Text>
-          ))}
+          <View style={styles.wordGrid}>
+            {Array.from({ length: Math.ceil(WORD_LABELS.length / WORDS_PER_ROW) }, (_, row) => {
+              const start = row * WORDS_PER_ROW;
+              return (
+                <View key={row} style={styles.wordRow}>
+                  {WORD_LABELS.slice(start, start + WORDS_PER_ROW).map((ordinal, column) => {
+                    const label = t(ordinal);
+                    return (
+                      <View key={ordinal} style={styles.wordField}>
+                        <Text
+                          variant="labelMedium"
+                          style={styles.wordLabel}
+                          importantForAccessibility="no"
+                        >
+                          {label}
+                        </Text>
+                        <AppInput
+                          accessibilityLabel={t('Recovery word {0}', { 0: label })}
+                          value={flow.words[start + column] ?? ''}
+                          editable={false}
+                          contextMenuHidden
+                          autoComplete="off"
+                          importantForAutofill="no"
+                          dense
+                          multiline
+                          outlineStyle={styles.wordOutline}
+                          contentStyle={styles.wordContent}
+                        />
+                      </View>
+                    );
+                  })}
+                </View>
+              );
+            })}
+          </View>
+          <RecoveryPhraseCopy words={flow.words} copyPhrase={copyPhrase} />
           {flow.positions.length ? (
             <ActionButton mode="contained" onPress={flow.startConfirmation}>
               {t('I wrote down the words')}
@@ -132,6 +185,48 @@ export const RecoveryScreen = ({
         </>
       )}
     </Screen>
+  );
+};
+
+/** Owns clipboard feedback for the lifetime of the revealed phrase.
+ * @param props The displayed words and sensitive clipboard action.
+ * @param props.words Ordered words from the current reveal session.
+ * @param props.copyPhrase Writes the words only when the user presses Copy.
+ * @returns Copy action, clipboard notice, and accessible operation feedback.
+ */
+const RecoveryPhraseCopy = ({
+  words,
+  copyPhrase,
+}: {
+  words: readonly string[];
+  copyPhrase: CopyRecoveryPhrase;
+}) => {
+  const { t } = useI18n();
+  const operation = useOperation();
+  const [copied, setCopied] = useState(false);
+  return (
+    <>
+      <Text>
+        {t(
+          'The phrase can stay on your clipboard after you leave. Paste it only somewhere you trust.',
+        )}
+      </Text>
+      <ActionButton
+        mode="outlined"
+        disabled={operation.busy}
+        onPress={() => {
+          setCopied(false);
+          operation.run(
+            () => copyPhrase(words),
+            () => setCopied(true),
+          );
+        }}
+      >
+        {t('Copy to clipboard')}
+      </ActionButton>
+      {copied ? <Text accessibilityLiveRegion="polite">{t('Recovery phrase copied.')}</Text> : null}
+      <FormMessage message={operation.message} />
+    </>
   );
 };
 
@@ -206,3 +301,12 @@ const RecoveryConfirmation = ({
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  wordGrid: { gap: 8 },
+  wordRow: { flexDirection: 'row', gap: 8 },
+  wordField: { flex: 1, gap: 4 },
+  wordLabel: { textAlign: 'center' },
+  wordOutline: { borderRadius: 16 },
+  wordContent: { paddingHorizontal: 8, textAlign: 'center', textAlignVertical: 'center' },
+});
