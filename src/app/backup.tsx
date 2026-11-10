@@ -12,7 +12,11 @@ const BackupRoute = () => {
       recovery={services.recovery}
       exports={services.exports}
       onRecovery={() => router.push('/recovery')}
-      onRestore={() => router.push('/restore')}
+      onRestore={
+        services.restores && services.backupFiles && services.sensitiveScreen
+          ? () => router.push('/restore')
+          : undefined
+      }
     />
   ) : (
     <Redirect href="/setup" />

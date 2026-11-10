@@ -27,6 +27,12 @@ import { parseDate } from '@/shared/domain/calendar-date';
 import type { GoalService } from '@/domains/goals/application/public';
 import { readGoalAttention } from '../application/goal-attention';
 import type { GoalAttention } from '../application/goal-attention';
+import { phosphorIcon } from '@/shared/presentation/phosphor-icon';
+
+const openActionsIcon = phosphorIcon('plus');
+const closeActionsIcon = phosphorIcon('x');
+const newPlanningIcon = phosphorIcon('notebook');
+const recordSpendingIcon = phosphorIcon('receipt');
 
 /** Refreshes source-derived comparisons when returning from a financial editing tab.
  * @param props Narrow read capabilities, currency metadata, and implemented navigation actions.
@@ -231,7 +237,7 @@ export const OverviewScreen = ({
       <FAB.Group
         visible
         open={actionsOpen}
-        icon={actionsOpen ? 'close' : 'plus'}
+        icon={actionsOpen ? closeActionsIcon : openActionsIcon}
         accessibilityLabel={actionsOpen ? 'Close quick actions' : 'Open quick actions'}
         onStateChange={({ open }) => {
           if (open) Keyboard.dismiss();
@@ -239,14 +245,14 @@ export const OverviewScreen = ({
         }}
         actions={[
           {
-            icon: 'notebook-plus-outline',
+            icon: newPlanningIcon,
             label: 'New Planning',
             size: 'medium',
             labelStyle: { maxWidth: width - 160 },
             onPress: onNewPlanning,
           },
           {
-            icon: 'receipt',
+            icon: recordSpendingIcon,
             label: 'Record Spending',
             size: 'medium',
             labelStyle: { maxWidth: width - 160 },

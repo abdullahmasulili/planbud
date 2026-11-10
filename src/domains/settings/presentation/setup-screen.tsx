@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { BackHandler, StyleSheet, View, useColorScheme } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Checkbox, Icon, PaperProvider, Text, useTheme } from 'react-native-paper';
+import { Checkbox, PaperProvider, Text, useTheme } from 'react-native-paper';
 import type { Profile, ProfileService } from '../application/public';
 import { ActionButton } from '@/shared/presentation/controls';
 import { Screen, FormMessage } from '@/shared/presentation/screen';
@@ -13,6 +13,7 @@ import { LocaleContext, translate } from '@/shared/presentation/i18n';
 import { currencyFor } from '@/shared/domain/money';
 import { SetupCompletion } from './setup-completion';
 import { CurrencyPicker } from './currency-picker';
+import { PhosphorIcon } from '@/shared/presentation/phosphor-icon';
 
 /** Guides first launch through introduction, storage consent, preferences and explicit completion.
  * @param props Stable confirmation use case, device suggestions and implemented navigation.
@@ -287,10 +288,11 @@ const StepSymbol = ({ step }: { step: number }) => {
       importantForAccessibility="no-hide-descendants"
       style={[styles.symbol, { backgroundColor: theme.colors.primaryContainer }]}
     >
-      <Icon
-        source={step === 0 ? 'wallet-outline' : 'shield-lock-outline'}
+      <PhosphorIcon
+        name={step === 0 ? 'wallet' : 'shield-check'}
         size={32}
         color={theme.colors.onPrimaryContainer}
+        allowFontScaling={false}
       />
     </View>
   );

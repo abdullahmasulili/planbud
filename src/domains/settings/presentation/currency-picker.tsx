@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { BackHandler, FlatList, StyleSheet, View, useWindowDimensions } from 'react-native';
-import { Icon, Menu, Text, TouchableRipple, useTheme } from 'react-native-paper';
+import { Menu, Text, TouchableRipple, useTheme } from 'react-native-paper';
 import { useI18n } from '@/shared/presentation/i18n';
+import { PhosphorIcon } from '@/shared/presentation/phosphor-icon';
 import names from './currency-names.json';
 
 const currencyNames: Readonly<Record<string, string>> = names;
@@ -57,7 +58,13 @@ export const CurrencyPicker = ({
               </Text>
               <Text variant="bodyLarge">{label}</Text>
             </View>
-            <Icon source="chevron-down" size={24} color={theme.colors.onSurfaceVariant} />
+            <PhosphorIcon
+              name="caret-down"
+              size={24}
+              color={theme.colors.onSurfaceVariant}
+              allowFontScaling={false}
+              accessible={false}
+            />
           </View>
         </TouchableRipple>
       }
@@ -81,7 +88,13 @@ export const CurrencyPicker = ({
                 {item} - {currencyNames[item]}
               </Text>
               {item === value ? (
-                <Icon source="check" size={24} color={theme.colors.primary} />
+                <PhosphorIcon
+                  name="check"
+                  size={24}
+                  color={theme.colors.primary}
+                  allowFontScaling={false}
+                  accessible={false}
+                />
               ) : null}
             </View>
           </TouchableRipple>

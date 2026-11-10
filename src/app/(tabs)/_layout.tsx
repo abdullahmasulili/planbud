@@ -1,4 +1,5 @@
 import { useI18n } from '@/shared/presentation/i18n';
+import { PhosphorIcon } from '@/shared/presentation/phosphor-icon';
 import { NativeTabs } from 'expo-router/native-tabs';
 import { useTheme } from 'react-native-paper';
 
@@ -12,6 +13,7 @@ const MainLayout = () => {
     <NativeTabs
       backgroundColor={theme.colors.surface}
       tintColor={theme.colors.primary}
+      iconColor={{ default: theme.colors.onSurfaceVariant, selected: theme.colors.primary }}
       indicatorColor={theme.colors.primaryContainer}
       labelStyle={{
         fontFamily: 'Plus Jakarta Sans',
@@ -20,23 +22,33 @@ const MainLayout = () => {
       }}
     >
       <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Icon md="home" />
+        <NativeTabs.Trigger.Icon
+          src={<NativeTabs.Trigger.VectorIcon family={PhosphorIcon} name="house" />}
+        />
         <NativeTabs.Trigger.Label>{t('Overview')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="plan">
-        <NativeTabs.Trigger.Icon md="account_balance_wallet" />
+        <NativeTabs.Trigger.Icon
+          src={<NativeTabs.Trigger.VectorIcon family={PhosphorIcon} name="wallet" />}
+        />
         <NativeTabs.Trigger.Label>{t('Plan')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="transactions">
-        <NativeTabs.Trigger.Icon md="receipt_long" />
+        <NativeTabs.Trigger.Icon
+          src={<NativeTabs.Trigger.VectorIcon family={PhosphorIcon} name="receipt" />}
+        />
         <NativeTabs.Trigger.Label>{t('Transactions')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="goals">
-        <NativeTabs.Trigger.Icon md="flag" />
+        <NativeTabs.Trigger.Icon
+          src={<NativeTabs.Trigger.VectorIcon family={PhosphorIcon} name="flag" />}
+        />
         <NativeTabs.Trigger.Label>{t('Goals')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
-        <NativeTabs.Trigger.Icon md="settings" />
+        <NativeTabs.Trigger.Icon
+          src={<NativeTabs.Trigger.VectorIcon family={PhosphorIcon} name="gear" />}
+        />
         <NativeTabs.Trigger.Label>{t('Settings')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>

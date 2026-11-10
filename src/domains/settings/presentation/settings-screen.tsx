@@ -1,6 +1,8 @@
-import { View } from 'react-native';
-import { List, Switch, Text } from 'react-native-paper';
+import { Fragment } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Divider, Switch, Text, TouchableRipple, useTheme } from 'react-native-paper';
 import { useI18n } from '@/shared/presentation/i18n';
+import { PhosphorIcon, type PhosphorGlyph } from '@/shared/presentation/phosphor-icon';
 import { Screen } from '@/shared/presentation/screen';
 
 /** Lists implemented settings destinations and keeps the development switch on the index.
@@ -9,8 +11,7 @@ import { Screen } from '@/shared/presentation/screen';
  * @param props.onAppearance Opens the appearance page.
  * @param props.onCurrency Opens confirmed currency details.
  * @param props.onRecovery Opens protected phrase management when available.
- * @param props.onBackup Opens encrypted export when available.
- * @param props.onRestore Opens authenticated backup import when available.
+ * @param props.onBackup Opens the shared encrypted backup and restore page when available.
  * @param props.onClear Opens destructive data clearing confirmation when available.
  * @param props.onShowMockData Opens an isolated sample session in a development build.
  * @param props.onExitPreview Returns to the saved session from a sample session.
@@ -22,7 +23,6 @@ export const SettingsScreen = ({
   onCurrency,
   onRecovery,
   onBackup,
-  onRestore,
   onClear,
   onShowMockData,
   onExitPreview,
@@ -32,22 +32,56 @@ export const SettingsScreen = ({
   onCurrency: () => void;
   onRecovery?: (() => void) | undefined;
   onBackup?: (() => void) | undefined;
-  onRestore?: (() => void) | undefined;
   onClear?: (() => void) | undefined;
   onShowMockData?: (() => void) | undefined;
   onExitPreview?: (() => void) | undefined;
 }) => {
   const { t } = useI18n();
+  const { colors } = useTheme();
   const previewAction = onExitPreview ?? onShowMockData;
   const previewEnabled = onExitPreview !== undefined;
-  const destinations = [
-    { label: 'Language', open: onLanguage },
-    { label: 'Appearance', open: onAppearance },
-    { label: 'Currency', open: onCurrency },
-    { label: 'Back up data', open: onBackup },
-    { label: 'Restore data', open: onRestore },
-    { label: 'Manage recovery phrase', open: onRecovery },
-    { label: 'Clear local data', open: onClear },
+  const destinations: {
+    title: string;
+    description: string;
+    icon: PhosphorGlyph;
+    open: (() => void) | undefined;
+  }[] = [
+    {
+      title: 'Language',
+      description: 'Choose English or Bahasa Indonesia.',
+      icon: 'translate',
+      open: onLanguage,
+    },
+    {
+      title: 'Appearance',
+      description: 'Use light, dark, or your device setting.',
+      icon: 'circle-half',
+      open: onAppearance,
+    },
+    {
+      title: 'Currency',
+      description: 'View the currency used for your records.',
+      icon: 'coins',
+      open: onCurrency,
+    },
+    {
+      title: 'Backup and restore',
+      description: 'Export or import an encrypted backup.',
+      icon: 'archive',
+      open: onBackup,
+    },
+    {
+      title: 'Manage recovery phrase',
+      description: 'Set up or view your 12-word phrase.',
+      icon: 'key',
+      open: onRecovery,
+    },
+    {
+      title: 'Clear local data',
+      description: 'Delete Plan Bud records on this device.',
+      icon: 'trash',
+      open: onClear,
+    },
   ];
   return (
     <Screen>
@@ -55,20 +89,35 @@ export const SettingsScreen = ({
         {t('Settings')}
       </Text>
       <View>
-        {destinations.map(({ label, open }) =>
-          open ? (
-            <List.Item
-              key={label}
-              title={t(label)}
-              titleNumberOfLines={0}
-              accessibilityRole="button"
-              accessibilityLabel={t(label)}
-              onPress={open}
-              right={({ color }) => <List.Icon color={color} icon="chevron-right" />}
-              style={{ minHeight: 48 }}
-            />
-          ) : null,
-        )}
+        {destinations
+          .filter(({ open }) => open !== undefined)
+          .map(({ title, description, icon, open }, index) => (
+            <Fragment key={title}>
+              {index > 0 ? <Divider /> : null}
+              <TouchableRipple
+                accessibilityRole="button"
+                accessibilityLabel={t(title)}
+                accessibilityHint={t(description)}
+                onPress={() => open?.()}
+              >
+                <View style={styles.row}>
+                  <View style={styles.copy}>
+                    <Text variant="bodyLarge">{t(title)}</Text>
+                    <Text variant="bodyMedium" style={{ color: colors.onSurfaceVariant }}>
+                      {t(description)}
+                    </Text>
+                  </View>
+                  <PhosphorIcon
+                    name={icon}
+                    size={24}
+                    color={colors.onSurfaceVariant}
+                    allowFontScaling={false}
+                    accessible={false}
+                  />
+                </View>
+              </TouchableRipple>
+            </Fragment>
+          ))}
       </View>
       {__DEV__ && previewAction ? (
         <>
@@ -95,3 +144,14 @@ export const SettingsScreen = ({
     </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  row: {
+    minHeight: 64,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  copy: { flex: 1, gap: 4 },
+});
