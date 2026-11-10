@@ -1,5 +1,6 @@
 import { useI18n } from '@/shared/presentation/i18n';
 import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Checkbox, Text } from 'react-native-paper';
 import type { RecoveryService } from '../application/public';
 import type { SensitiveScreenPort } from '../application/sensitive-screen-port';
@@ -7,6 +8,8 @@ import { useRecoveryFlow } from './use-recovery-flow';
 import { PhraseInput } from './phrase-input';
 import { Screen, FormMessage } from '@/shared/presentation/screen';
 import { AppInput, ActionButton } from '@/shared/presentation/controls';
+
+const WORDS_PER_ROW = 3;
 
 /** Presents explicit phrase generation/reveal with local state and native capture protection.
  * @param props Secret-session service and native sensitive-view protection.
@@ -93,11 +96,34 @@ export const RecoveryScreen = ({
               'Capture is blocked while this screen is open. This does not protect words you share or write elsewhere.',
             )}
           </Text>
-          {flow.words.map((word, index) => (
-            <Text key={index} variant="titleLarge" selectable={false}>
-              {index + 1}. {word}
-            </Text>
-          ))}
+          <View style={styles.wordGrid}>
+            {Array.from({ length: Math.ceil(flow.words.length / WORDS_PER_ROW) }, (_, row) => {
+              const start = row * WORDS_PER_ROW;
+              return (
+                <View key={row} style={styles.wordRow}>
+                  {flow.words.slice(start, start + WORDS_PER_ROW).map((word, column) => {
+                    const position = start + column + 1;
+                    return (
+                      <AppInput
+                        key={position}
+                        label={String(position)}
+                        accessibilityLabel={t('Recovery word {0}', { 0: position })}
+                        value={word}
+                        editable={false}
+                        contextMenuHidden
+                        autoComplete="off"
+                        importantForAutofill="no"
+                        dense
+                        multiline
+                        style={styles.wordField}
+                        contentStyle={styles.wordContent}
+                      />
+                    );
+                  })}
+                </View>
+              );
+            })}
+          </View>
           {flow.positions.length ? (
             <ActionButton mode="contained" onPress={flow.startConfirmation}>
               {t('I wrote down the words')}
@@ -206,3 +232,10 @@ const RecoveryConfirmation = ({
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  wordGrid: { gap: 8 },
+  wordRow: { flexDirection: 'row', gap: 8 },
+  wordField: { flex: 1 },
+  wordContent: { paddingHorizontal: 8, textAlign: 'center', textAlignVertical: 'center' },
+});
