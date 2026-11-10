@@ -7,8 +7,12 @@ import { RecoveryScreen } from '@/domains/backup/presentation/recovery-screen';
  */
 const RecoveryRoute = () => {
   const { services } = useServices();
-  return services.recovery && services.sensitiveScreen ? (
-    <RecoveryScreen service={services.recovery} protection={services.sensitiveScreen} />
+  return services.recovery && services.sensitiveScreen && services.copyRecoveryPhrase ? (
+    <RecoveryScreen
+      service={services.recovery}
+      protection={services.sensitiveScreen}
+      copyPhrase={services.copyRecoveryPhrase}
+    />
   ) : (
     <Redirect href="/setup" />
   );
