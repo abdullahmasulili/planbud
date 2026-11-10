@@ -6,15 +6,17 @@ import { useOperation } from '@/shared/presentation/use-operation';
 import { ChoiceGroup } from '@/shared/presentation/choice-group';
 import { ActionButton } from '@/shared/presentation/controls';
 
-/** Persists appearance while showing the immutable financial currency.
+/** Persists display preferences and groups local data and developer actions.
  * @param props Confirmed profile projection, application service, and projection updater.
  * @param props.profile Loaded durable settings projection.
  * @param props.service Stable settings use cases.
  * @param props.onUpdated Replaces the projection after persistence.
  * @param props.onRecovery Opens the integrated protected phrase-management flow.
  * @param props.onBackup Opens encrypted-only export settings.
+ * @param props.onRestore Opens authenticated backup replacement.
  * @param props.onClear Opens the explicit destructive local-data confirmation.
  * @param props.onShowMockData Opens the isolated developer preview when available.
+ * @param props.onExitPreview Returns from the preview to the saved profile.
  * @returns Scalable settings controls with native checked radio state.
  */
 export const SettingsScreen = ({
@@ -23,22 +25,29 @@ export const SettingsScreen = ({
   onUpdated,
   onRecovery,
   onBackup,
+  onRestore,
   onClear,
   onShowMockData,
+  onExitPreview,
 }: {
   profile: Profile;
   service: ProfileService;
   onUpdated: (profile: Profile) => void;
   onRecovery?: (() => void) | undefined;
   onBackup?: (() => void) | undefined;
+  onRestore?: (() => void) | undefined;
   onClear?: (() => void) | undefined;
   onShowMockData?: (() => void) | undefined;
+  onExitPreview?: (() => void) | undefined;
 }) => {
   const { t } = useI18n();
   const operation = useOperation();
+  const previewAction = onExitPreview ?? onShowMockData;
   return (
     <Screen>
-      <Text variant="titleLarge">{t('Language')}</Text>
+      <Text variant="titleLarge" accessibilityRole="header">
+        {t('Language')}
+      </Text>
       <ChoiceGroup
         label={t('Language')}
         value={profile.locale.startsWith('id') ? 'id-ID' : 'en-US'}
@@ -54,8 +63,9 @@ export const SettingsScreen = ({
           )
         }
       />
-      <Text variant="titleLarge">{t('Appearance')}</Text>
-      <Text>{t('Follow your device or choose a scheme for Plan Bud.')}</Text>
+      <Text variant="titleLarge" accessibilityRole="header">
+        {t('Appearance')}
+      </Text>
       <ChoiceGroup<Profile['appearance']>
         label={t('Appearance')}
         value={profile.appearance}
@@ -73,27 +83,54 @@ export const SettingsScreen = ({
         }
       />
       <FormMessage message={operation.message} />
-      <Text variant="titleLarge">{t('Currency')}</Text>
+      <Text variant="titleLarge" accessibilityRole="header">
+        {t('Currency')}
+      </Text>
       <Text>
         {profile.currency.code} · {profile.locale}
       </Text>
-      <Text>{t('Amounts use your confirmed currency. All records stay on this device.')}</Text>
-      {onRecovery ? (
-        <ActionButton mode="outlined" onPress={onRecovery}>
-          {t('Recovery phrase')}
-        </ActionButton>
+      {onClear ? (
+        <Text>
+          {t(
+            'To use a different currency, clear local data and set up again or restore another backup.',
+          )}
+        </Text>
       ) : null}
-      {onBackup ? (
-        <ActionButton mode="outlined" onPress={onBackup}>
-          {t('Encrypted backups')}
-        </ActionButton>
-      ) : null}
-      {onClear ? <ActionButton onPress={onClear}>{t('Clear local data')}</ActionButton> : null}
-      {__DEV__ && onShowMockData ? (
+      {onBackup || onRestore || onRecovery || onClear ? (
         <>
-          <Text variant="titleLarge">{t('Developer tools')}</Text>
-          <ActionButton mode="outlined" onPress={onShowMockData}>
-            {t('Show mock data')}
+          <Text variant="titleLarge" accessibilityRole="header">
+            {t('Local data')}
+          </Text>
+          {onBackup ? (
+            <ActionButton mode="outlined" onPress={onBackup} disabled={operation.busy}>
+              {t('Back up data')}
+            </ActionButton>
+          ) : null}
+          {onRestore ? (
+            <ActionButton mode="outlined" onPress={onRestore} disabled={operation.busy}>
+              {t('Restore data')}
+            </ActionButton>
+          ) : null}
+          {onRecovery ? (
+            <ActionButton mode="outlined" onPress={onRecovery} disabled={operation.busy}>
+              {t('Manage recovery phrase')}
+            </ActionButton>
+          ) : null}
+          {onClear ? (
+            <ActionButton onPress={onClear} disabled={operation.busy}>
+              {t('Clear local data')}
+            </ActionButton>
+          ) : null}
+        </>
+      ) : null}
+      {__DEV__ && previewAction ? (
+        <>
+          <Text variant="titleLarge" accessibilityRole="header">
+            {t('Developer tools')}
+          </Text>
+          {onExitPreview ? <Text>{t('Mock data preview. Changes are temporary.')}</Text> : null}
+          <ActionButton mode="outlined" onPress={previewAction} disabled={operation.busy}>
+            {onExitPreview ? t('Exit preview') : t('Show mock data')}
           </ActionButton>
         </>
       ) : null}

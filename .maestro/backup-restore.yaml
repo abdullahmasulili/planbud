@@ -25,17 +25,19 @@ tags:
 - tapOn: Dismiss
 - back
 - back
-- back
+- runFlow: helpers/open-overview.yaml
 - assertVisible: Your month
-- scrollUntilVisible:
-    element: Settings
-    direction: DOWN
 - tapOn: Settings
+- scrollUntilVisible:
+    element: JPY · ja-JP
+    direction: DOWN
 - assertVisible: JPY · ja-JP
+- scrollUntilVisible:
+    element: Dark
+    direction: UP
 - assertVisible:
     text: Dark
     checked: true
-- back
 - tapOn: Goals
 - assertVisible: 'Saved .*3,000.* of target .*30,000.* Remaining .*27,000.*'
 - runFlow: helpers/open-overview.yaml

@@ -19,6 +19,7 @@ import type { ProfileEvents } from './profile-events';
 export type Services = RuntimeServices & {
   readonly newId: () => string;
   readonly showMockData?: (() => void) | undefined;
+  readonly exitPreview?: (() => void) | undefined;
   readonly recovery?: RecoveryService;
   readonly sensitiveScreen?: SensitiveScreenPort;
   readonly exports?: ExportService;

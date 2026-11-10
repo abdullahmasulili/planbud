@@ -3,7 +3,7 @@ import { NativeTabs } from 'expo-router/native-tabs';
 import { useTheme } from 'react-native-paper';
 
 /** Uses Android's native Material tab bar for implemented destinations only.
- * @returns Overview, planning, and transaction tabs coordinated with Paper's color roles.
+ * @returns Financial and settings tabs coordinated with Paper's color roles.
  */
 const MainLayout = () => {
   const { t } = useI18n();
@@ -34,6 +34,10 @@ const MainLayout = () => {
       <NativeTabs.Trigger name="goals">
         <NativeTabs.Trigger.Icon md="flag" />
         <NativeTabs.Trigger.Label>{t('Goals')}</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="settings">
+        <NativeTabs.Trigger.Icon md="settings" />
+        <NativeTabs.Trigger.Label>{t('Settings')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );

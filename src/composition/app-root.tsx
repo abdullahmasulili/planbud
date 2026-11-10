@@ -17,27 +17,23 @@ import { createNativeBackupServices } from './native-backup-services';
 import { createProfileEvents } from './profile-events';
 import { ActionButton } from '@/shared/presentation/controls';
 
-/** Coordinates appearance, safe replacement notices and navigation session invalidation.
- * @param props Optional preview exit action.
- * @param props.onExitPreview Returns to the saved app session.
+/** Subscribes navigation and its screens to the current profile language.
  * @returns The single router stack inside stable service composition.
  */
-const LocalizedRoutes = ({ onExitPreview }: { onExitPreview: (() => void) | undefined }) => {
+const LocalizedRoutes = () => {
   const { settings } = useServices();
   const locale = useStore(settings, (state) => state.profile?.locale ?? 'en-US');
   return (
     <LocaleContext.Provider value={locale}>
-      <ThemedRoutes onExitPreview={onExitPreview} />
+      <ThemedRoutes />
     </LocaleContext.Provider>
   );
 };
 
-/** Renders navigation and notices in the persisted display language.
- * @param props Optional preview exit action.
- * @param props.onExitPreview Returns to the saved app session.
+/** Coordinates appearance, replacement notices, and navigation session invalidation.
  * @returns Themed routes subscribed to the durable settings projection.
  */
-const ThemedRoutes = ({ onExitPreview }: { onExitPreview: (() => void) | undefined }) => {
+const ThemedRoutes = () => {
   const { t } = useI18n();
   const { settings } = useServices();
   const preference = useStore(settings, (state) => state.profile?.appearance ?? 'system');
@@ -49,17 +45,6 @@ const ThemedRoutes = ({ onExitPreview }: { onExitPreview: (() => void) | undefin
     <PaperProvider theme={theme.paper}>
       <ThemeProvider value={theme.router}>
         <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
-        {__DEV__ && onExitPreview ? (
-          <SafeAreaView
-            edges={['top', 'left', 'right']}
-            style={{ backgroundColor: theme.paper.colors.elevation.level1, paddingHorizontal: 16 }}
-          >
-            <Text accessibilityLiveRegion="polite">
-              {t('Mock data preview. Changes are temporary.')}
-            </Text>
-            <ActionButton onPress={onExitPreview}>{t('Exit preview')}</ActionButton>
-          </SafeAreaView>
-        ) : null}
         {notice ? (
           <SafeAreaView
             edges={['top']}
@@ -83,7 +68,6 @@ const ThemedRoutes = ({ onExitPreview }: { onExitPreview: (() => void) | undefin
           <Stack.Screen name="(tabs)" options={{ title: t('Plan Bud') }} />
           <Stack.Screen name="setup" options={{ headerShown: false }} />
           <Stack.Screen name="plans" options={{ title: t('Named plans') }} />
-          <Stack.Screen name="settings" options={{ title: t('Settings') }} />
           <Stack.Screen
             name="recovery"
             options={{ title: t('Recovery phrase'), animation: 'none' }}
@@ -121,6 +105,7 @@ const InitializedApp = ({
       : createNativeBackupServices(runtime.database, profileChanges)),
     newId: randomUUID,
     showMockData: onShowMockData,
+    exitPreview: onExitPreview,
   }));
   return (
     <ServicesProvider
@@ -128,7 +113,7 @@ const InitializedApp = ({
       initialProfile={runtime.profile}
       profileChanges={profileChanges}
     >
-      <LocalizedRoutes onExitPreview={onExitPreview} />
+      <LocalizedRoutes />
     </ServicesProvider>
   );
 };

@@ -25,7 +25,6 @@ it('reveals both Home shortcuts, closes on Back, and invokes each creation flow'
           transactions={fixture.transactions}
           initialMonth="2026-10"
           onPlan={jest.fn()}
-          onSettings={jest.fn()}
           onNewPlanning={onNewPlanning}
           onRecordSpending={onRecordSpending}
         />

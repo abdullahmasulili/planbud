@@ -7,13 +7,18 @@ name: Android 7 native stack push and pop regression
 - repeat:
     times: 3
     commands:
-      - scrollUntilVisible:
-          element: Settings
-          direction: DOWN
       - tapOn: Settings
       - assertVisible: Appearance
+      - scrollUntilVisible:
+          element: Back up data
+          direction: DOWN
+      - tapOn: Back up data
       - assertVisible: Encrypted backups
       - back
+      - scrollUntilVisible:
+          element: Appearance
+          direction: UP
+      - runFlow: ../helpers/open-overview.yaml
       - assertVisible: Open plan
 - stopApp
 - launchApp

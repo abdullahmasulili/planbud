@@ -53,8 +53,6 @@ export const indonesian: Readonly<Record<string, string>> = {
   'Add expenses to build your plan.': 'Tambahkan pengeluaran untuk menyusun rencana.',
   'All entries': 'Semua catatan',
   'Amount ({0})': 'Jumlah ({0})',
-  'Amounts use your confirmed currency. All records stay on this device.':
-    'Jumlah memakai mata uang yang Anda konfirmasi. Semua catatan tetap di perangkat ini.',
   'An undated goal needs a desired monthly amount for automatic allocation.':
     'Tujuan tanpa tenggat memerlukan jumlah bulanan yang diinginkan untuk alokasi otomatis.',
   Appearance: 'Tampilan',
@@ -65,6 +63,7 @@ export const indonesian: Readonly<Record<string, string>> = {
     'Pengarsipan menyembunyikan kategori dari catatan baru dan mempertahankan riwayatnya.',
   'Authenticate and preview': 'Verifikasi dan pratinjau',
   Back: 'Kembali',
+  'Back up data': 'Cadangkan data',
   Backups: 'Cadangan',
   'Both your encrypted .planbud file and its 12-word phrase are required to restore. Neither the app nor a service can reset a lost phrase or recover a missing file.':
     'Pemulihan memerlukan berkas .planbud terenkripsi dan frasa 12 katanya. Aplikasi maupun layanan lain tidak dapat mereset frasa yang hilang atau memulihkan berkas yang hilang.',
@@ -155,8 +154,6 @@ export const indonesian: Readonly<Record<string, string>> = {
   Expenses: 'Pengeluaran',
   'Export encrypted backup': 'Ekspor cadangan terenkripsi',
   Flexible: 'Fleksibel',
-  'Follow your device or choose a scheme for Plan Bud.':
-    'Ikuti perangkat Anda atau pilih tema untuk PlanBud.',
   Funding: 'Dana',
   'Funding allocated': 'Dana dialokasikan',
   'Goal deadline': 'Tenggat tujuan',
@@ -303,6 +300,10 @@ export const indonesian: Readonly<Record<string, string>> = {
   'Set up a phrase': 'Siapkan frasa',
   'Set up new phrase': 'Siapkan frasa baru',
   Settings: 'Pengaturan',
+  'Local data': 'Data lokal',
+  'Restore data': 'Pulihkan data',
+  'To use a different currency, clear local data and set up again or restore another backup.':
+    'Untuk memakai mata uang lain, hapus data lokal lalu siapkan ulang aplikasi, atau pulihkan cadangan lain.',
   'Showing the last loaded records. Reload for current totals.':
     'Menampilkan catatan terakhir yang dimuat. Muat ulang untuk total terbaru.',
   'Snapshot:': 'Salinan data:',

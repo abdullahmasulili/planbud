@@ -5,10 +5,6 @@ tags:
   - release
 ---
 - launchApp
-- runFlow: helpers/open-overview.yaml
-- scrollUntilVisible:
-    element: Settings
-    direction: DOWN
 - tapOn: Settings
 - tapOn: Dark
 - assertVisible:
@@ -16,9 +12,6 @@ tags:
     checked: true
 - stopApp
 - launchApp
-- scrollUntilVisible:
-    element: Settings
-    direction: DOWN
 - tapOn: Settings
 - assertVisible:
     text: Dark
