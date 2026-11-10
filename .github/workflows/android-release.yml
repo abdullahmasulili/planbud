@@ -1,0 +1,76 @@
+name: Android release APK
+
+on:
+  push:
+    branches: [gitops/release-build]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+    env:
+      CI: 'true'
+      EXPO_NO_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - name: Restore release signing identity
+        env:
+          PLAN_BUD_KEYSTORE_BASE64: ${{ secrets.PLAN_BUD_KEYSTORE_BASE64 }}
+          PLAN_BUD_SIGNING_PASSWORD: ${{ secrets.PLAN_BUD_SIGNING_PASSWORD }}
+        run: |
+          if [[ -z "$PLAN_BUD_KEYSTORE_BASE64" || -z "$PLAN_BUD_SIGNING_PASSWORD" ]]; then
+            echo '::error::Configure PLAN_BUD_KEYSTORE_BASE64 and PLAN_BUD_SIGNING_PASSWORD repository secrets before building.'
+            exit 1
+          fi
+          umask 077
+          mkdir -p .private/android-signing
+          printf '%s' "$PLAN_BUD_KEYSTORE_BASE64" | base64 --decode > .private/android-signing/personal.p12
+          test -s .private/android-signing/personal.p12
+          printf '%s' "$PLAN_BUD_SIGNING_PASSWORD" > .private/android-signing/password
+      - name: Build signed release APK
+        run: pnpm android:preview
+      - name: Scan release APK
+        run: pnpm scan:release dist/android/plan-bud-preview.apk
+      - name: Upload APK and checksum
+        id: apk
+        uses: actions/upload-artifact@v4
+        with:
+          name: plan-bud-release-${{ github.sha }}
+          path: |
+            dist/android/plan-bud-preview.apk
+            dist/android/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+      - name: Link download
+        env:
+          ARTIFACT_URL: ${{ steps.apk.outputs.artifact-url }}
+        run: |
+          printf '### Android release APK\n\n[Download APK and checksum](%s)\n\nCommit: `%s`\n\nDownload available for 14 days.\n' "$ARTIFACT_URL" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove signing files
+        if: always()
+        run: rm -rf .private/android-signing

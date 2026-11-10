@@ -51,7 +51,9 @@ it('requires storage consent and currency confirmation; saves only after the fin
   expect(screen.queryByRole('button', { name: 'Continue' })).toBeNull();
   await fireEvent.press(screen.getByRole('button', { name: 'Allow protected storage' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
-  expect(screen.getByDisplayValue('USD')).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Currency code' })).toHaveAccessibilityValue({
+    text: 'USD - US Dollar',
+  });
   expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
   await fireEvent.press(screen.getByRole('checkbox'));
   await fireEvent.press(screen.getByRole('radio', { name: 'Dark' }));
@@ -60,7 +62,10 @@ it('requires storage consent and currency confirmation; saves only after the fin
   expect(repository.initialize).not.toHaveBeenCalled();
   await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
   expect(screen.getByRole('checkbox', { checked: true })).toBeOnTheScreen();
-  await fireEvent.changeText(screen.getByDisplayValue('USD'), 'JPY');
+  await fireEvent.press(screen.getByRole('button', { name: 'Currency code' }));
+  await fireEvent.press(
+    await screen.findByRole('menuitem', { name: 'AED - United Arab Emirates Dirham' }),
+  );
   expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
   await fireEvent.press(screen.getByRole('checkbox'));
   await fireEvent.press(screen.getByRole('radio', { name: 'Bahasa Indonesia' }));
@@ -70,7 +75,7 @@ it('requires storage consent and currency confirmation; saves only after the fin
   expect(repository.initialize).toHaveBeenCalledTimes(1);
   expect(confirmed).toHaveBeenCalledWith(
     expect.objectContaining({
-      currency: { code: 'JPY', exponent: 0 },
+      currency: { code: 'AED', exponent: 2 },
       locale: 'id-ID',
       appearance: 'dark',
     }),
@@ -108,7 +113,7 @@ it('retains the final step and preferences after a failed save and allows retry'
   expect(confirmed).toHaveBeenCalledTimes(1);
 }, 30000);
 
-it('selects IDR without typing and requires confirmation before saving the rupiah profile', async () => {
+it('shows IDR in the dropdown, removes the shortcut, and preserves confirmation on reselection', async () => {
   const repository = repositoryForSetup();
   const confirmed = jest.fn();
   await render(
@@ -116,7 +121,7 @@ it('selects IDR without typing and requires confirmation before saving the rupia
       <SetupScreen
         service={createProfileService(repository)}
         suggestedLocale="en-US"
-        suggestedCurrency="USD"
+        suggestedCurrency="IDR"
         onConfirmed={confirmed}
       />
     </TestScreen>,
@@ -125,13 +130,15 @@ it('selects IDR without typing and requires confirmation before saving the rupia
   await fireEvent.press(screen.getByRole('button', { name: 'Allow protected storage' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
   await fireEvent.press(screen.getByRole('checkbox'));
-  await fireEvent.press(screen.getByRole('button', { name: 'Indonesian rupiah (IDR)' }));
-  expect(screen.getByDisplayValue('IDR')).toBeOnTheScreen();
-  expect(screen.getByRole('checkbox', { checked: false })).toBeOnTheScreen();
-  expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
+  expect(screen.queryByRole('button', { name: 'Indonesian rupiah (IDR)' })).toBeNull();
+  expect(screen.queryByRole('textbox', { name: 'Currency code' })).toBeNull();
+  await fireEvent.press(screen.getByRole('button', { name: 'Currency code' }));
+  await fireEvent.press(await screen.findByRole('menuitem', { name: 'IDR - Indonesia Rupiah' }));
+  expect(screen.getByRole('checkbox', { checked: true })).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole('radio', { name: 'Bahasa Indonesia' }));
-  await fireEvent.press(screen.getByRole('checkbox'));
-  await fireEvent.press(screen.getByRole('button', { name: 'Rupiah Indonesia (IDR)' }));
+  expect(screen.getByRole('button', { name: 'Kode mata uang' })).toHaveAccessibilityValue({
+    text: 'IDR - Indonesia Rupiah',
+  });
   expect(screen.getByRole('checkbox', { checked: true })).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole('button', { name: 'Lanjutkan' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Mulai' }));

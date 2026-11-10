@@ -23,7 +23,8 @@ export const indonesian: Readonly<Record<string, string>> = {
   'Total spent': 'Total pengeluaran',
   'No spending this month. Record an expense in Transactions to see your breakdown.':
     'Belum ada pengeluaran bulan ini. Catat pengeluaran di Transaksi untuk melihat rinciannya.',
-  'Indonesian rupiah (IDR)': 'Rupiah Indonesia (IDR)',
+  'Close currency picker': 'Tutup pemilih mata uang',
+  Currencies: 'Mata uang',
   ' ({0} active incomplete)': ' ({0} aktif belum selesai)',
   ' · archived': ' · diarsipkan',
   ' · due {0}': ' · jatuh tempo {0}',

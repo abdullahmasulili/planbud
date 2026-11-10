@@ -111,6 +111,22 @@ Full application compilation/installation, standalone release/offline qualificat
 - Android debug CNG/Gradle build and installation passed on the connected API 37 emulator. Maestro verified month/year selection and Back cancellation, native transaction-date confirmation/cancellation, optional goal-deadline selection/clearing, and draft discard. Native inspection found and corrected excess chart whitespace caused by max-width/aspect-ratio sizing. The empty spending summary and scrollable month chooser were checked in dark appearance at 200% text; original emulator appearance/text settings were restored. No source financial records were saved by these walkthroughs.
 - Populated donut segments and overspending have host interaction coverage; the emulator walkthrough used the existing zero-spending data. Standalone release/offline, physical-device, and manual TalkBack qualification were not repeated. A development-only duplicate-linking warning appeared after Android appearance recreation; restarting the debug app cleared the retained navigation instance.
 
+## Currency dropdown — 2026-11-04
+
+- Replaced the editable onboarding currency code and separate rupiah shortcut with an outlined dropdown. Every supported currency has a bundled `CODE - Name` label, including `IDR - Indonesia Rupiah`. The current selection appears first, followed by other codes alphabetically. Currency names stay in English across both interface languages; field and dismissal labels are localized.
+- `pnpm check` passed: formatting, zero-warning lint, TypeScript, boundaries, artifact and release checks, and 185 tests in 62 suites. Host tests cover name-table completeness, selection resetting confirmation, same-currency reselection preserving confirmation, outside dismissal, Android Back consumption, and final profile saving. Paper's animated measurement is mocked in host tests; native checks exercise the real menu.
+- Maestro inline walkthroughs passed on the connected Android emulator with this branch's development bundle: onboarding, scrolling to IDR, selecting it, removing the shortcut, and closing the picker with Back while retaining the preferences step. Native inspection confirmed that changing USD to IDR cleared confirmation and disabled Continue. Inspected the dark dropdown screenshot and the light dropdown at 200% text; the long AED label wrapped and remained selectable. Restored the original 100% text setting. No profile completion or financial write was part of these walkthroughs. Updated `.maestro/idr.yaml` for the dropdown; its later transaction checks were not rerun.
+- Local final review covered the full change, setup callers, supported-code coverage, confirmation behavior, Android dismissal, list virtualization, and scalable theme roles. No dependency, persistence schema, currency exponent, or backup-format changes.
+
+Scoped UI delivery gate:
+
+- Hard gate PASS: real Android selection and Back checks, 200% text wrapping, theme-token colors, and no new assets, claims, or navigation.
+- Purpose gate PASS: the chevron indicates available choices, the check identifies the selected currency, and elevation separates options from the form.
+- Liveliness gate PASS: ENERGY 1 / RHYTHM 1 / MOTION 1 follows the existing calm Material form direction, Plus Jakarta Sans, and blue accent; the picker adds only selection controls.
+- Craftsmanship gate PASS: all new controls have handlers and accessible labels/states; host behavior tests and light/dark Android inspection cover this bounded UI change.
+
+No standalone release APK, physical-device, manual TalkBack, or hardware-keyboard qualification was performed for this change.
+
 ## Developer mock-data preview — 2026-11-08
 
 - DEV-001 and DEV-002: `pnpm check` passed with 185 tests across 62 suites. The preview tests exercise seeding, editing, isolation from a separate local database, and cleanup after a failed seed.

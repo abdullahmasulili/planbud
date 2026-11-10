@@ -24,6 +24,27 @@ Read `docs/engineering/verification.md` for executed evidence. This checklist is
 - [x] API 24 Settings navigation, local-provider restore/export, maximum-record pagination/restart and oversized/excessive-record rejection passed.
 - [ ] Physical Samsung TalkBack gesture and complete speech/focus qualification recorded.
 
+## GitHub Actions release builds
+
+The dedicated release target is `gitops/release-build`. Every push to that branch triggers [Android release APK](../../.github/workflows/android-release.yml); pushes to other branches and pull requests do not trigger signing. Submit workflow and app changes from a separate working branch through a PR targeting `dev`. After review and merge, promote approved `dev` changes to `gitops/release-build` and push that branch to generate a build. The release branch is reserved for build promotion and is not a PR source branch. A newer push cancels an unfinished older build.
+
+Before the first push, configure these repository secrets under **Settings → Secrets and variables → Actions**:
+
+| Secret                      | Value                                                                                      |
+| --------------------------- | ------------------------------------------------------------------------------------------ |
+| `PLAN_BUD_KEYSTORE_BASE64`  | Base64 encoding of the existing `.private/android-signing/personal.p12` file, as one line. |
+| `PLAN_BUD_SIGNING_PASSWORD` | Contents of the matching `.private/android-signing/password` file.                         |
+
+Use the existing signing pair from the previous personal APK build, with alias `planbud-personal`. Keep a secure backup of both files. The workflow fails when a secret is missing rather than creating a new signing identity; a different identity cannot update an existing installation. If no identity exists yet, create it once with the documented local build before configuring the secrets. Never commit the signing files or their encoded contents. Only reviewed code should reach this branch because its build can access the signing identity.
+
+The runner installs the repository's Node/pnpm versions, Java 17 and Android SDK tools, then runs `pnpm check`, `pnpm android:preview` and the release artifact scan. This uses CNG and Gradle directly and requires no Expo account, token or EAS subscription. Despite the existing `preview` filename, the script builds the signed `assembleRelease` variant with its bundled JavaScript, independent of Metro.
+
+After a successful run, open **Actions → Android release APK → run → Artifacts** and download `plan-bud-release-<commit SHA>`, or follow the run summary's download link. The archive contains only `plan-bud-preview.apk` and `SHA256SUMS.txt`. Extract both and run `sha256sum -c SHA256SUMS.txt` on Linux, or `shasum -a 256 -c SHA256SUMS.txt` on macOS, from the extracted folder to verify the APK. Signed-in users with repository read access can download it for 14 days; afterward, generate another build or retain a downloaded copy.
+
+This produces a downloadable build, not a GitHub Release or a completed device qualification. Follow the native acceptance steps below before treating a new APK as qualified. GitHub Actions compute and artifact-storage allowances still apply; use the repository owner's billing limits to prevent paid overages.
+
+References: [workflow artifacts](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts), [artifact upload and retention](https://github.com/actions/upload-artifact/tree/v4), [local Expo release builds](https://docs.expo.dev/guides/local-app-production/), and [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
+
 ## Reproduce
 
 Use the Node/pnpm versions in the repository. Run `pnpm check` and `pnpm exec expo install --check`. Expo Doctor can run with `pnpm dlx expo-doctor`; EAS CLI remains outside project dependencies.
