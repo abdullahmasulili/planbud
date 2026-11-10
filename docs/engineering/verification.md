@@ -132,3 +132,10 @@ No standalone release APK, physical-device, manual TalkBack, or hardware-keyboar
 - DEV-001 and DEV-002: `pnpm check` passed with 185 tests across 62 suites. The preview tests exercise seeding, editing, isolation from a separate local database, and cleanup after a failed seed.
 - The Android development client opened the preview from first-run setup, showed the populated Overview, Transactions, Goals, and Named plans screens, and returned to first-run setup on exit.
 - An Android production bundle export passed. Its Hermes bundle contained neither the preview controls nor the sample fixture markers.
+
+## Settings tab, 2026-11-10
+
+- UI-007, KEY-005, DEV-001, DEV-002: Settings is a bottom tab with language and appearance controls, the confirmed currency and its reset or restore options, and direct entry to backup, restore, and recovery phrase management. Developer preview entry and exit live in Settings. First launch offers onboarding and backup import.
+- `pnpm check` passed with 210 tests across 65 suites. Component tests cover Settings actions, preview-only actions, and the absence of mock data on the onboarding welcome screen.
+- On the Android development emulator, completed fresh onboarding, switched to Indonesian and dark appearance from Settings, opened encrypted backup, and navigated to the protected restore and recovery screens. Opened mock data, verified that Overview had no exit banner, and exited from Settings back to the empty local profile.
+- Maestro disconnected before executing the smoke flow, so the emulator checks used direct input and visual inspection. No backup was exported or imported, and no phrase was generated or revealed.

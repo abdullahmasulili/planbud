@@ -20,7 +20,6 @@ const SetupRoute = () => {
       suggestedCurrency={locales[0].currencyCode ?? 'IDR'}
       onConfirmed={settings.getState().replaceProfile}
       onImport={() => router.push('/restore')}
-      onShowMockData={services.showMockData}
     />
   );
 };

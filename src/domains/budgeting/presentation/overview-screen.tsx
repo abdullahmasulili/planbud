@@ -35,7 +35,6 @@ import type { GoalAttention } from '../application/goal-attention';
  * @param props.transactions Published actual-summary read.
  * @param props.initialMonth First calendar month to inspect.
  * @param props.onPlan Opens the implemented monthly planner.
- * @param props.onSettings Opens settings and backup navigation.
  * @param props.goals Optional current source-progress read for attention labels.
  * @param props.onGoals Opens all goals and contribution history.
  * @param props.onNewPlanning Opens a new independent planning draft.
@@ -48,7 +47,6 @@ export const OverviewScreen = ({
   transactions,
   initialMonth,
   onPlan,
-  onSettings,
   goals,
   onGoals,
   onNewPlanning,
@@ -59,7 +57,6 @@ export const OverviewScreen = ({
   transactions: Pick<TransactionService, 'summary'>;
   initialMonth: string;
   onPlan: () => void;
-  onSettings: () => void;
   goals?: Pick<GoalService, 'readGoals'>;
   onGoals?: () => void;
   onNewPlanning: () => void;
@@ -160,7 +157,6 @@ export const OverviewScreen = ({
             <ActionButton mode="contained" onPress={onPlan}>
               {t('Open plan')}
             </ActionButton>
-            <ActionButton onPress={onSettings}>{t('Settings')}</ActionButton>
             <Text variant="titleLarge">{t('Categories')}</Text>
           </View>
         }

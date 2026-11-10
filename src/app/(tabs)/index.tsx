@@ -19,7 +19,6 @@ const HomeRoute = () => {
         transactions={services.transactions}
         initialMonth={calendarToday().slice(0, 7)}
         onPlan={() => router.navigate('/plan')}
-        onSettings={() => router.push('/settings')}
         goals={services.goals}
         onGoals={() => router.navigate('/goals')}
         onNewPlanning={() =>
