@@ -126,3 +126,9 @@ Scoped UI delivery gate:
 - Craftsmanship gate PASS: all new controls have handlers and accessible labels/states; host behavior tests and light/dark Android inspection cover this bounded UI change.
 
 No standalone release APK, physical-device, manual TalkBack, or hardware-keyboard qualification was performed for this change.
+
+## Developer mock-data preview — 2026-11-08
+
+- DEV-001 and DEV-002: `pnpm check` passed with 185 tests across 62 suites. The preview tests exercise seeding, editing, isolation from a separate local database, and cleanup after a failed seed.
+- The Android development client opened the preview from first-run setup, showed the populated Overview, Transactions, Goals, and Named plans screens, and returned to first-run setup on exit.
+- An Android production bundle export passed. Its Hermes bundle contained neither the preview controls nor the sample fixture markers.

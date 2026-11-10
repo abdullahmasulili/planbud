@@ -15,24 +15,29 @@ import { Screen } from '@/shared/presentation/screen';
 import { launchOperation } from '@/shared/presentation/operation-launcher';
 import { createNativeBackupServices } from './native-backup-services';
 import { createProfileEvents } from './profile-events';
+import { ActionButton } from '@/shared/presentation/controls';
 
 /** Coordinates appearance, safe replacement notices and navigation session invalidation.
+ * @param props Optional preview exit action.
+ * @param props.onExitPreview Returns to the saved app session.
  * @returns The single router stack inside stable service composition.
  */
-const LocalizedRoutes = () => {
+const LocalizedRoutes = ({ onExitPreview }: { onExitPreview: (() => void) | undefined }) => {
   const { settings } = useServices();
   const locale = useStore(settings, (state) => state.profile?.locale ?? 'en-US');
   return (
     <LocaleContext.Provider value={locale}>
-      <ThemedRoutes />
+      <ThemedRoutes onExitPreview={onExitPreview} />
     </LocaleContext.Provider>
   );
 };
 
 /** Renders navigation and notices in the persisted display language.
+ * @param props Optional preview exit action.
+ * @param props.onExitPreview Returns to the saved app session.
  * @returns Themed routes subscribed to the durable settings projection.
  */
-const ThemedRoutes = () => {
+const ThemedRoutes = ({ onExitPreview }: { onExitPreview: (() => void) | undefined }) => {
   const { t } = useI18n();
   const { settings } = useServices();
   const preference = useStore(settings, (state) => state.profile?.appearance ?? 'system');
@@ -44,6 +49,17 @@ const ThemedRoutes = () => {
     <PaperProvider theme={theme.paper}>
       <ThemeProvider value={theme.router}>
         <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
+        {__DEV__ && onExitPreview ? (
+          <SafeAreaView
+            edges={['top', 'left', 'right']}
+            style={{ backgroundColor: theme.paper.colors.elevation.level1, paddingHorizontal: 16 }}
+          >
+            <Text accessibilityLiveRegion="polite">
+              {t('Mock data preview. Changes are temporary.')}
+            </Text>
+            <ActionButton onPress={onExitPreview}>{t('Exit preview')}</ActionButton>
+          </SafeAreaView>
+        ) : null}
         {notice ? (
           <SafeAreaView
             edges={['top']}
@@ -84,14 +100,27 @@ const ThemedRoutes = () => {
 /** Constructs native workflows once after the database bootstrap succeeds.
  * @param props Initialized lifecycle-owned runtime.
  * @param props.runtime Source services and private database retained only in composition.
+ * @param props.onShowMockData Opens a fresh preview when available.
+ * @param props.onExitPreview Identifies a preview session and returns to saved data.
  * @returns Stable capabilities and disposable store scope for all routes.
  */
-const InitializedApp = ({ runtime }: { runtime: Runtime }) => {
+const InitializedApp = ({
+  runtime,
+  onShowMockData,
+  onExitPreview,
+}: {
+  runtime: Runtime;
+  onShowMockData: (() => void) | undefined;
+  onExitPreview: (() => void) | undefined;
+}) => {
   const [profileChanges] = useState(createProfileEvents);
   const [services] = useState(() => ({
     ...runtime.services,
-    ...createNativeBackupServices(runtime.database, profileChanges),
+    ...(__DEV__ && onExitPreview
+      ? {}
+      : createNativeBackupServices(runtime.database, profileChanges)),
     newId: randomUUID,
+    showMockData: onShowMockData,
   }));
   return (
     <ServicesProvider
@@ -99,25 +128,42 @@ const InitializedApp = ({ runtime }: { runtime: Runtime }) => {
       initialProfile={runtime.profile}
       profileChanges={profileChanges}
     >
-      <LocalizedRoutes />
+      <LocalizedRoutes onExitPreview={onExitPreview} />
     </ServicesProvider>
   );
 };
 
 /** Owns bootstrap retries and closes every successful native handle on teardown.
+ * @param props Session controls supplied only by the development build.
+ * @param props.onShowMockData Opens a fresh preview when available.
+ * @param props.onExitPreview Identifies a preview session and returns to saved data.
  * @returns Recoverable startup UI or initialized application routes.
  */
-export const AppRoot = () => {
+const AppSession = ({
+  onShowMockData,
+  onExitPreview,
+}: {
+  onShowMockData?: (() => void) | undefined;
+  onExitPreview?: () => void;
+}) => {
   const { t } = useI18n();
   const [runtime, setRuntime] = useState<Runtime | null>(null);
   const [message, setMessage] = useState('');
   const [attempt, setAttempt] = useState(0);
   const mode = resolveScheme('system', useColorScheme());
+  const preview = __DEV__ && onExitPreview !== undefined;
+  const startupError =
+    __DEV__ && preview
+      ? 'Unable to open mock data. Try again or exit the preview.'
+      : 'Unable to open Plan Bud. Close the app and try again.';
   useEffect(() => {
     let opened: Runtime | undefined;
     const cancel = launchOperation(
       async (isActive) => {
-        const result = await bootstrap();
+        const result =
+          __DEV__ && preview
+            ? await (await import('./mock-data')).bootstrapMockData()
+            : await bootstrap();
         if (!isActive()) {
           if (result.ok) await result.value.close();
           return;
@@ -125,9 +171,9 @@ export const AppRoot = () => {
         if (result.ok) {
           opened = result.value;
           setRuntime(result.value);
-        } else setMessage(result.error.message);
+        } else setMessage(preview ? startupError : result.error.message);
       },
-      () => setMessage('Unable to open Plan Bud. Close the app and try again.'),
+      () => setMessage(startupError),
     );
     return () => {
       cancel();
@@ -143,14 +189,18 @@ export const AppRoot = () => {
         );
       }
     };
-  }, [attempt]);
+  }, [attempt, preview, startupError]);
   return (
-    <SafeAreaProvider>
+    <>
       {runtime ? (
-        <InitializedApp runtime={runtime} />
+        <InitializedApp
+          runtime={runtime}
+          onShowMockData={onShowMockData}
+          onExitPreview={onExitPreview}
+        />
       ) : (
         <PaperProvider theme={buildTheme(mode).paper}>
-          <Screen>
+          <Screen includeTop>
             <Text variant="headlineMedium">{t('Plan Bud')}</Text>
             {message ? (
               <>
@@ -167,10 +217,33 @@ export const AppRoot = () => {
                 </Button>
               </>
             ) : (
-              <ActivityIndicator accessibilityLabel={t('Opening your local data')} />
+              <ActivityIndicator
+                accessibilityLabel={t(
+                  __DEV__ && preview ? 'Opening mock data' : 'Opening your local data',
+                )}
+              />
             )}
+            {__DEV__ && onExitPreview ? (
+              <ActionButton onPress={onExitPreview}>{t('Exit preview')}</ActionButton>
+            ) : null}
           </Screen>
         </PaperProvider>
+      )}
+    </>
+  );
+};
+
+/** Remounts the database, stores, and navigator together when changing data sources.
+ * @returns One isolated app session under a stable safe-area provider.
+ */
+export const AppRoot = () => {
+  const [preview, setPreview] = useState(false);
+  return (
+    <SafeAreaProvider>
+      {__DEV__ && preview ? (
+        <AppSession key="preview" onExitPreview={() => setPreview(false)} />
+      ) : (
+        <AppSession key="local" onShowMockData={__DEV__ ? () => setPreview(true) : undefined} />
       )}
     </SafeAreaProvider>
   );

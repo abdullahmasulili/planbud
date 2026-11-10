@@ -14,6 +14,7 @@ import { ActionButton } from '@/shared/presentation/controls';
  * @param props.onRecovery Opens the integrated protected phrase-management flow.
  * @param props.onBackup Opens encrypted-only export settings.
  * @param props.onClear Opens the explicit destructive local-data confirmation.
+ * @param props.onShowMockData Opens the isolated developer preview when available.
  * @returns Scalable settings controls with native checked radio state.
  */
 export const SettingsScreen = ({
@@ -23,13 +24,15 @@ export const SettingsScreen = ({
   onRecovery,
   onBackup,
   onClear,
+  onShowMockData,
 }: {
   profile: Profile;
   service: ProfileService;
   onUpdated: (profile: Profile) => void;
-  onRecovery?: () => void;
-  onBackup?: () => void;
-  onClear?: () => void;
+  onRecovery?: (() => void) | undefined;
+  onBackup?: (() => void) | undefined;
+  onClear?: (() => void) | undefined;
+  onShowMockData?: (() => void) | undefined;
 }) => {
   const { t } = useI18n();
   const operation = useOperation();
@@ -86,6 +89,14 @@ export const SettingsScreen = ({
         </ActionButton>
       ) : null}
       {onClear ? <ActionButton onPress={onClear}>{t('Clear local data')}</ActionButton> : null}
+      {__DEV__ && onShowMockData ? (
+        <>
+          <Text variant="titleLarge">{t('Developer tools')}</Text>
+          <ActionButton mode="outlined" onPress={onShowMockData}>
+            {t('Show mock data')}
+          </ActionButton>
+        </>
+      ) : null}
     </Screen>
   );
 };

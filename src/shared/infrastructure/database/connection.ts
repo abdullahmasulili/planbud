@@ -164,11 +164,12 @@ const nativeExecutor = (database: SQLiteDatabase): SqlExecutor => ({
 });
 
 /** Opens a private native database with one serialized connection owner.
- * @param name Portable database basename; diagnostics must use a disposable namespace.
+ * @param name Portable database basename, or `:memory:` for a disposable preview.
  * @returns The handle; callers migrate it before reading product records.
  */
 export const openDatabase = async (name = 'plan-bud.db'): Promise<DatabaseHandle> => {
-  if (!/^[a-z0-9-]+\.db$/.test(name)) throw new Error('Invalid database name.');
+  if (name !== ':memory:' && !/^[a-z0-9-]+\.db$/.test(name))
+    throw new Error('Invalid database name.');
   const SQLite = await import('expo-sqlite');
   const database = await SQLite.openDatabaseAsync(name, { useNewConnection: true });
   try {
