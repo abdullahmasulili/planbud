@@ -38,8 +38,8 @@ name: IDR setup and exact rupiah display
 - extendedWaitUntil:
     visible: Bulan Anda
     timeout: 60000
-- tapOn: Transaksi
-- tapOn: Transaksi baru
+- tapOn: Buka tindakan cepat
+- tapOn: Catat pengeluaran
 - tapOn: Pemasukan
 - runFlow:
     file: helpers/fill-field.yaml
@@ -52,7 +52,8 @@ name: IDR setup and exact rupiah display
 - extendedWaitUntil:
     notVisible: Transaksi disimpan
     timeout: 10000
-- tapOn: Transaksi baru
+- tapOn: Buka tindakan cepat
+- tapOn: Catat pengeluaran
 - tapOn: Pemasukan
 - runFlow:
     file: helpers/fill-field.yaml

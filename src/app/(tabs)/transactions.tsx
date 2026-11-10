@@ -1,4 +1,4 @@
-import { Redirect, useLocalSearchParams } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useStore } from 'zustand';
 import { useServices } from '@/composition/services';
 import { TransactionsScreen } from '@/domains/transactions/presentation/transactions-screen';
@@ -21,6 +21,9 @@ const TransactionsRoute = () => {
       today={today}
       newId={services.newId}
       createRequest={typeof create === 'string' ? create : ''}
+      onNewPlanning={() =>
+        router.push({ pathname: '/plans', params: { create: services.newId() } })
+      }
     />
   ) : (
     <Redirect href="/setup" />

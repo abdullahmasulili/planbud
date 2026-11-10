@@ -1,17 +1,10 @@
 import { DateInput } from '@/shared/presentation/date-input';
 import { useI18n } from '@/shared/presentation/i18n';
 import { useCallback, useState } from 'react';
-import {
-  BackHandler,
-  FlatList,
-  Keyboard,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ActivityIndicator, Card, FAB, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Card, Text, useTheme } from 'react-native-paper';
 import type { BudgetService } from '../application/public';
 import type { TransactionService } from '@/domains/transactions/application/public';
 import type { Profile } from '@/domains/settings/application/public';
@@ -27,12 +20,7 @@ import { parseDate } from '@/shared/domain/calendar-date';
 import type { GoalService } from '@/domains/goals/application/public';
 import { readGoalAttention } from '../application/goal-attention';
 import type { GoalAttention } from '../application/goal-attention';
-import { phosphorIcon } from '@/shared/presentation/phosphor-icon';
-
-const openActionsIcon = phosphorIcon('plus');
-const closeActionsIcon = phosphorIcon('x');
-const newPlanningIcon = phosphorIcon('notebook');
-const recordSpendingIcon = phosphorIcon('receipt');
+import { QuickActions } from '@/shared/presentation/quick-actions';
 
 /** Refreshes source-derived comparisons when returning from a financial editing tab.
  * @param props Narrow read capabilities, currency metadata, and implemented navigation actions.
@@ -70,19 +58,6 @@ export const OverviewScreen = ({
 }) => {
   const { t } = useI18n();
   const theme = useTheme();
-  const { width } = useWindowDimensions();
-  const [actionsOpen, setActionsOpen] = useState(false);
-  useFocusEffect(useCallback(() => () => setActionsOpen(false), []));
-  useFocusEffect(
-    useCallback(() => {
-      if (!actionsOpen) return;
-      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-        setActionsOpen(false);
-        return true;
-      });
-      return () => subscription.remove();
-    }, [actionsOpen]),
-  );
   const [month, setMonth] = useState(initialMonth);
   const [selection, setSelection] = useState({ month: initialMonth, attempt: 0 });
   const [data, setData] = useState<BudgetOverview | null>(null);
@@ -234,32 +209,7 @@ export const OverviewScreen = ({
           ) : undefined
         }
       />
-      <FAB.Group
-        visible
-        open={actionsOpen}
-        icon={actionsOpen ? closeActionsIcon : openActionsIcon}
-        accessibilityLabel={actionsOpen ? 'Close quick actions' : 'Open quick actions'}
-        onStateChange={({ open }) => {
-          if (open) Keyboard.dismiss();
-          setActionsOpen(open);
-        }}
-        actions={[
-          {
-            icon: newPlanningIcon,
-            label: 'New Planning',
-            size: 'medium',
-            labelStyle: { maxWidth: width - 160 },
-            onPress: onNewPlanning,
-          },
-          {
-            icon: recordSpendingIcon,
-            label: 'Record Spending',
-            size: 'medium',
-            labelStyle: { maxWidth: width - 160 },
-            onPress: onRecordSpending,
-          },
-        ]}
-      />
+      <QuickActions onNewPlanning={onNewPlanning} onRecordSpending={onRecordSpending} />
     </SafeAreaView>
   );
 };
