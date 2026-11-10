@@ -160,6 +160,12 @@ Group budgeting, transactions, goals, backup, and settings by business domain. T
 - ENG-006: Pin compatible dependencies through the repository's Expo install workflow, keep pnpm as the package manager, preserve the lockfile, and document decisions to add dependencies. Generate native projects through Expo tooling and configuration rather than hand-editing generated directories.
 - ENG-007: Run lint and typecheck before implementation completion, plus relevant tests, Android runtime checks, and review. Report blocked checks accurately. Follow the existing Git and GitHub identity policies; do not auto-commit or publish.
 
+## Developer preview
+
+- DEV-001: Development builds offer Show mock data from first launch and Settings. Open the normal app screens with a sample profile, current-month budget and transactions, a goal with contribution history, and a named plan.
+- DEV-002: The preview uses a new in-memory database each time. Keep its status and exit action visible throughout the session. Exiting restores access to the saved profile or first-run setup. Preview edits are discarded, and recovery, backup, restore, and clear-data workflows are unavailable in the preview.
+- Verify seeded records, edit isolation, and cleanup with host SQLite tests. Check entry, navigation, and exit on Android and confirm the production Android bundle excludes the preview entry and fixture.
+
 ## Acceptance and release evidence
 
 | Requirement group     | Required evidence before release                                                                                                                                                                     |

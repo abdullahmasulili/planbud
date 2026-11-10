@@ -18,6 +18,7 @@ import type { ProfileEvents } from './profile-events';
 /** Stable application capabilities; records and secret material do not belong here. */
 export type Services = RuntimeServices & {
   readonly newId: () => string;
+  readonly showMockData?: (() => void) | undefined;
   readonly recovery?: RecoveryService;
   readonly sensitiveScreen?: SensitiveScreenPort;
   readonly exports?: ExportService;

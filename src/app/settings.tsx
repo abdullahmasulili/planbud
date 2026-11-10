@@ -14,9 +14,10 @@ const SettingsRoute = () => {
       profile={profile}
       service={services.profiles}
       onUpdated={settings.getState().replaceProfile}
-      onRecovery={() => router.push('/recovery')}
-      onBackup={() => router.push('/backup')}
-      onClear={() => router.push('/clear-data')}
+      onRecovery={services.recovery ? () => router.push('/recovery') : undefined}
+      onBackup={services.exports ? () => router.push('/backup') : undefined}
+      onClear={services.restores ? () => router.push('/clear-data') : undefined}
+      onShowMockData={services.showMockData}
     />
   ) : (
     <Redirect href="/setup" />

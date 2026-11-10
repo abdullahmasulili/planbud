@@ -20,6 +20,7 @@ import { SetupCompletion } from './setup-completion';
  * @param props.suggestedCurrency Supported device currency suggestion.
  * @param props.onConfirmed Receives the durably confirmed profile.
  * @param props.onImport Opens authenticated backup replacement without creating a profile.
+ * @param props.onShowMockData Opens the isolated developer preview when available.
  * @returns A reversible four-step offline onboarding flow with local preference previews.
  */
 export const SetupScreen = ({
@@ -28,12 +29,14 @@ export const SetupScreen = ({
   suggestedCurrency,
   onConfirmed,
   onImport,
+  onShowMockData,
 }: {
   service: ProfileService;
   suggestedLocale: string;
   suggestedCurrency: string;
   onConfirmed: (profile: Profile) => void;
   onImport?: () => void;
+  onShowMockData?: (() => void) | undefined;
 }) => {
   const [step, setStep] = useState(0);
   const [storageAllowed, setStorageAllowed] = useState(false);
@@ -279,6 +282,9 @@ export const SetupScreen = ({
               </ActionButton>
             ) : onImport ? (
               <ActionButton onPress={onImport}>{t('Restore an existing backup')}</ActionButton>
+            ) : null}
+            {__DEV__ && step === 0 && onShowMockData ? (
+              <ActionButton onPress={onShowMockData}>{t('Show mock data')}</ActionButton>
             ) : null}
           </View>
         </Screen>

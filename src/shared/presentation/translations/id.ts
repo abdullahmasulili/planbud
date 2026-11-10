@@ -1,5 +1,17 @@
 /** Bundled Indonesian interface copy; keys are the English source messages. */
 export const indonesian: Readonly<Record<string, string>> = {
+  ...(__DEV__
+    ? {
+        'Developer tools': 'Alat pengembang',
+        'Show mock data': 'Tampilkan data contoh',
+        'Mock data preview. Changes are temporary.':
+          'Pratinjau data contoh. Perubahan bersifat sementara.',
+        'Exit preview': 'Keluar dari pratinjau',
+        'Opening mock data': 'Membuka data contoh',
+        'Unable to open mock data. Try again or exit the preview.':
+          'Data contoh tidak dapat dibuka. Coba lagi atau keluar dari pratinjau.',
+      }
+    : {}),
   'Not set': 'Belum diatur',
   'Choose a month and year': 'Pilih bulan dan tahun',
   'Open calendar': 'Buka kalender',
