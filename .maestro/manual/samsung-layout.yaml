@@ -10,7 +10,7 @@ name: Samsung 200 percent light and dark dialog, keyboard and nested Back checks
     file: ../helpers/check-scheme-dialogs.yaml
     env:
       SCHEME: Light
-- openLink: planbud://settings
+- openLink: planbud://settings/appearance
 - tapOn: Use device setting
 - assertVisible:
     text: Use device setting

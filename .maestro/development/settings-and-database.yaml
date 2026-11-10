@@ -25,6 +25,7 @@ tags:
 - assertVisible: PASS native-reopen
 - back
 - tapOn: Settings
+- tapOn: Appearance
 - tapOn: Dark
 - assertVisible:
     text: Dark
@@ -41,7 +42,10 @@ tags:
     visible: Your month
     timeout: 60000
 - tapOn: Settings
+- tapOn: Appearance
 - assertVisible:
     text: Dark
     checked: true
+- back
+- tapOn: Currency
 - assertVisible: USD · en-US

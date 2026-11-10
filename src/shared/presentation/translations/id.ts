@@ -3,9 +3,8 @@ export const indonesian: Readonly<Record<string, string>> = {
   ...(__DEV__
     ? {
         'Developer tools': 'Alat pengembang',
-        'Show mock data': 'Tampilkan data contoh',
-        'Mock data preview. Changes are temporary.':
-          'Pratinjau data contoh. Perubahan bersifat sementara.',
+        'Mock data preview': 'Pratinjau data contoh',
+        'Changes in preview are temporary.': 'Perubahan dalam pratinjau bersifat sementara.',
         'Exit preview': 'Keluar dari pratinjau',
         'Opening mock data': 'Membuka data contoh',
         'Unable to open mock data. Try again or exit the preview.':
@@ -300,7 +299,6 @@ export const indonesian: Readonly<Record<string, string>> = {
   'Set up a phrase': 'Siapkan frasa',
   'Set up new phrase': 'Siapkan frasa baru',
   Settings: 'Pengaturan',
-  'Local data': 'Data lokal',
   'Restore data': 'Pulihkan data',
   'To use a different currency, clear local data and set up again or restore another backup.':
     'Untuk memakai mata uang lain, hapus data lokal lalu siapkan ulang aplikasi, atau pulihkan cadangan lain.',

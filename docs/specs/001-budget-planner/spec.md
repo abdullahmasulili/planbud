@@ -134,7 +134,7 @@ Use maintained cryptographic libraries and native primitives with published test
 - UI-004: Follow the system scheme by default; allow explicit light or dark overrides. Preserve readable financial statuses and charts in both schemes without relying only on color.
 - UI-005: Support Android font scaling, screen reader labels, keyboard avoidance, safe areas, and accessible touch targets. Validate dialogs and forms with large text and TalkBack.
 - UI-006: Empty views explain the next action. Loading, invalid input, storage failure, rejected restore, and insufficient-budget states have actionable messages.
-- UI-007: Bottom navigation contains Overview, Plan, Transactions, Goals, and Settings. Settings groups language, appearance, the confirmed currency, encrypted export and restore, recovery phrase management, and local data clearing. Currency is chosen during setup or replaced by restoring a profile. Overview emphasizes remaining planned spending and goals requiring attention. Navigation actions must have implemented destinations.
+- UI-007: Bottom navigation contains Overview, Plan, Transactions, Goals, and Settings. The Settings index links to separate pages for language, appearance, the confirmed currency, encrypted export and restore, recovery phrase management, and local data clearing. Currency is chosen during setup or replaced by restoring a profile. Overview emphasizes remaining planned spending and goals requiring attention. Navigation actions must have implemented destinations.
 - UI-008: Use a calm visual direction with ENERGY 1 / RHYTHM 1 / MOTION 1. Use purposeful state transitions and respect reduced motion. Final palette and component examples belong in `DESIGN.md` before UI implementation; Material 3 and the selected font are fixed user choices.
 
 ## Architecture and engineering guardrails
@@ -162,8 +162,8 @@ Group budgeting, transactions, goals, backup, and settings by business domain. T
 
 ## Developer preview
 
-- DEV-001: Development builds offer Show mock data under Developer tools in Settings. Open the normal app screens with a sample profile, current-month budget and transactions, a goal with contribution history, and a named plan.
-- DEV-002: The preview uses a new in-memory database each time. Its status and exit action live under Developer tools in Settings, with an exit action on the startup screen if the preview cannot open. Exiting restores access to the saved profile. Preview edits are discarded, and recovery, backup, restore, and clear-data workflows are unavailable in the preview.
+- DEV-001: Development builds offer a Mock data preview switch under Developer tools on the Settings index. Turning it on opens the normal app screens with a sample profile, current-month budget and transactions, a goal with contribution history, and a named plan.
+- DEV-002: The preview uses a new in-memory database each time. Turning the switch off restores access to the saved profile. A startup exit action is available if the preview cannot open. Preview edits are discarded, and recovery, backup, restore, and clear-data workflows are unavailable in the preview.
 - Verify seeded records, edit isolation, and cleanup with host SQLite tests. Check entry, navigation, and exit on Android and confirm the production Android bundle excludes the preview entry and fixture.
 
 ## Acceptance and release evidence

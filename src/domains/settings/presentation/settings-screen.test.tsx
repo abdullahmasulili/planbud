@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { TestScreen } from '../../../../tests/helpers/test-screen';
 import { SettingsScreen } from './settings-screen';
+import { SettingsPreferenceScreen } from './settings-preference-screen';
 import { createProfileService } from '../application/profile-service';
 import type { Profile, ProfilePort } from '../application/public';
 
@@ -30,7 +31,13 @@ it('UI-005 exposes exclusive appearance choices as checked native radio controls
   const service = createProfileService(repository);
   const view = await render(
     <TestScreen>
-      <SettingsScreen profile={profile} service={service} onUpdated={updated} />
+      <SettingsPreferenceScreen
+        section="appearance"
+        profile={profile}
+        service={service}
+        onUpdated={updated}
+        canReplaceProfile
+      />
     </TestScreen>,
   );
   expect(
@@ -41,10 +48,12 @@ it('UI-005 exposes exclusive appearance choices as checked native radio controls
   expect(updated).toHaveBeenCalledWith({ ...profile, appearance: 'dark' });
   await view.rerender(
     <TestScreen>
-      <SettingsScreen
+      <SettingsPreferenceScreen
+        section="appearance"
         profile={{ ...profile, appearance: 'dark' }}
         service={service}
         onUpdated={updated}
+        canReplaceProfile
       />
     </TestScreen>,
   );
@@ -76,10 +85,12 @@ it('saves the selected language through settings before updating the projection'
   const updated = jest.fn();
   await render(
     <TestScreen>
-      <SettingsScreen
+      <SettingsPreferenceScreen
+        section="language"
         profile={profile}
         service={createProfileService(repository)}
         onUpdated={updated}
+        canReplaceProfile
       />
     </TestScreen>,
   );
@@ -88,20 +99,10 @@ it('saves the selected language through settings before updating the projection'
   expect(updated).toHaveBeenCalledWith({ ...profile, locale: 'id-ID' });
 });
 
-it('UI-007 DEV-001 DEV-002 exposes local data actions and switches the developer action in preview', async () => {
-  const profile: Profile = {
-    id: 'personal',
-    currency: { code: 'USD', exponent: 2 },
-    locale: 'en-US',
-    appearance: 'system',
-  };
-  const service = {
-    load: jest.fn(),
-    confirm: jest.fn(),
-    changeAppearance: jest.fn(),
-    changeLocale: jest.fn(),
-  };
-  const onUpdated = jest.fn();
+it('UI-007 DEV-001 DEV-002 shows only destination rows and the preview switch on the Settings index', async () => {
+  const onLanguage = jest.fn();
+  const onAppearance = jest.fn();
+  const onCurrency = jest.fn();
   const onBackup = jest.fn();
   const onRestore = jest.fn();
   const onRecovery = jest.fn();
@@ -110,9 +111,9 @@ it('UI-007 DEV-001 DEV-002 exposes local data actions and switches the developer
   const view = await render(
     <TestScreen>
       <SettingsScreen
-        profile={profile}
-        service={service}
-        onUpdated={onUpdated}
+        onLanguage={onLanguage}
+        onAppearance={onAppearance}
+        onCurrency={onCurrency}
         onBackup={onBackup}
         onRestore={onRestore}
         onRecovery={onRecovery}
@@ -120,28 +121,42 @@ it('UI-007 DEV-001 DEV-002 exposes local data actions and switches the developer
       />
     </TestScreen>,
   );
+  expect(screen.queryByRole('radio')).toBeNull();
+  await fireEvent.press(screen.getByRole('button', { name: 'Language' }));
+  expect(onLanguage).toHaveBeenCalledTimes(1);
+  await fireEvent.press(screen.getByRole('button', { name: 'Appearance' }));
+  expect(onAppearance).toHaveBeenCalledTimes(1);
+  await fireEvent.press(screen.getByRole('button', { name: 'Currency' }));
+  expect(onCurrency).toHaveBeenCalledTimes(1);
   await fireEvent.press(screen.getByRole('button', { name: 'Back up data' }));
   expect(onBackup).toHaveBeenCalledTimes(1);
   await fireEvent.press(screen.getByRole('button', { name: 'Restore data' }));
   expect(onRestore).toHaveBeenCalledTimes(1);
   await fireEvent.press(screen.getByRole('button', { name: 'Manage recovery phrase' }));
   expect(onRecovery).toHaveBeenCalledTimes(1);
-  await fireEvent.press(screen.getByRole('button', { name: 'Show mock data' }));
+  await fireEvent(
+    screen.getByRole('switch', { name: 'Mock data preview', checked: false }),
+    'valueChange',
+    true,
+  );
   expect(onShowMockData).toHaveBeenCalledTimes(1);
-  expect(screen.queryByRole('button', { name: 'Exit preview' })).toBeNull();
 
   await view.rerender(
     <TestScreen>
       <SettingsScreen
-        profile={profile}
-        service={service}
-        onUpdated={onUpdated}
+        onLanguage={onLanguage}
+        onAppearance={onAppearance}
+        onCurrency={onCurrency}
         onExitPreview={onExitPreview}
       />
     </TestScreen>,
   );
-  expect(screen.queryByRole('button', { name: 'Show mock data' })).toBeNull();
-  expect(screen.queryByText('Local data')).toBeNull();
-  await fireEvent.press(screen.getByRole('button', { name: 'Exit preview' }));
+  expect(screen.queryByRole('button', { name: 'Back up data' })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Restore data' })).toBeNull();
+  await fireEvent(
+    screen.getByRole('switch', { name: 'Mock data preview', checked: true }),
+    'valueChange',
+    false,
+  );
   expect(onExitPreview).toHaveBeenCalledTimes(1);
 });
