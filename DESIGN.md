@@ -18,7 +18,7 @@ Spacing follows 4, 8, 12, 16, 24, and 32 dp. Screen edges use 24 dp; related for
 
 Status uses text alongside color. Errors explain how to recover; destructive actions require an explicit confirmation. Focus uses outlined inputs and native accessibility focus. No decorative entrance motion. Respect safe areas and keyboard visibility. Transaction history owns one virtualized scroll surface.
 
-Home's primary FAB reveals two labeled actions above it, New Planning (notebook) and Record Spending (receipt). The icons distinguish estimates from actual activity. Material elevation separates the floating controls from the overview, and a backdrop marks the open menu. Keep the FAB above the native tabs, reserve scroll space below content, and let action labels wrap at large text sizes.
+Overview and Transactions share a FAB with two labeled actions, New Planning (notebook) and Record Spending (receipt). Start a new transaction with Record Spending. The history list gives users access to existing entries for editing and deletion. Material elevation separates the floating controls from the content, and a backdrop marks the open menu. Keep the FAB above the native tabs, reserve scroll space below content, and let action labels wrap at large text sizes.
 
 Use the bundled Phosphor Regular icon set for app-owned interface icons and native tab destinations. The local font contains the glyphs used by Plan Bud, sourced from the [Phosphor 2.1.2 distribution](https://github.com/phosphor-icons/web) under the MIT license in `assets/fonts/Phosphor-LICENSE.txt`. Settings rows align their title and description with the page text, use a single divider between adjacent rows, and place the contextual icon on the trailing edge.
 

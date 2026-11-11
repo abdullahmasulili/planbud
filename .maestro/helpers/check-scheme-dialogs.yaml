@@ -8,7 +8,8 @@ appId: com.planbud.app
     checked: true
 - openLink: planbud://
 - tapOn: Transactions
-- tapOn: New transaction
+- tapOn: Open quick actions
+- tapOn: Record Spending
 - assertVisible: New transaction
 - assertNotVisible: All entries
 - tapOn: 'Amount \(USD\)'

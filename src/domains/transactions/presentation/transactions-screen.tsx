@@ -18,6 +18,7 @@ import { ChoiceGroup } from '@/shared/presentation/choice-group';
 import { FormMessage } from '@/shared/presentation/screen';
 import { formatMoney } from '@/shared/presentation/money-format';
 import { launchOperation } from '@/shared/presentation/operation-launcher';
+import { QuickActions } from '@/shared/presentation/quick-actions';
 
 /** Shows bounded history pages, exact actual totals, filters, and observed editing flows.
  * @param props Stable store, profile, calendar suggestions, and category-read capability.
@@ -28,6 +29,7 @@ import { launchOperation } from '@/shared/presentation/operation-launcher';
  * @param props.today Local date suggested for new entries.
  * @param props.newId Supplies stable record and action identities for each form.
  * @param props.createRequest Unique navigation request to open a new expense draft once.
+ * @param props.onNewPlanning Opens a new named-plan draft from quick actions.
  * @returns One virtualized history scroll owner and complete source-entry dialogs.
  */
 export const TransactionsScreen = ({
@@ -38,6 +40,7 @@ export const TransactionsScreen = ({
   today,
   newId,
   createRequest,
+  onNewPlanning,
 }: {
   profile: Profile;
   store: ReturnType<typeof createTransactionStore>;
@@ -46,6 +49,7 @@ export const TransactionsScreen = ({
   today: string;
   newId: () => string;
   createRequest?: string;
+  onNewPlanning: () => void;
 }) => {
   const { t } = useI18n();
   const theme = useTheme();
@@ -232,12 +236,11 @@ export const TransactionsScreen = ({
             ) : undefined
           }
         />
-        <View style={styles.action}>
-          <ActionButton mode="contained" onPress={() => setEditing({ record: null })}>
-            {t('New transaction')}
-          </ActionButton>
-        </View>
       </KeyboardAvoidingView>
+      <QuickActions
+        onNewPlanning={onNewPlanning}
+        onRecordSpending={() => setEditing({ record: null })}
+      />
       {editing ? (
         <TransactionForm
           profile={profile}
@@ -254,7 +257,12 @@ export const TransactionsScreen = ({
           }
         />
       ) : null}
-      <Snackbar visible={notice !== ''} onDismiss={() => setNotice('')} duration={3000}>
+      <Snackbar
+        visible={notice !== ''}
+        onDismiss={() => setNotice('')}
+        duration={3000}
+        wrapperStyle={styles.notice}
+      >
         {t(notice)}
       </Snackbar>
     </SafeAreaView>
@@ -262,7 +270,7 @@ export const TransactionsScreen = ({
 };
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  content: { padding: 24, gap: 16 },
+  content: { padding: 24, paddingBottom: 112, gap: 16 },
   section: { gap: 16 },
-  action: { padding: 16 },
+  notice: { bottom: 80 },
 });

@@ -64,7 +64,10 @@ tags:
     direction: DOWN
 - tapOn: Save budget
 - tapOn: Transactions
-- tapOn: New transaction
+- assertVisible: All entries
+- assertNotVisible: New transaction
+- tapOn: Open quick actions
+- tapOn: Record Spending
 - tapOn: Income
 - assertVisible:
     text: Income
@@ -80,7 +83,8 @@ tags:
 - extendedWaitUntil:
     notVisible: Transaction saved
     timeout: 10000
-- tapOn: New transaction
+- tapOn: Open quick actions
+- tapOn: Record Spending
 - runFlow:
     file: helpers/fill-field.yaml
     env:

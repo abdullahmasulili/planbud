@@ -90,6 +90,7 @@ export const indonesian: Readonly<Record<string, string>> = {
   'Clear all local data': 'Hapus semua data lokal',
   'Clear local data': 'Hapus data lokal',
   'Close history': 'Tutup riwayat',
+  'Close quick actions': 'Tutup tindakan cepat',
   Completed: 'Selesai',
   'Completion and archival preserve actual savings and contribution history.':
     'Penyelesaian dan pengarsipan mempertahankan tabungan aktual dan riwayat kontribusi.',
@@ -203,6 +204,7 @@ export const indonesian: Readonly<Record<string, string>> = {
   'New contribution': 'Kontribusi baru',
   'New goal': 'Tujuan baru',
   'New plan': 'Rencana baru',
+  'New Planning': 'Rencana baru',
   'New transaction': 'Transaksi baru',
   'No active incomplete goals. Create or reopen a goal to inform your plan.':
     'Tidak ada tujuan aktif yang belum selesai. Buat atau buka kembali tujuan untuk membantu perencanaan.',
@@ -226,6 +228,7 @@ export const indonesian: Readonly<Record<string, string>> = {
   'Note (optional)': 'Catatan (opsional)',
   'Open month': 'Buka bulan',
   'Open plan': 'Buka rencana',
+  'Open quick actions': 'Buka tindakan cepat',
   'Opening your local data': 'Membuka data lokal Anda',
   'Optional flexible-limit reductions. Essential limits are protected.':
     'Pengurangan batas fleksibel bersifat opsional. Batas pokok tetap dilindungi.',
@@ -251,6 +254,7 @@ export const indonesian: Readonly<Record<string, string>> = {
   Ready: 'Siap',
   'Record money actually earmarked for this goal. Planned allocations do not count as savings.':
     'Catat uang yang benar-benar disisihkan untuk tujuan ini. Alokasi rencana tidak dihitung sebagai tabungan.',
+  'Record Spending': 'Catat pengeluaran',
   'Recorded income': 'Pemasukan tercatat',
   'Recorded spending': 'Pengeluaran tercatat',
   'Recovery phrase': 'Frasa pemulihan',

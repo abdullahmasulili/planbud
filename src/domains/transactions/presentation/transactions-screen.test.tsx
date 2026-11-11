@@ -40,6 +40,7 @@ it('opens an expense draft once per Home request, including on an already mounte
       loadCategories: fixture.budgets.readCategories,
       initialMonth: '2026-10',
       today: '2026-10-20',
+      onNewPlanning: jest.fn(),
       /** Supplies deterministic identities for each newly opened expense draft.
        * @returns A unique fixture record or operation identity.
        */
@@ -99,6 +100,7 @@ it('TXN-002 filters loaded entries without mutating records and distinguishes em
           initialMonth="2026-10"
           today="2026-10-20"
           newId={() => 'unused'}
+          onNewPlanning={jest.fn()}
         />
       </TestScreen>,
     );
@@ -144,6 +146,7 @@ it('TXN-002 refreshes new categories on tab return while retaining the selected 
           initialMonth="2026-10"
           today="2026-10-20"
           newId={() => 'unused'}
+          onNewPlanning={jest.fn()}
         />
       </TestScreen>,
     );
@@ -170,7 +173,10 @@ it('TXN-002 refreshes new categories on tab return while retaining the selected 
     expect(screen.getByRole('button', { name: 'History month' })).toHaveAccessibilityValue({
       text: '2026-09',
     });
-    await fireEvent.press(screen.getByRole('button', { name: 'New transaction' }));
+    expect(screen.queryByRole('button', { name: 'New transaction' })).toBeNull();
+    await fireEvent.press(screen.getByRole('button', { name: 'Open quick actions' }));
+    await fireEvent.press(screen.getByText('Record Spending', { includeHiddenElements: true }));
+    expect(await screen.findByRole('radio', { name: 'Expense', checked: true })).toBeOnTheScreen();
     await fireEvent.press(await screen.findByRole('button', { name: 'Choose category' }));
     expect(await screen.findByText('Groceries')).toBeOnTheScreen();
     await view.unmount();

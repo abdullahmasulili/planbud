@@ -3,7 +3,8 @@ appId: com.planbud.app
 name: Edit, move and delete actual income across calendar months
 ---
 - tapOn: Transactions
-- tapOn: New transaction
+- tapOn: Open quick actions
+- tapOn: Record Spending
 - tapOn: Income
 - runFlow:
     file: ../helpers/fill-field.yaml
